@@ -1,0 +1,454 @@
+@page "/chef-kalender"
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Web
+
+@using WorkAssignmentModel = BauManagement.Models.WorkAssignment
+@using EmployeeModel = BauManagement.Models.Employee
+
+@inject ApplicationDbContext Db
+@inject IJSRuntime JS
+
+<PageTitle>Chef Kalender</PageTitle>
+
+<div class="calendar-page">
+    <!-- HEADER -->
+    <div class="calendar-header">
+        <div>
+            <h2>Chef Kalender</h2>
+            <div class="calendar-subtitle">Mitarbeiterplanung und Arbeitszeiten</div>
+        </div>
+
+        <div class="date-navigation">
+            <button class="nav-button" @onclick="PreviousDay">‹</button>
+            <input type="date" class="date-input" value="@selectedDate.ToString("yyyy-MM-dd")" @onchange="ChangeDate" />
+            <button class="nav-button" @onclick="NextDay">›</button>
+            <button class="today-button" @onclick="GoToday">Heute</button>
+        </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="calendar-wrapper">
+        <!-- GRID HEADER -->
+        <div class="calendar-grid-header">
+            <div class="employee-header">Mitarbeiter</div>
+            <div class="time-header">
+                @for (int hour = 0; hour < 24; hour++)
+                {
+                    <div class="hour-header">@($"{hour:00}:00")</div>
+                }
+            </div>
+        </div>
+
+        <!-- EMPLOYEES -->
+        @foreach (var employee in employees)
+        {
+            var mergedAssignments = GetMergedAssignments(employee.Id);
+
+            <div class="employee-row" @key="employee.Id">
+                <!-- EMPLOYEE CELL -->
+                <div class="employee-cell">
+                    <div class="employee-name">@employee.FirstName @employee.LastName</div>
+                    @if (!string.IsNullOrWhiteSpace(employee.Position))
+                    {
+                        <div class="employee-position">@employee.Position</div>
+                    }
+                </div>
+
+                <!-- TIMELINE -->
+                <div @ref="GetRefWrapper(employee.Id).Element"
+                     class="timeline"
+                     @ondragover:preventDefault="true"
+                     @ondragenter:preventDefault="true"
+                     @ondrop="@(e => DropAssignment(e, employee.Id))">
+
+                    <!-- HOUR LINES -->
+                    @for (int hour = 0; hour < 24; hour++)
+                    {
+                        <div class="hour-line" style="left:@((hour / 24.0) * 100)%"></div>
+                    }
+
+                    <!-- ASSIGNMENTS -->
+                    @foreach (var assignment in mergedAssignments)
+                    {
+                        var left = GetLeftPercent(assignment);
+                        var width = GetWidthPercent(assignment);
+
+                        <div @key="assignment.Key"
+                             class="assignment"
+                             data-assignment="@assignment.Key"
+                             draggable="true"
+                             style="left:@left.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)%; width:@width.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)%;"
+                             @ondragstart="@(e => StartDrag(assignment))"
+                             @onclick="() => OpenDetails(assignment)">
+
+                            <!-- LEFT RESIZE -->
+                            <div class="resize-handle resize-left" @onpointerdown="@(e => StartResize(e, assignment, "left"))" @onpointerdown:preventDefault="true" @onclick:stopPropagation="true"></div>
+
+                            <!-- CONTENT -->
+                            <div class="assignment-content">
+                                <div class="assignment-title">@assignment.BaustelleName</div>
+                                <div class="assignment-time">@assignment.Start.ToString("HH:mm") – @assignment.End.ToString("HH:mm")</div>
+                                <div class="assignment-duration">@GetDurationText(assignment)</div>
+                                @if (!string.IsNullOrWhiteSpace(assignment.Notes))
+                                {
+                                    <div class="assignment-notes">@assignment.Notes</div>
+                                }
+                            </div>
+
+                            <!-- RIGHT RESIZE -->
+                            <div class="resize-handle resize-right" @onpointerdown="@(e => StartResize(e, assignment, "right"))" @onpointerdown:preventDefault="true" @onclick:stopPropagation="true"></div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- DETAILS MODAL -->
+@if (selectedAssignment is not null)
+{
+    <div class="modal-backdrop" @onclick="CloseDetails">
+        <div class="details-modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <div>
+                    <h3>WorkAssignment</h3>
+                    <div class="modal-subtitle">Arbeitsdetails</div>
+                </div>
+                <button class="close-button" @onclick="CloseDetails">×</button>
+            </div>
+
+            <div class="details-body">
+                <div class="detail-row">
+                    <div class="detail-label">Mitarbeiter</div>
+                    <div class="detail-value">@selectedAssignment.EmployeeName</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Baustelle</div>
+                    <div class="detail-value">@selectedAssignment.BaustelleName</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Start</div>
+                    <div class="detail-value">@selectedAssignment.Start.ToString("dd.MM.yyyy HH:mm")</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Ende</div>
+                    <div class="detail-value">@selectedAssignment.End.ToString("dd.MM.yyyy HH:mm")</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Dauer</div>
+                    <div class="detail-value">@GetDurationText(selectedAssignment)</div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(selectedAssignment.Notes))
+                {
+                    <div class="detail-row">
+                        <div class="detail-label">Notizen</div>
+                        <div class="detail-value notes-value">@selectedAssignment.Notes</div>
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-secondary" @onclick="CloseDetails">Schließen</button>
+            </div>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <div class="error-message">@errorMessage</div>
+}
+
+@code {
+    private DateTime selectedDate = DateTime.Today;
+    private List<EmployeeModel> employees = [];
+    private List<WorkAssignmentModel> assignments = [];
+    private MergedAssignment? selectedAssignment;
+    private string? draggedAssignmentKey;
+    private string? errorMessage;
+    private Dictionary<Guid, EmployeeTimelineRef> timelineRefs = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+    }
+
+    private EmployeeTimelineRef GetRefWrapper(Guid employeeId)
+    {
+        if (!timelineRefs.TryGetValue(employeeId, out var wrapper))
+        {
+            wrapper = new EmployeeTimelineRef();
+            timelineRefs[employeeId] = wrapper;
+        }
+        return wrapper;
+    }
+
+    private async Task Load()
+    {
+        errorMessage = null;
+        try
+        {
+            employees = await Db.Employees
+                .AsNoTracking()
+                .Where(x => x.IsActive)
+                .OrderBy(x => x.FirstName)
+                .ThenBy(x => x.LastName)
+                .ToListAsync();
+
+            var dayStart = selectedDate.Date;
+            var dayEnd = dayStart.AddDays(1);
+
+            assignments = await Db.WorkAssignments
+                .Include(x => x.Employee)
+                .Include(x => x.Baustelle)
+                .Where(x => x.Start < dayEnd && x.End > dayStart)
+                .OrderBy(x => x.Start)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private List<MergedAssignment> GetMergedAssignments(Guid employeeId)
+    {
+        var dayStart = selectedDate.Date;
+        var dayEnd = dayStart.AddDays(1);
+
+        var employeeAssignments = assignments
+            .Where(x => x.EmployeeId == employeeId && x.Start < dayEnd && x.End > dayStart)
+            .OrderBy(x => x.Start)
+            .ToList();
+
+        var result = new List<MergedAssignment>();
+
+        foreach (var assignment in employeeAssignments)
+        {
+            var start = assignment.Start < dayStart ? dayStart : assignment.Start;
+            var end = assignment.End > dayEnd ? dayEnd : assignment.End;
+
+            if (end <= start) continue;
+
+            result.Add(new MergedAssignment
+            {
+                Key = assignment.Id.ToString(),
+                EmployeeId = employeeId,
+                EmployeeName = assignment.Employee is not null ? $"{assignment.Employee.FirstName} {assignment.Employee.LastName}" : "Mitarbeiter",
+                BaustelleName = assignment.Baustelle?.Name ?? "Baustelle",
+                Start = start,
+                End = end,
+                Notes = assignment.Notes,
+                SourceIds = [assignment.Id]
+            });
+        }
+
+        return result;
+    }
+
+    private void StartDrag(MergedAssignment assignment)
+    {
+        draggedAssignmentKey = assignment.Key;
+    }
+
+    private async Task DropAssignment(DragEventArgs e, Guid targetEmployeeId)
+    {
+        if (string.IsNullOrEmpty(draggedAssignmentKey)) return;
+
+        try
+        {
+            MergedAssignment? dragged = null;
+            foreach (var emp in employees)
+            {
+                dragged = GetMergedAssignments(emp.Id).FirstOrDefault(x => x.Key == draggedAssignmentKey);
+                if (dragged is not null) break;
+            }
+
+            if (dragged is null) return;
+
+            ElementReference timelineRef = default;
+            if (timelineRefs.TryGetValue(targetEmployeeId, out var wrapper))
+            {
+                timelineRef = wrapper.Element;
+            }
+
+            var minute = await JS.InvokeAsync<int>("chefCalendar.getDropMinute", e.ClientX, e.ClientY, timelineRef);
+
+            var duration = dragged.End - dragged.Start;
+            if (duration.TotalMinutes <= 0) duration = TimeSpan.FromHours(2);
+
+            var newStart = selectedDate.Date.AddMinutes(minute);
+            var newEnd = newStart.Add(duration);
+
+            if (newEnd.Date > selectedDate.Date)
+            {
+                newEnd = selectedDate.Date.AddHours(23).AddMinutes(59);
+            }
+
+            var dbAssignments = await Db.WorkAssignments
+                .Where(x => dragged.SourceIds.Contains(x.Id))
+                .ToListAsync();
+
+            if (dbAssignments.Count > 0)
+            {
+                foreach (var item in dbAssignments)
+                {
+                    item.Start = newStart;
+                    item.End = newEnd;
+                    item.EmployeeId = targetEmployeeId;
+                }
+
+                await Db.SaveChangesAsync();
+            }
+
+            draggedAssignmentKey = null;
+
+            await Load();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+            StateHasChanged();
+        }
+    }
+
+    private double GetLeftPercent(MergedAssignment assignment)
+    {
+        var minutes = (assignment.Start - selectedDate.Date).TotalMinutes;
+        minutes = Math.Clamp(minutes, 0, 1440);
+        return (minutes / 1440.0) * 100.0;
+    }
+
+    private double GetWidthPercent(MergedAssignment assignment)
+    {
+        var durationMinutes = (assignment.End - assignment.Start).TotalMinutes;
+        if (durationMinutes <= 0) durationMinutes = 60;
+
+        double widthPercent = (durationMinutes / 1440.0) * 100.0;
+        return Math.Max(widthPercent, 2.0);
+    }
+
+    private string GetDurationText(MergedAssignment assignment)
+    {
+        var duration = assignment.End - assignment.Start;
+        if (duration.TotalMinutes < 0) duration = duration.Add(TimeSpan.FromDays(1));
+
+        var hours = (int)duration.TotalHours;
+        var minutes = duration.Minutes;
+
+        if (hours == 0) return $"{minutes} Min.";
+        if (minutes == 0) return $"{hours} Std.";
+        return $"{hours} Std. {minutes} Min.";
+    }
+
+    private async Task StartResize(PointerEventArgs e, MergedAssignment assignment, string side)
+    {
+        var startMinute = (int)(assignment.Start - selectedDate.Date).TotalMinutes;
+        var endMinute = (int)(assignment.End - selectedDate.Date).TotalMinutes;
+        var dotNetRef = DotNetObjectReference.Create(this);
+
+        try
+        {
+            await JS.InvokeVoidAsync("chefCalendar.startResize", assignment.Key, side, startMinute, endMinute, dotNetRef);
+        }
+        catch
+        {
+            dotNetRef.Dispose();
+            throw;
+        }
+    }
+
+    [JSInvokable]
+    public async Task ResizeAssignment(string key, string side, int newMinute)
+    {
+        try
+        {
+            MergedAssignment? merged = null;
+            foreach (var employee in employees)
+            {
+                merged = GetMergedAssignments(employee.Id).FirstOrDefault(x => x.Key == key);
+                if (merged is not null) break;
+            }
+
+            if (merged is null) return;
+
+            var dbAssignments = await Db.WorkAssignments
+                .Where(x => merged.SourceIds.Contains(x.Id))
+                .ToListAsync();
+
+            if (dbAssignments.Count == 0) return;
+
+            newMinute = Math.Clamp(newMinute, 0, 1440);
+            var newTime = selectedDate.Date.AddMinutes(newMinute);
+
+            if (side == "left")
+            {
+                if (newTime >= merged.End) return;
+                var delta = newTime - merged.Start;
+                foreach (var item in dbAssignments) item.Start = item.Start.Add(delta);
+            }
+            else if (side == "right")
+            {
+                if (newTime <= merged.Start) return;
+                var delta = newTime - merged.End;
+                foreach (var item in dbAssignments) item.End = item.End.Add(delta);
+            }
+
+            await Db.SaveChangesAsync();
+            await Load();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private void OpenDetails(MergedAssignment assignment)
+    {
+        selectedAssignment = assignment;
+        StateHasChanged();
+    }
+
+    private void CloseDetails()
+    {
+        selectedAssignment = null;
+        StateHasChanged();
+    }
+
+    private async Task PreviousDay() { selectedDate = selectedDate.AddDays(-1); await Load(); }
+    private async Task NextDay() { selectedDate = selectedDate.AddDays(1); await Load(); }
+    private async Task GoToday() { selectedDate = DateTime.Today; await Load(); }
+
+    private async Task ChangeDate(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            selectedDate = date;
+            await Load();
+        }
+    }
+
+    private class EmployeeTimelineRef
+    {
+        public ElementReference Element { get; set; }
+    }
+
+    private class MergedAssignment
+    {
+        public string Key { get; set; } = string.Empty;
+        public Guid EmployeeId { get; set; }
+        public string EmployeeName { get; set; } = string.Empty;
+        public string BaustelleName { get; set; } = string.Empty;
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public string? Notes { get; set; }
+        public List<Guid> SourceIds { get; set; } = [];
+    }
+}

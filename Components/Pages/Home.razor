@@ -1,0 +1,394 @@
+@page "/"
+@layout LandingLayout
+
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>BauManagement – Baustellen einfach planen</PageTitle>
+
+<section class="landing-hero text-white">
+    <nav class="container d-flex align-items-center justify-content-between py-4">
+        <a class="brand text-white text-decoration-none" href="/">
+            Bau<span>Management</span>
+        </a>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-warning fw-semibold" href="/tasks">
+                        Zu meinen Aufgaben
+                    </a>
+                </div>
+            </Authorized>
+
+            <NotAuthorized>
+                <div class="d-flex gap-2">
+                    <a class="btn btn-outline-light" href="Account/Login">
+                        Anmelden
+                    </a>
+
+                    <a class="btn btn-warning fw-semibold" href="Account/Register">
+                        Kostenlos starten
+                    </a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+
+    <div class="container py-5 py-lg-6">
+        <div class="row align-items-center g-5">
+
+            <div class="col-lg-7">
+                <span class="eyebrow">
+                    DIGITALE BAUSTELLENORGANISATION
+                </span>
+
+                <h1 class="display-4 fw-bold mt-3">
+                    Mehr Überblick.<br />
+                    <span>Weniger Baustellen-Chaos.</span>
+                </h1>
+
+                <p class="lead text-white-50 mt-4">
+                    BauManagement verbindet Baustellen, Mitarbeiter, Aufgaben
+                    und Einsatzplanung in einer einfachen Plattform – gemacht
+                    für Bau- und Handwerksfirmen.
+                </p>
+
+                <AuthorizeView>
+                    <Authorized>
+                        <div class="d-flex flex-wrap gap-3 mt-4">
+                            <a class="btn btn-warning btn-lg px-4 fw-semibold"
+                               href="/tasks">
+                                Zu meinen Aufgaben
+                            </a>
+
+                            <a class="btn btn-link text-white"
+                               href="#funktionen">
+                                So funktioniert es ↓
+                            </a>
+                        </div>
+
+                        <p class="small text-white-50 mt-4 mb-0">
+                            Willkommen zurück bei BauManagement.
+                        </p>
+                    </Authorized>
+
+                    <NotAuthorized>
+                        <div class="d-flex flex-wrap gap-3 mt-4">
+                            <a class="btn btn-warning btn-lg px-4 fw-semibold"
+                               href="Account/Register">
+                                Jetzt Firma einrichten
+                            </a>
+
+                            <a class="btn btn-link text-white"
+                               href="#funktionen">
+                                So funktioniert es ↓
+                            </a>
+                        </div>
+
+                        <p class="small text-white-50 mt-4 mb-0">
+                            Keine Kreditkarte erforderlich · Zahlung erst später aktivieren
+                        </p>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="hero-card shadow-lg">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold text-dark">
+                            Heute auf den Baustellen
+                        </span>
+
+                        <span class="badge rounded-pill text-bg-success">
+                            Live Planung
+                        </span>
+                    </div>
+
+                    <div class="schedule-row">
+                        <span class="avatar">
+                            MK
+                        </span>
+
+                        <div>
+                            <strong>Marko K.</strong>
+                            <small>
+                                08:00 – 12:00 · Müller GmbH
+                            </small>
+                        </div>
+
+                        <span class="dot blue"></span>
+                    </div>
+
+                    <div class="schedule-row">
+                        <span class="avatar orange">
+                            ST
+                        </span>
+
+                        <div>
+                            <strong>Stefan T.</strong>
+                            <small>
+                                08:00 – 16:00 · Neubau Weber
+                            </small>
+                        </div>
+
+                        <span class="dot orange"></span>
+                    </div>
+
+                    <div class="schedule-row">
+                        <span class="avatar green">
+                            DA
+                        </span>
+
+                        <div>
+                            <strong>Daniel A.</strong>
+                            <small>
+                                10:00 – 14:00 · Sanierung Schmidt
+                            </small>
+                        </div>
+
+                        <span class="dot green"></span>
+                    </div>
+
+                    <div class="hero-stat">
+                        <strong>12</strong>
+                        <span>aktive Baustellen</span>
+
+                        <strong>24</strong>
+                        <span>Mitarbeiter</span>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section id="funktionen" class="py-5 py-lg-6">
+    <div class="container">
+
+        <div class="text-center mx-auto section-intro">
+            <span class="eyebrow text-primary">
+                ALLES AN EINEM ORT
+            </span>
+
+            <h2 class="mt-2">
+                Dein Büro und deine Baustelle arbeiten zusammen.
+            </h2>
+
+            <p class="text-muted">
+                Vom ersten Einsatz am Morgen bis zur erledigten Aufgabe am Nachmittag.
+            </p>
+        </div>
+
+        <div class="row g-4 mt-2">
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        ▦
+                    </div>
+
+                    <h3>
+                        Disposition
+                    </h3>
+
+                    <p>
+                        Plane Mitarbeiter und Baustellen übersichtlich im Chef-Kalender.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        ⌂
+                    </div>
+
+                    <h3>
+                        Baustellen
+                    </h3>
+
+                    <p>
+                        Adressen, Kunden, Termine und Teams immer griffbereit.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        ✓
+                    </div>
+
+                    <h3>
+                        Aufgaben
+                    </h3>
+
+                    <p>
+                        Klare Aufgaben direkt an den passenden Mitarbeiter senden.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="feature-card h-100">
+                    <div class="feature-icon">
+                        ◷
+                    </div>
+
+                    <h3>
+                        Arbeitszeit
+                    </h3>
+
+                    <p>
+                        Bereit für Zeiterfassung und Auswertungen, sobald du sie brauchst.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+
+<section class="pricing-section py-5 py-lg-6">
+    <div class="container">
+
+        <div class="text-center">
+            <span class="eyebrow text-primary">
+                FLEXIBEL MITWACHSEN
+            </span>
+
+            <h2 class="mt-2">
+                Der passende Plan für deine Firma.
+            </h2>
+
+            <p class="text-muted">
+                Bei der Registrierung wählst du einfach die Größe deines Teams.
+            </p>
+        </div>
+
+        <div class="row g-4 mt-2 justify-content-center">
+
+            <div class="col-md-6 col-lg-3">
+                <div class="plan-card">
+                    <span class="plan-name">
+                        S
+                    </span>
+
+                    <h3>
+                        Starter
+                    </h3>
+
+                    <p>
+                        Für kleine Teams
+                    </p>
+
+                    <strong>
+                        Bis 5 Mitarbeiter
+                    </strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="plan-card">
+                    <span class="plan-name">
+                        M
+                    </span>
+
+                    <h3>
+                        Team
+                    </h3>
+
+                    <p>
+                        Für wachsende Teams
+                    </p>
+
+                    <strong>
+                        Bis 10 Mitarbeiter
+                    </strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="plan-card featured">
+                    <span class="plan-name">
+                        L
+                    </span>
+
+                    <h3>
+                        Business
+                    </h3>
+
+                    <p>
+                        Für eingespielte Firmen
+                    </p>
+
+                    <strong>
+                        Bis 20 Mitarbeiter
+                    </strong>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="plan-card">
+                    <span class="plan-name">
+                        XL
+                    </span>
+
+                    <h3>
+                        Profi
+                    </h3>
+
+                    <p>
+                        Für große Teams
+                    </p>
+
+                    <strong>
+                        Über 20 Mitarbeiter
+                    </strong>
+                </div>
+            </div>
+
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="text-center mt-4">
+                    <a class="btn btn-primary btn-lg px-5"
+                       href="/tasks">
+                        Zu meinen Aufgaben
+                    </a>
+                </div>
+            </Authorized>
+
+            <NotAuthorized>
+                <div class="text-center mt-4">
+                    <a class="btn btn-primary btn-lg px-5"
+                       href="Account/Register">
+                        Plan auswählen & starten
+                    </a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+    </div>
+</section>
+
+
+<footer class="landing-footer py-4">
+    <div class="container d-flex flex-wrap justify-content-between gap-2">
+
+        <span>
+            © @DateTime.Now.Year BauManagement
+        </span>
+
+        <span>
+            Baustellenplanung für Bau & Handwerk
+        </span>
+
+    </div>
+</footer>

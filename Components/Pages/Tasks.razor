@@ -1,0 +1,467 @@
+@page "/tasks"
+
+@using Microsoft.EntityFrameworkCore
+@using BauManagement.Data
+@using CompanyModel = BauManagement.Models.Company
+@using EmployeeModel = BauManagement.Models.Employee
+@using BaustelleModel = BauManagement.Models.Baustelle
+@using WorkTaskModel = BauManagement.Models.WorkTask
+@using WorkTaskStatus = BauManagement.Models.TaskStatus
+
+@rendermode InteractiveServer
+
+@inject ApplicationDbContext Db
+
+<PageTitle>Aufgaben</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1>Aufgaben</h1>
+        <p class="text-muted mb-0">
+            Baustellenaufgaben mit optionaler Mitarbeiter-Zuweisung.
+        </p>
+    </div>
+
+    <button class="btn btn-primary" @onclick="New">
+        + Aufgabe
+    </button>
+</div>
+
+@if (editing)
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h2 class="h5">
+                @(form.Id == Guid.Empty
+                    ? "Neue Aufgabe"
+                    : "Aufgabe bearbeiten")
+            </h2>
+
+            <EditForm Model="form" OnValidSubmit="Save">
+
+                <div class="row g-3">
+
+                    <!-- Firma -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Firma *
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="form.CompanyId">
+
+                            <option value="@Guid.Empty">
+                                Bitte wählen
+                            </option>
+
+                            @foreach (var company in companies)
+                            {
+                                <option value="@company.Id">
+                                    @company.Name
+                                </option>
+                            }
+
+                        </InputSelect>
+                    </div>
+
+                    <!-- Baustelle -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Baustelle *
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="form.BaustelleId">
+
+                            <option value="@Guid.Empty">
+                                Bitte wählen
+                            </option>
+
+                            @foreach (var site in sites
+                                .Where(x => x.CompanyId == form.CompanyId))
+                            {
+                                <option value="@site.Id">
+                                    @site.Name
+                                </option>
+                            }
+
+                        </InputSelect>
+                    </div>
+
+                    <!-- Mitarbeiter -->
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Mitarbeiter
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="form.EmployeeId">
+
+                            <option value="">
+                                Nicht zugewiesen
+                            </option>
+
+                            @foreach (var employee in employees
+                                .Where(x => x.CompanyId == form.CompanyId))
+                            {
+                                <option value="@employee.Id">
+                                    @employee.FirstName @employee.LastName
+                                </option>
+                            }
+
+                        </InputSelect>
+                    </div>
+
+                    <!-- Titel -->
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            Titel *
+                        </label>
+
+                        <InputText class="form-control"
+                                   @bind-Value="form.Title" />
+                    </div>
+
+                    <!-- Fällig -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            Fällig am
+                        </label>
+
+                        <InputDate class="form-control"
+                                   @bind-Value="form.DueDate" />
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-3">
+                        <label class="form-label">
+                            Status
+                        </label>
+
+                        <InputSelect class="form-select"
+                                     @bind-Value="form.Status">
+
+                            @foreach (var status in Enum.GetValues<WorkTaskStatus>())
+                            {
+                                <option value="@status">
+                                    @StatusText(status)
+                                </option>
+                            }
+
+                        </InputSelect>
+                    </div>
+
+                    <!-- Beschreibung -->
+                    <div class="col-12">
+                        <label class="form-label">
+                            Beschreibung
+                        </label>
+
+                        <InputTextArea class="form-control"
+                                       @bind-Value="form.Description" />
+                    </div>
+
+                </div>
+
+                <div class="mt-3">
+
+                    <button type="submit"
+                            class="btn btn-success me-2">
+                        Speichern
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            @onclick="Cancel">
+                        Abbrechen
+                    </button>
+
+                </div>
+
+            </EditForm>
+
+        </div>
+    </div>
+}
+
+@if (message is not null)
+{
+    <div class="alert alert-warning">
+        @message
+    </div>
+}
+
+<div class="card shadow-sm">
+
+    <div class="table-responsive">
+
+        <table class="table table-hover mb-0">
+
+            <thead>
+                <tr>
+                    <th>Aufgabe</th>
+                    <th>Baustelle</th>
+                    <th>Mitarbeiter</th>
+                    <th>Fällig</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @foreach (var task in tasks)
+                {
+                    <tr>
+
+                        <td>
+                            <strong>
+                                @task.Title
+                            </strong>
+
+                            <br />
+
+                            <small class="text-muted">
+                                @task.Company.Name
+                            </small>
+                        </td>
+
+                        <td>
+                            @task.Baustelle.Name
+                        </td>
+
+                        <td>
+                            @(task.Employee is null
+                                ? "–"
+                                : $"{task.Employee.FirstName} {task.Employee.LastName}")
+                        </td>
+
+                        <td>
+                            @task.DueDate?.ToString("dd.MM.yyyy")
+                        </td>
+
+                        <td>
+                            <span class="badge text-bg-@StatusClass(task.Status)">
+                                @StatusText(task.Status)
+                            </span>
+                        </td>
+
+                        <td class="text-end">
+
+                            <button class="btn btn-sm btn-outline-primary me-1"
+                                    @onclick="() => Edit(task)">
+                                Bearbeiten
+                            </button>
+
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => Delete(task)">
+                                Löschen
+                            </button>
+
+                        </td>
+
+                    </tr>
+                }
+
+                @if (!tasks.Any())
+                {
+                    <tr>
+                        <td colspan="6"
+                            class="text-center text-muted py-4">
+
+                            Noch keine Aufgaben angelegt.
+
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@code {
+
+    private List<WorkTaskModel> tasks = [];
+    private List<CompanyModel> companies = [];
+    private List<EmployeeModel> employees = [];
+    private List<BaustelleModel> sites = [];
+
+    private WorkTaskModel form = new();
+
+    private bool editing;
+
+    private string? message;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        companies = await Db.Companies
+            .AsNoTracking()
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+
+        employees = await Db.Employees
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.LastName)
+            .ToListAsync();
+
+        sites = await Db.Baustellen
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+
+        await Load();
+    }
+
+
+    private async Task Load()
+    {
+        tasks = await Db.WorkTasks
+            .Include(x => x.Company)
+            .Include(x => x.Baustelle)
+            .Include(x => x.Employee)
+            .AsNoTracking()
+            .OrderBy(x => x.Status)
+            .ThenBy(x => x.DueDate)
+            .ToListAsync();
+    }
+
+
+    private void New()
+    {
+        form = new WorkTaskModel();
+
+        editing = true;
+        message = null;
+    }
+
+
+    private void Edit(WorkTaskModel x)
+    {
+        form = new WorkTaskModel
+        {
+            Id = x.Id,
+            CompanyId = x.CompanyId,
+            BaustelleId = x.BaustelleId,
+            EmployeeId = x.EmployeeId,
+            Title = x.Title,
+            Description = x.Description,
+            Status = x.Status,
+            DueDate = x.DueDate,
+            CreatedAt = x.CreatedAt
+        };
+
+        editing = true;
+        message = null;
+    }
+
+
+    private async Task Save()
+    {
+        message = null;
+
+        if (form.CompanyId == Guid.Empty ||
+            form.BaustelleId == Guid.Empty ||
+            string.IsNullOrWhiteSpace(form.Title))
+        {
+            message =
+                "Firma, Baustelle und Titel sind erforderlich.";
+
+            return;
+        }
+
+
+        var siteExists = sites.Any(x =>
+            x.Id == form.BaustelleId &&
+            x.CompanyId == form.CompanyId);
+
+
+        var employeeExists =
+            !form.EmployeeId.HasValue ||
+            employees.Any(x =>
+                x.Id == form.EmployeeId.Value &&
+                x.CompanyId == form.CompanyId);
+
+
+        if (!siteExists || !employeeExists)
+        {
+            message =
+                "Baustelle und Mitarbeiter müssen zur selben Firma gehören.";
+
+            return;
+        }
+
+
+        if (form.Id == Guid.Empty)
+        {
+            form.Id = Guid.NewGuid();
+
+            Db.WorkTasks.Add(form);
+        }
+        else
+        {
+            Db.WorkTasks.Update(form);
+        }
+
+
+        await Db.SaveChangesAsync();
+
+        editing = false;
+
+        await Load();
+    }
+
+
+    private void Cancel()
+    {
+        editing = false;
+        message = null;
+    }
+
+
+    private async Task Delete(WorkTaskModel x)
+    {
+        var task = await Db.WorkTasks
+            .FirstOrDefaultAsync(t => t.Id == x.Id);
+
+        if (task is null)
+            return;
+
+        Db.WorkTasks.Remove(task);
+
+        await Db.SaveChangesAsync();
+
+        await Load();
+    }
+
+
+    private static string StatusText(WorkTaskStatus status)
+    {
+        return status switch
+        {
+            WorkTaskStatus.Open => "Offen",
+            WorkTaskStatus.InProgress => "In Arbeit",
+            WorkTaskStatus.Completed => "Erledigt",
+            _ => "Storniert"
+        };
+    }
+
+
+    private static string StatusClass(WorkTaskStatus status)
+    {
+        return status switch
+        {
+            WorkTaskStatus.Open => "secondary",
+            WorkTaskStatus.InProgress => "primary",
+            WorkTaskStatus.Completed => "success",
+            _ => "dark"
+        };
+    }
+}
