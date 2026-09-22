@@ -4,6 +4,7 @@ using BauManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BauManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260921190030_AddEmployeeVacation")]
+    partial class AddEmployeeVacation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,9 +164,6 @@ namespace BauManagement.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsSubscriptionActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -174,23 +174,8 @@ namespace BauManagement.Migrations
                     b.Property<string>("PostalCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StripeCustomerId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StripeSubscriptionId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("SubscriptionPlan")
                         .HasColumnType("int");
-
-                    b.Property<int>("SubscriptionStatus")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TrialEndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TrialStartDate")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -249,9 +234,6 @@ namespace BauManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("ApprovedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
@@ -269,9 +251,6 @@ namespace BauManagement.Migrations
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -360,68 +339,6 @@ namespace BauManagement.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("WorkTasks");
-                });
-
-            modelBuilder.Entity("BauManagement.Models.WorkTimeEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("BaustelleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("BreakMinutes")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<Guid>("CompanyId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CorrectedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CorrectionNote")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsManuallyCorrected")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("StartTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("WorkDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BaustelleId");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.ToTable("WorkTimeEntries");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -681,33 +598,6 @@ namespace BauManagement.Migrations
                         .WithMany("Tasks")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Baustelle");
-
-                    b.Navigation("Company");
-
-                    b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("BauManagement.Models.WorkTimeEntry", b =>
-                {
-                    b.HasOne("BauManagement.Models.Baustelle", "Baustelle")
-                        .WithMany()
-                        .HasForeignKey("BaustelleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("BauManagement.Models.Company", "Company")
-                        .WithMany()
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("BauManagement.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
 
                     b.Navigation("Baustelle");
 

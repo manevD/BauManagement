@@ -1,17 +1,391 @@
 ﻿@inherits LayoutComponentBase
 @layout BauManagement.Components.Layout.MainLayout
 
-<h1>Manage your account</h1>
+<PageTitle>Konto – BauManagement</PageTitle>
 
-<div>
-    <h2>Change your account settings</h2>
-    <hr />
-    <div class="row">
-        <div class="col-lg-3">
-            <ManageNavMenu />
+<div class="account-page">
+
+    <div class="container-fluid px-3 px-lg-4 py-4 py-lg-5">
+
+        <!-- Header -->
+
+        <!-- Main Account Card -->
+        <div class="account-card">
+
+            <div class="row g-0">
+
+                <!-- Sidebar -->
+                <div class="col-lg-3">
+
+                    <aside class="account-sidebar">
+
+                        <div class="sidebar-title">
+                            <span class="sidebar-icon">
+                                ⚙
+                            </span>
+
+                            Mein Konto
+                        </div>
+
+                        <p class="sidebar-description">
+                            Verwalten Sie hier Ihre
+                            Kontoeinstellungen.
+                        </p>
+
+                        <div class="account-navigation">
+                            <ManageNavMenu />
+                        </div>
+
+                    </aside>
+
+                </div>
+
+
+                <!-- Content -->
+                <div class="col-lg-9">
+
+                    <main class="account-content">
+
+                        @Body
+
+                    </main>
+
+                </div>
+
+            </div>
+
         </div>
-        <div class="col-lg-9">
-            @Body
-        </div>
+
     </div>
+
 </div>
+
+
+<style>
+
+    /* =========================================================
+       ACCOUNT PAGE
+    ========================================================= */
+
+    .account-page {
+        min-height: calc(100vh - 70px);
+        background:
+            radial-gradient(
+                circle at 85% 10%,
+                rgba(13, 110, 253, 0.07),
+                transparent 30%
+            ),
+            #f8f9fb;
+    }
+
+
+    /* =========================================================
+       HEADER
+    ========================================================= */
+
+    .account-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .account-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.8px;
+        color: #6c757d;
+        margin-bottom: 8px;
+    }
+
+    .account-eyebrow-dot {
+        width: 7px;
+        height: 7px;
+
+        background: var(--bs-primary);
+        border-radius: 50%;
+
+        box-shadow:
+            0 0 0 4px rgba(13, 110, 253, 0.10);
+    }
+
+    .account-title {
+        margin: 0;
+
+        font-size: clamp(28px, 3vw, 38px);
+        font-weight: 800;
+        letter-spacing: -1px;
+
+        color: #1f2937;
+    }
+
+    .account-subtitle {
+        margin: 8px 0 0;
+
+        color: #7b8490;
+        font-size: 14px;
+    }
+
+
+    /* =========================================================
+       MAIN CARD
+    ========================================================= */
+
+    .account-card {
+        background: #ffffff;
+
+        border: 1px solid #e8ebef;
+        border-radius: 18px;
+
+        box-shadow:
+            0 8px 30px rgba(20, 30, 50, 0.06);
+
+        overflow: hidden;
+    }
+
+
+    /* =========================================================
+       SIDEBAR
+    ========================================================= */
+
+    .account-sidebar {
+        height: 100%;
+
+        padding: 28px 22px;
+
+        background:
+            linear-gradient(
+                180deg,
+                #fafbfc 0%,
+                #f5f7f9 100%
+            );
+
+        border-right: 1px solid #e8ebef;
+    }
+
+    .sidebar-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        font-size: 15px;
+        font-weight: 800;
+
+        color: #202938;
+
+        margin-bottom: 8px;
+    }
+
+    .sidebar-icon {
+        width: 34px;
+        height: 34px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(13, 110, 253, 0.10);
+        color: var(--bs-primary);
+
+        border-radius: 9px;
+
+        font-size: 16px;
+    }
+
+    .sidebar-description {
+        color: #8a929d;
+
+        font-size: 12px;
+        line-height: 1.6;
+
+        margin-bottom: 22px;
+    }
+
+
+    /* =========================================================
+       NAVIGATION
+    ========================================================= */
+
+    .account-navigation {
+        margin-top: 5px;
+    }
+
+    .account-navigation ::deep ul {
+        list-style: none;
+
+        padding: 0;
+        margin: 0;
+    }
+
+    .account-navigation ::deep li {
+        margin-bottom: 4px;
+    }
+
+    .account-navigation ::deep a {
+        display: flex;
+        align-items: center;
+
+        width: 100%;
+
+        padding: 11px 13px;
+
+        border-radius: 9px;
+
+        color: #66707c;
+
+        text-decoration: none;
+
+        font-size: 13px;
+        font-weight: 600;
+
+        transition:
+            background .2s ease,
+            color .2s ease,
+            transform .2s ease;
+    }
+
+    .account-navigation ::deep a:hover {
+        background: rgba(13, 110, 253, 0.07);
+        color: var(--bs-primary);
+    }
+
+    .account-navigation ::deep a.active {
+        background: var(--bs-primary);
+        color: #ffffff;
+
+        box-shadow:
+            0 5px 14px rgba(13, 110, 253, 0.20);
+    }
+
+
+    /* =========================================================
+       CONTENT
+    ========================================================= */
+
+    .account-content {
+        padding: 32px;
+
+        min-height: 500px;
+    }
+
+    .account-content ::deep h2 {
+        font-size: 22px;
+        font-weight: 750;
+
+        color: #202938;
+
+        margin-bottom: 8px;
+    }
+
+    .account-content ::deep h3 {
+        font-size: 18px;
+        font-weight: 700;
+
+        color: #202938;
+    }
+
+    .account-content ::deep p {
+        color: #7b8490;
+        font-size: 14px;
+    }
+
+    .account-content ::deep hr {
+        border-color: #e9ecef;
+        opacity: 1;
+    }
+
+
+    /* =========================================================
+       FORM ELEMENTS
+    ========================================================= */
+
+    .account-content ::deep .form-control,
+    .account-content ::deep .form-select {
+        border-color: #dfe3e8;
+        border-radius: 9px;
+
+        min-height: 44px;
+
+        font-size: 14px;
+
+        box-shadow: none;
+    }
+
+    .account-content ::deep .form-control:focus,
+    .account-content ::deep .form-select:focus {
+        border-color: var(--bs-primary);
+
+        box-shadow:
+            0 0 0 3px rgba(13, 110, 253, 0.10);
+    }
+
+    .account-content ::deep .btn {
+        border-radius: 8px;
+        font-weight: 650;
+    }
+
+
+    /* =========================================================
+       ALERTS
+    ========================================================= */
+
+    .account-content ::deep .alert {
+        border-radius: 10px;
+        border: 0;
+
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+       MOBILE
+    ========================================================= */
+
+    @@media (max-width: 991.98px) {
+
+        .account-sidebar {
+            border-right: 0;
+            border-bottom: 1px solid #e8ebef;
+
+            padding: 20px;
+        }
+
+        .account-content {
+            padding: 24px;
+        }
+
+    }
+
+
+    @@media (max-width: 575.98px) {
+
+        .account-page {
+            min-height: calc(100vh - 60px);
+        }
+
+        .account-title {
+            font-size: 28px;
+        }
+
+        .account-subtitle {
+            font-size: 13px;
+        }
+
+        .account-card {
+            border-radius: 14px;
+        }
+
+        .account-sidebar {
+            padding: 18px;
+        }
+
+        .account-content {
+            padding: 20px 16px;
+        }
+
+    }
+
+</style>

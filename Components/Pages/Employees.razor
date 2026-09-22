@@ -16,17 +16,24 @@
 <PageTitle>Mitarbeiter</PageTitle>
 
 
+<!-- =========================================================
+     HEADER
+     ========================================================= -->
+
 <div class="employee-header mb-4">
 
     <div>
-        <span class="eyebrow text-primary">TEAM</span>
 
-        <h1>Mitarbeiter</h1>
+        <h3>
+            Mitarbeiter
+        </h3>
 
         <p class="text-muted mb-0">
             @employees.Count von @limit Mitarbeiterplätzen belegt
         </p>
+
     </div>
+
 
     <button class="btn btn-primary px-4"
             disabled="@(employees.Count >= limit)"
@@ -56,7 +63,8 @@
             <input class="form-control"
                    value="@search"
                    @oninput="OnSearch"
-                   placeholder="Mitarbeiter live suchen – Name, E-Mail, Position oder Telefon" />
+                   placeholder="Mitarbeiter live suchen – Name, E-Mail, Position oder Telefon"
+                   autocomplete="off" />
 
         </div>
 
@@ -68,6 +76,7 @@
 <!-- =========================================================
      MESSAGE
      ========================================================= -->
+
 @if (!string.IsNullOrEmpty(message))
 {
     <div class="alert alert-@messageType">
@@ -79,6 +88,7 @@
 <!-- =========================================================
      FORM
      ========================================================= -->
+
 @if (showForm)
 {
     <div class="card modern-card mb-4">
@@ -198,6 +208,7 @@
 
 
                     <!-- PASSWORD -->
+
                     @if (form.Id == Guid.Empty)
                     {
                         <div class="col-md-6">
@@ -214,25 +225,6 @@
                             <div class="form-text">
 
                                 Dieses Passwort wird für den ersten Login verwendet.
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="col-md-6 d-flex align-items-end">
-
-                            <div class="alert alert-light border small mb-0 w-100">
-
-                                Login:
-
-                                <strong>
-
-                                    @(string.IsNullOrWhiteSpace(form.Email)
-                                        ? "E-Mail-Adresse"
-                                        : form.Email)
-
-                                </strong>
 
                             </div>
 
@@ -306,15 +298,25 @@
 
                 <tr>
 
-                    <th>Mitarbeiter</th>
+                    <th>
+                        Mitarbeiter
+                    </th>
 
-                    <th>Position</th>
+                    <th>
+                        Position
+                    </th>
 
-                    <th>Kontakt</th>
+                    <th>
+                        Kontakt
+                    </th>
 
-                    <th>Zugang</th>
+                    <th>
+                        Zugang
+                    </th>
 
-                    <th>Status</th>
+                    <th>
+                        Status
+                    </th>
 
                     <th></th>
 
@@ -427,8 +429,8 @@
                         <td>
 
                             <span class="status-dot @(employee.IsActive
-                                                                ? "active"
-                                                                : "inactive")">
+                                ? "active"
+                                : "inactive")">
                             </span>
 
 
@@ -465,6 +467,7 @@
 
 
                 <!-- NO RESULTS -->
+
                 @if (!FilteredEmployees.Any())
                 {
                     <tr>
@@ -489,28 +492,25 @@
     <!-- =====================================================
          PAGINATION
          ===================================================== -->
+
     @if (TotalPages > 1)
     {
-        <div class="d-flex flex-column flex-md-row
-            justify-content-between
-            align-items-center
-            gap-3
-            p-3
-            border-top">
-
+        <div class="daily-pagination">
 
             <!-- RESULT INFO -->
 
-            <div class="text-muted small">
+            <div class="daily-pagination-info">
 
                 @{
                     var totalResults = FilteredEmployees.Count();
 
-                    var from = ((CurrentPage - 1) * PageSize) + 1;
+                    var from =
+                        ((CurrentPage - 1) * PageSize) + 1;
 
-                    var to = Math.Min(
-                        CurrentPage * PageSize,
-                        totalResults);
+                    var to =
+                        Math.Min(
+                            CurrentPage * PageSize,
+                            totalResults);
                 }
 
                 @if (totalResults > 0)
@@ -523,14 +523,15 @@
             </div>
 
 
-            <!-- PAGINATION -->
+            <!-- PAGE CONTROLS -->
 
             <div class="d-flex align-items-center gap-1">
 
 
                 <!-- PREVIOUS -->
 
-                <button class="btn btn-sm btn-light"
+                <button type="button"
+                        class="btn btn-sm btn-light"
                         disabled="@(CurrentPage <= 1)"
                         @onclick="PreviousPage">
 
@@ -540,34 +541,37 @@
 
 
                 <!-- PAGE NUMBERS -->
+
                 @for (var page = 1; page <= TotalPages; page++)
                 {
                     var pageNumber = page;
 
-                    <button class="btn btn-sm @(CurrentPage == pageNumber
-                                                ? "btn-primary"
-                                                : "btn-light")"
-                    @onclick="() => GoToPage(pageNumber)">
+                    <button type="button"
+                            class="btn btn-sm @(CurrentPage == pageNumber
+                                ? "btn-primary"
+                                : "btn-light")"
+                            @onclick="() => GoToPage(pageNumber)">
 
-                @pageNumber
+                        @pageNumber
 
-            </button>
-        }
+                    </button>
+                }
 
 
-        <!-- NEXT -->
+                <!-- NEXT -->
 
-        <button class="btn btn-sm btn-light"
-                disabled="@(CurrentPage >= TotalPages)"
-                @onclick="NextPage">
+                <button type="button"
+                        class="btn btn-sm btn-light"
+                        disabled="@(CurrentPage >= TotalPages)"
+                        @onclick="NextPage">
 
-            Weiter ›
+                    Weiter ›
 
-        </button>
+                </button>
 
-    </div>
+            </div>
 
-</div>
+        </div>
     }
 
 </div>
@@ -611,13 +615,7 @@
     // LIVE SEARCH
     // =========================================================
 
-    private IEnumerable<Employee> FilteredEmployees =>
-        employees.Where(x =>
-            string.IsNullOrWhiteSpace(search) ||
-            $"{x.FirstName} {x.LastName} {x.Email} {x.Position} {x.Phone}"
-                .Contains(
-                    search.Trim(),
-                    StringComparison.OrdinalIgnoreCase));
+    private IEnumerable<Employee> FilteredEmployees =>employees.Where(x =>string.IsNullOrWhiteSpace(search) || $"{x.FirstName} {x.LastName} {x.Email} {x.Position} {x.Phone}".Contains(search.Trim(),StringComparison.OrdinalIgnoreCase));
 
 
     // =========================================================
@@ -634,12 +632,7 @@
     // TOTAL PAGES
     // =========================================================
 
-    private int TotalPages =>
-        Math.Max(
-            1,
-            (int)Math.Ceiling(
-                FilteredEmployees.Count() /
-                (double)PageSize));
+    private int TotalPages =>Math.Max(1,(int)Math.Ceiling(FilteredEmployees.Count() /(double)PageSize));
 
 
     // =========================================================
@@ -651,6 +644,7 @@
         search = e.Value?.ToString() ?? "";
 
         // Bei neuer Suche immer auf Seite 1
+
         CurrentPage = 1;
     }
 
@@ -718,7 +712,8 @@
 
         var company = await Db.Companies
             .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == companyId);
+            .SingleOrDefaultAsync(
+                x => x.Id == companyId);
 
 
         if (company is null)
@@ -752,7 +747,8 @@
 
             .AsNoTracking()
 
-            .Where(x => x.CompanyId == companyId)
+            .Where(x =>
+                x.CompanyId == companyId)
 
             .OrderBy(x => x.LastName)
 
@@ -761,7 +757,9 @@
             .ToListAsync();
 
 
-        // Nach Reload immer auf erste Seite
+        // Nach Reload sicherstellen,
+        // dass aktuelle Seite noch existiert
+
         if (CurrentPage > TotalPages)
         {
             CurrentPage = TotalPages;
@@ -807,7 +805,9 @@
         form = new Employee
         {
             Id = Guid.Empty,
+
             CompanyId = companyId,
+
             IsActive = true
         };
 
@@ -867,7 +867,8 @@
 
             CreatedAt = employee.CreatedAt,
 
-            ApplicationUserId = employee.ApplicationUserId
+            ApplicationUserId =
+                employee.ApplicationUserId
         };
 
 
@@ -892,7 +893,8 @@
         // CURRENT COMPANY
         // =====================================================
 
-        var id = await CurrentCompany.GetCompanyIdAsync();
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
 
         if (!id.HasValue)
         {
@@ -976,7 +978,8 @@
             // =================================================
 
             var existingUser =
-                await UserManager.FindByEmailAsync(form.Email);
+                await UserManager.FindByEmailAsync(
+                    form.Email);
 
 
             if (existingUser is not null)
@@ -1006,19 +1009,12 @@
             };
 
 
-            var result =
-                await UserManager.CreateAsync(
-                    user,
-                    initialPassword);
+            var result =await UserManager.CreateAsync(user,initialPassword);
 
 
             if (!result.Succeeded)
             {
-                message =
-                    string.Join(
-                        " ",
-                        result.Errors.Select(x =>
-                            x.Description));
+                message =string.Join(" ",result.Errors.Select(x => x.Description));
 
                 messageType = "danger";
 
@@ -1030,23 +1026,21 @@
             // ROLE
             // =================================================
 
-            if (!await RoleManager.RoleExistsAsync("Mitarbeiter"))
+            if (!await RoleManager.RoleExistsAsync(
+                "Mitarbeiter"))
             {
                 var roleResult =
                     await RoleManager.CreateAsync(
-                        new IdentityRole("Mitarbeiter"));
+                        new IdentityRole(
+                            "Mitarbeiter"));
 
 
                 if (!roleResult.Succeeded)
                 {
-                    await UserManager.DeleteAsync(user);
+                    await UserManager.DeleteAsync(
+                        user);
 
-                    message =
-                        "Die Rolle 'Mitarbeiter' konnte nicht erstellt werden: " +
-                        string.Join(
-                            " ",
-                            roleResult.Errors.Select(x =>
-                                x.Description));
+                    message ="Die Rolle 'Mitarbeiter' konnte nicht erstellt werden: " +string.Join(" ",roleResult.Errors.Select(x => x.Description));
 
                     messageType = "danger";
 
@@ -1055,22 +1049,14 @@
             }
 
 
-            var userRoleResult =
-                await UserManager.AddToRoleAsync(
-                    user,
-                    "Mitarbeiter");
+            var userRoleResult = await UserManager.AddToRoleAsync(user,"Mitarbeiter");
 
 
             if (!userRoleResult.Succeeded)
             {
                 await UserManager.DeleteAsync(user);
 
-                message =
-                    "Die Rolle 'Mitarbeiter' konnte nicht zugewiesen werden: " +
-                    string.Join(
-                        " ",
-                        userRoleResult.Errors.Select(x =>
-                            x.Description));
+                message ="Die Rolle 'Mitarbeiter' konnte nicht zugewiesen werden: " +string.Join( " ",userRoleResult.Errors.Select(x => x.Description));
 
                 messageType = "danger";
 
@@ -1196,7 +1182,8 @@
                     form.Email;
 
 
-                await UserManager.UpdateAsync(user);
+                await UserManager.UpdateAsync(
+                    user);
             }
         }
 
@@ -1238,7 +1225,8 @@
 
     private async Task Delete(Employee employee)
     {
-        var id = await CurrentCompany.GetCompanyIdAsync();
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
 
         if (!id.HasValue)
         {
@@ -1277,7 +1265,8 @@
         // DELETE EMPLOYEE
         // =====================================================
 
-        Db.Employees.Remove(employeeFromDb);
+        Db.Employees.Remove(
+            employeeFromDb);
 
         await Db.SaveChangesAsync();
 
@@ -1286,7 +1275,8 @@
         // DELETE IDENTITY USER
         // =====================================================
 
-        if (!string.IsNullOrWhiteSpace(applicationUserId))
+        if (!string.IsNullOrWhiteSpace(
+            applicationUserId))
         {
             var user =
                 await UserManager.FindByIdAsync(
@@ -1297,7 +1287,8 @@
             {
                 if (user.CompanyId == companyId)
                 {
-                    await UserManager.DeleteAsync(user);
+                    await UserManager.DeleteAsync(
+                        user);
                 }
             }
         }
@@ -1317,13 +1308,16 @@
     // INITIALS
     // =========================================================
 
-    private static string Initials(Employee employee)
+    private static string Initials(
+        Employee employee)
     {
         var first =
-            employee.FirstName.FirstOrDefault();
+            employee.FirstName
+                .FirstOrDefault();
 
         var last =
-            employee.LastName.FirstOrDefault();
+            employee.LastName
+                .FirstOrDefault();
 
         return $"{first}{last}"
             .ToUpperInvariant();

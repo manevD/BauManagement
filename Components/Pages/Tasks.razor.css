@@ -1,0 +1,456 @@
+﻿/* =========================================================
+   TASKS HEADER
+   ========================================================= */
+
+.tasks-page .employee-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+    .tasks-page .employee-header h3 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+
+    /* =========================================================
+   AUFGABE HINZUFÜGEN
+   ========================================================= */
+
+    .tasks-page .employee-header .btn-primary {
+        background: #111 !important;
+        border: 1px solid #ff7a00 !important;
+        color: #ff7a00 !important;
+        border-radius: 9px;
+        font-weight: 600;
+        transition: all .15s ease;
+    }
+
+        .tasks-page .employee-header .btn-primary:hover:not(:disabled) {
+            background: #ff7a00 !important;
+            border-color: #ff7a00 !important;
+            color: #fff !important;
+        }
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.tasks-page .search-box {
+    background: #111 !important;
+    border: 1px solid #333 !important;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+    .tasks-page .search-box .input-group-text {
+        background: #111 !important;
+        border: 0 !important;
+        color: #ff7a00 !important;
+        padding-left: 14px;
+        padding-right: 10px;
+    }
+
+    .tasks-page .search-box .form-control {
+        background: #111 !important;
+        border: 0 !important;
+        color: #fff !important;
+        height: 44px;
+        box-shadow: none !important;
+    }
+
+        .tasks-page .search-box .form-control::placeholder {
+            color: #777 !important;
+        }
+
+    .tasks-page .search-box:focus-within {
+        border-color: #ff7a00 !important;
+        box-shadow: 0 0 0 2px rgba(255, 122, 0, .12);
+    }
+
+    .tasks-page .search-box .form-control:focus {
+        background: #111 !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+
+
+    /* =========================================================
+   SEARCH CLEAR BUTTON
+   ========================================================= */
+
+    .tasks-page .search-box .btn-light {
+        background: #111 !important;
+        border: 0 !important;
+        border-left: 1px solid #333 !important;
+        color: #ff7a00 !important;
+        border-radius: 0;
+    }
+
+        .tasks-page .search-box .btn-light:hover {
+            background: #ff7a00 !important;
+            color: #fff !important;
+        }
+
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.tasks-page .pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #2a2a2a;
+    background: #111 !important;
+}
+
+    .tasks-page .pagination-container .text-muted {
+        color: #9ca3af !important;
+    }
+
+
+    /* ALL PAGINATION BUTTONS */
+
+    .tasks-page .pagination-container .btn {
+        min-width: 38px;
+        height: 36px;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 500;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+    }
+
+
+    /* NORMAL */
+
+    .tasks-page .pagination-container .btn-light {
+        background: #1c1c1c !important;
+        border: 1px solid #333 !important;
+        color: #fff !important;
+    }
+
+        .tasks-page .pagination-container .btn-light:hover:not(:disabled) {
+            background: #292929 !important;
+            border-color: #ff7a00 !important;
+            color: #ff7a00 !important;
+        }
+
+
+    /* ACTIVE */
+
+    .tasks-page .pagination-container .btn-primary {
+        background: #ff7a00 !important;
+        border: 1px solid #ff7a00 !important;
+        color: #fff !important;
+    }
+
+        .tasks-page .pagination-container .btn-primary:hover:not(:disabled) {
+            background: #e96f00 !important;
+            border-color: #e96f00 !important;
+            color: #fff !important;
+        }
+
+
+    /* DISABLED */
+
+    .tasks-page .pagination-container .btn:disabled {
+        background: #181818 !important;
+        border-color: #292929 !important;
+        color: #666 !important;
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+
+/* =========================================================
+   GENERAL PRIMARY BUTTONS
+   ========================================================= */
+
+.tasks-page .btn-primary {
+    background: #111 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #ff7a00 !important;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+    .tasks-page .btn-primary:hover:not(:disabled) {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+    }
+
+
+/* =========================================================
+   LIGHT BUTTONS
+   ========================================================= */
+
+.tasks-page .btn-light {
+    background: #111 !important;
+    border: 1px solid #333 !important;
+    color: #fff !important;
+    border-radius: 8px;
+}
+
+    .tasks-page .btn-light:hover:not(:disabled) {
+        background: #222 !important;
+        border-color: #ff7a00 !important;
+        color: #ff7a00 !important;
+    }
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .tasks-page .employee-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .tasks-page .employee-header .btn-primary {
+            width: 100%;
+        }
+
+    .tasks-page .pagination-container {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+    }
+
+        .tasks-page .pagination-container > .text-muted {
+            text-align: center;
+        }
+
+        .tasks-page .pagination-container > .d-flex {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+}
+
+/* =========================================================
+   MITARBEITER TASK CARDS
+   ========================================================= */
+
+.employee-task-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.employee-task-card {
+    background: #111;
+    border: 1px solid #2d2d2d;
+    border-radius: 14px;
+    padding: 20px;
+    transition: all .18s ease;
+}
+
+    .employee-task-card:hover {
+        border-color: rgba(255, 122, 0, .55);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, .25);
+        transform: translateY(-1px);
+    }
+
+.employee-task-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #292929;
+}
+
+.employee-task-main {
+    min-width: 0;
+}
+
+.employee-task-label {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: #ff7a00;
+    margin-bottom: 5px;
+}
+
+.employee-task-main h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.employee-task-main p {
+    margin: 7px 0 0;
+    color: #999;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.employee-task-card .task-status {
+    flex-shrink: 0;
+}
+
+.employee-task-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 18px 0;
+}
+
+.employee-task-detail {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #181818;
+    border: 1px solid #292929;
+    border-radius: 10px;
+    padding: 13px;
+}
+
+.employee-task-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(255, 122, 0, .10);
+    color: #ff7a00;
+    font-size: 1.1rem;
+}
+
+.employee-task-detail > div:last-child {
+    min-width: 0;
+}
+
+.employee-task-detail span {
+    display: block;
+    color: #777;
+    font-size: .72rem;
+    margin-bottom: 2px;
+}
+
+.employee-task-detail strong {
+    display: block;
+    color: #fff;
+    font-size: .9rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.employee-task-detail small {
+    display: block;
+    color: #777;
+    margin-top: 2px;
+}
+
+.employee-task-footer {
+    padding-top: 16px;
+    border-top: 1px solid #292929;
+}
+
+    .employee-task-footer .btn-primary {
+        min-height: 42px;
+        background: #111 !important;
+        border: 1px solid #ff7a00 !important;
+        color: #ff7a00 !important;
+    }
+
+        .employee-task-footer .btn-primary:hover {
+            background: #ff7a00 !important;
+            color: #fff !important;
+        }
+
+.employee-task-pagination {
+    margin-top: 16px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #111;
+    border: 1px solid #292929;
+    border-radius: 12px;
+}
+
+    .employee-task-pagination .btn {
+        background: #111 !important;
+        border: 1px solid #333 !important;
+        color: #fff !important;
+    }
+
+        .employee-task-pagination .btn:hover:not(:disabled) {
+            border-color: #ff7a00 !important;
+            color: #ff7a00 !important;
+        }
+
+        .employee-task-pagination .btn:disabled {
+            opacity: .45;
+        }
+
+.employee-task-empty {
+    background: #111;
+    border: 1px solid #292929;
+    border-radius: 14px;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.employee-task-empty-icon {
+    width: 55px;
+    height: 55px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 122, 0, .10);
+    color: #ff7a00;
+    font-size: 1.4rem;
+}
+
+.employee-task-empty h5 {
+    color: #fff;
+    margin-bottom: 6px;
+}
+
+.employee-task-empty p {
+    color: #777;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+
+    .employee-task-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .employee-task-card-header {
+        gap: 10px;
+    }
+
+    .employee-task-main h4 {
+        font-size: 1rem;
+    }
+
+    .employee-task-details {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .employee-task-pagination {
+        padding: 12px;
+    }
+}

@@ -1,0 +1,1452 @@
+﻿@page "/mein-urlaub"
+
+@attribute [Authorize(Roles = "Mitarbeiter")]
+
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using BauManagement.Data
+@using BauManagement.Models
+@using System.Globalization
+
+@inject ApplicationDbContext Db
+@inject ICurrentCompanyContext CurrentCompany
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
+<PageTitle>Mein Urlaub</PageTitle>
+
+
+<div class="vacation-page">
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="vacation-header">
+
+        <div>
+            <h3>Mein Urlaub</h3>
+            <p class="text-muted mb-0">
+                Meine Urlaubsanträge und Abwesenheiten
+            </p>
+        </div>
+
+
+        <button class="btn btn-primary"
+                type="button"
+                @onclick="NewVacation">
+
+            + Urlaub beantragen
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+         MESSAGE
+         ========================================================= -->
+
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="alert alert-@messageType">
+            @message
+        </div>
+    }
+
+
+    <!-- =========================================================
+         CALENDAR NAVIGATION
+         ========================================================= -->
+
+    <div class="card modern-card mb-4">
+
+        <div class="card-body">
+
+            <div class="vacation-toolbar">
+
+                <!-- LEFT -->
+
+                <div class="d-flex align-items-center gap-2">
+
+                    <button class="btn btn-light"
+                            type="button"
+                            title="Vorheriger Monat"
+                            @onclick="PreviousMonth">
+
+                        ‹
+
+                    </button>
+
+
+                    <button class="btn btn-light"
+                            type="button"
+                            title="Nächster Monat"
+                            @onclick="NextMonth">
+
+                        ›
+
+                    </button>
+
+
+                    <button class="btn btn-outline-primary"
+                            type="button"
+                            @onclick="GoToday">
+
+                        Heute
+
+                    </button>
+
+                </div>
+
+
+                <!-- MONTH / YEAR -->
+
+                <div class="vacation-date-selector">
+
+                    <select class="form-select"
+                            value="@CurrentMonth.Month"
+                            @onchange="ChangeMonth">
+
+                        @for (var month = 1; month <= 12; month++)
+                        {
+                            <option value="@month">
+                                @CultureInfo.GetCultureInfo("de-DE").DateTimeFormat.GetMonthName(month)
+                            </option>
+                        }
+
+                    </select>
+
+
+                    <select class="form-select"
+                            value="@CurrentMonth.Year"
+                            @onchange="ChangeYear">
+
+                        @foreach (var year in YearOptions)
+                        {
+                            <option value="@year">
+                                @year
+                            </option>
+                        }
+
+                    </select>
+
+                </div>
+
+
+                <!-- TITLE -->
+
+                <div class="vacation-month-title">
+
+                    @CurrentMonth.ToString(
+                        "MMMM yyyy",
+                        CultureInfo.GetCultureInfo("de-DE"))
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         LEGEND
+         ========================================================= -->
+
+    <div class="vacation-legend mb-3">
+
+        <div class="legend-item">
+
+            <span class="legend-color legend-pending"></span>
+
+            <span>
+                Nicht genehmigt
+            </span>
+
+        </div>
+
+
+        <div class="legend-item">
+
+            <span class="legend-color legend-approved"></span>
+
+            <span>
+                Genehmigt
+            </span>
+
+        </div>
+
+
+        <div class="legend-item">
+
+            <span class="legend-color legend-rejected"></span>
+
+            <span>
+                Abgelehnt
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         CALENDAR
+         ========================================================= -->
+
+    <div class="card modern-card overflow-hidden">
+
+        <div class="vacation-calendar-wrapper">
+
+            <div class="vacation-calendar">
+
+                <!-- HEADER -->
+
+                <div class="vacation-grid vacation-grid-header">
+
+                    <div class="vacation-employee-header">
+                        Mein Urlaub
+                    </div>
+
+
+                    <div class="vacation-days-header">
+
+                        @foreach (var day in Days)
+                        {
+                            <div class="vacation-day-header
+                                        @(IsWeekend(day) ? "weekend" : "")
+                                        @(day.Date == DateTime.Today ? "today" : "")">
+
+                                <div class="day-number">
+                                    @day.Day
+                                </div>
+
+                                <div class="day-name">
+                                    @day.ToString(
+                                        "ddd",
+                                        CultureInfo.GetCultureInfo("de-DE"))
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+
+
+                <!-- EMPLOYEE -->
+
+                @if (employee is not null)
+                {
+                    <div class="vacation-grid employee-vacation-row">
+
+                        <!-- EMPLOYEE -->
+
+                        <div class="vacation-employee-cell">
+
+                            <div class="vacation-avatar">
+                                @EmployeeInitials(employee)
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    @employee.FirstName @employee.LastName
+                                </strong>
+
+                                @if (!string.IsNullOrWhiteSpace(employee.Position))
+                                {
+                                    <small class="d-block text-muted">
+                                        @employee.Position
+                                    </small>
+                                }
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- DAYS -->
+
+                        <div class="vacation-days">
+
+                            @foreach (var day in Days)
+                            {
+                                var vacation =
+                                    GetVacationForDay(day);
+
+                                <div class="vacation-day
+                                            @(IsWeekend(day) ? "weekend" : "")
+                                            @(day.Date == DateTime.Today ? "today" : "")">
+
+                                    @if (vacation is not null)
+                                    {
+                                        var isStart =
+                                            vacation.StartDate.Date == day.Date;
+
+                                        var isEnd =
+                                            vacation.EndDate.Date == day.Date;
+
+
+                                        <button type="button"
+                                                class="@GetVacationCssClass(vacation)
+                                                       @(isStart ? "vacation-start" : "")
+                                                       @(isEnd ? "vacation-end" : "")"
+                                                title="@VacationTooltip(vacation)"
+                                                @onclick="() => EditVacation(vacation)">
+
+                                            @if (isStart)
+                                            {
+                                                <span>
+                                                    Urlaub
+                                                </span>
+                                            }
+
+                                        </button>
+                                    }
+
+                                </div>
+                            }
+
+                        </div>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-5">
+
+                        Mitarbeiterkonto wurde nicht gefunden.
+
+                    </div>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MY VACATIONS
+         ========================================================= -->
+
+    @if (vacations.Count > 0)
+    {
+        <div class="card modern-card mt-4">
+
+            <div class="card-body">
+
+                <h5 class="mb-3">
+                    Meine Urlaubsanträge
+                </h5>
+
+
+                <div class="table-responsive">
+
+                    <table class="table align-middle mb-0">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Von
+                                </th>
+
+                                <th>
+                                    Bis
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Notiz
+                                </th>
+
+                                <th class="text-end">
+                                    Aktion
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            @foreach (var vacation in vacations
+                                .OrderByDescending(x => x.StartDate))
+                            {
+                                <tr>
+
+                                    <td>
+                                        @vacation.StartDate.ToString("dd.MM.yyyy")
+                                    </td>
+
+
+                                    <td>
+                                        @vacation.EndDate.ToString("dd.MM.yyyy")
+                                    </td>
+
+
+                                    <td>
+
+                                        <span class="@GetStatusBadgeClass(vacation.Status)">
+                                            @GetStatusText(vacation.Status)
+                                        </span>
+
+                                    </td>
+
+
+                                    <td>
+
+                                        @if (!string.IsNullOrWhiteSpace(vacation.Notes))
+                                        {
+                                            @vacation.Notes
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                -
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <td class="text-end">
+
+                                        @if (vacation.Status ==
+                                            VacationStatus.Pending)
+                                        {
+                                            <button class="btn btn-sm btn-light"
+                                                    type="button"
+                                                    @onclick="() => EditVacation(vacation)">
+
+                                                Bearbeiten
+
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small">
+                                                Keine Aktion
+                                            </span>
+                                        }
+
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+
+<!-- =============================================================
+     VACATION MODAL
+     ============================================================= -->
+
+@if (editingVacation)
+{
+    <div class="vacation-modal-backdrop"
+         @onclick="CloseVacation">
+
+        <div class="vacation-modal"
+             @onclick:stopPropagation="true">
+
+
+            <!-- HEADER -->
+
+            <div class="vacation-modal-header">
+
+                <div>
+
+                    <span class="eyebrow text-primary">
+                        URLAUB
+                    </span>
+
+
+                    <h2 class="h4 mb-1">
+
+                        @(vacationForm.Id == Guid.Empty
+                            ? "Urlaub beantragen"
+                            : "Urlaubsantrag bearbeiten")
+
+                    </h2>
+
+
+                    <p class="text-muted small mb-0">
+
+                        Urlaub kann nur für zukünftige Tage beantragt werden.
+
+                    </p>
+
+                </div>
+
+
+                <button class="btn-close"
+                        type="button"
+                        @onclick="CloseVacation">
+                </button>
+
+            </div>
+
+
+            <EditForm Model="vacationForm"
+                      OnValidSubmit="SaveVacation">
+
+                <DataAnnotationsValidator />
+
+
+                <div class="vacation-modal-body">
+
+
+                    <!-- STATUS -->
+
+                    @if (vacationForm.Id != Guid.Empty)
+                    {
+                        <div class="vacation-status-box mb-4">
+
+                            <div>
+
+                                <small class="text-muted d-block">
+                                    Status
+                                </small>
+
+                                <strong>
+                                    @GetStatusText(vacationForm.Status)
+                                </strong>
+
+                            </div>
+
+
+                            <span class="@GetStatusBadgeClass(vacationForm.Status)">
+                                @GetStatusText(vacationForm.Status)
+                            </span>
+
+                        </div>
+                    }
+
+
+                    <!-- DATE -->
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Von *
+                            </label>
+
+
+                            <InputDate class="form-control"
+                                       @bind-Value="vacationForm.StartDate"
+                                       min="@MinVacationDate" />
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label class="form-label">
+                                Bis *
+                            </label>
+
+
+                            <InputDate class="form-control"
+                                       @bind-Value="vacationForm.EndDate"
+                                       min="@MinVacationEndDate" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- NOTE -->
+
+                    <div class="mt-3">
+
+                        <label class="form-label">
+                            Notiz
+                        </label>
+
+
+                        <InputTextArea class="form-control"
+                                       rows="4"
+                                       @bind-Value="vacationForm.Notes"
+                                       placeholder="z. B. Sommerurlaub, Familienurlaub..." />
+
+                    </div>
+
+
+                    @if (!string.IsNullOrWhiteSpace(formError))
+                    {
+                        <div class="alert alert-warning mt-3 mb-0">
+
+                            @formError
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- FOOTER -->
+
+                <div class="vacation-modal-footer">
+
+                    @if (vacationForm.Id != Guid.Empty &&
+                         vacationForm.Status == VacationStatus.Pending)
+                    {
+                        <button type="button"
+                                class="btn btn-outline-danger me-auto"
+                                @onclick="DeleteVacation">
+
+                            Antrag löschen
+
+                        </button>
+                    }
+
+
+                    <button type="button"
+                            class="btn btn-light"
+                            @onclick="CloseVacation">
+
+                        Abbrechen
+
+                    </button>
+
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        @(vacationForm.Id == Guid.Empty
+                            ? "Urlaub beantragen"
+                            : "Änderungen speichern")
+
+                    </button>
+
+                </div>
+
+            </EditForm>
+
+        </div>
+
+    </div>
+}
+
+
+@code {
+
+    // =========================================================
+    // DATA
+    // =========================================================
+
+    private Guid companyId;
+
+    private Employee? employee;
+
+    private List<EmployeeVacation> vacations = [];
+
+    private EmployeeVacation vacationForm = new();
+
+    private bool editingVacation;
+
+    private DateTime CurrentMonth =
+        new DateTime(
+            DateTime.Today.Year,
+            DateTime.Today.Month,
+            1);
+
+    private string? message;
+
+    private string messageType = "success";
+
+    private string? formError;
+
+
+    // =========================================================
+    // YEAR OPTIONS
+    // =========================================================
+
+    private IEnumerable<int> YearOptions
+    {
+        get
+        {
+            var currentYear =
+                DateTime.Today.Year;
+
+            return Enumerable.Range(
+                currentYear - 2,
+                8);
+        }
+    }
+
+
+    // =========================================================
+    // MIN DATE
+    // =========================================================
+
+    private string MinVacationDate =>
+        DateTime.UtcNow.Date
+            .AddDays(1)
+            .ToString("yyyy-MM-dd");
+
+
+    private string MinVacationEndDate =>
+        vacationForm.StartDate.Date <
+            DateTime.UtcNow.Date.AddDays(1)
+
+            ? DateTime.UtcNow.Date
+                .AddDays(1)
+                .ToString("yyyy-MM-dd")
+
+            : vacationForm.StartDate.Date
+                .ToString("yyyy-MM-dd");
+
+
+    // =========================================================
+    // DAYS
+    // =========================================================
+
+    private IEnumerable<DateTime> Days
+    {
+        get
+        {
+            var daysInMonth =
+                DateTime.DaysInMonth(
+                    CurrentMonth.Year,
+                    CurrentMonth.Month);
+
+            for (var day = 1;
+                 day <= daysInMonth;
+                 day++)
+            {
+                yield return new DateTime(
+                    CurrentMonth.Year,
+                    CurrentMonth.Month,
+                    day);
+            }
+        }
+    }
+
+
+    // =========================================================
+    // INITIALIZE
+    // =========================================================
+
+    protected override async Task OnInitializedAsync()
+    {
+        var company =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!company.HasValue)
+        {
+            message =
+                "Keine Firma gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        companyId =
+            company.Value;
+
+
+        var authState =
+            await AuthenticationStateProvider
+                .GetAuthenticationStateAsync();
+
+
+        var user =
+            await UserManager
+                .GetUserAsync(authState.User);
+
+
+        if (user is null)
+        {
+            message =
+                "Benutzer wurde nicht gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        employee =
+            await Db.Employees
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.CompanyId ==
+                        companyId &&
+                    x.ApplicationUserId ==
+                        user.Id &&
+                    x.IsActive);
+
+
+        if (employee is null)
+        {
+            message =
+                "Für dein Benutzerkonto wurde kein Mitarbeiter gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        await Load();
+    }
+
+
+    // =========================================================
+    // LOAD
+    // =========================================================
+
+    private async Task Load()
+    {
+        if (employee is null)
+        {
+            return;
+        }
+
+
+        var monthStart =
+            CurrentMonth.Date;
+
+        var monthEnd =
+            CurrentMonth.Date.AddMonths(1);
+
+
+        vacations =
+            await Db.EmployeeVacations
+                .AsNoTracking()
+                .Where(x =>
+                    x.CompanyId ==
+                        companyId &&
+                    x.EmployeeId ==
+                        employee.Id &&
+                    x.StartDate <
+                        monthEnd &&
+                    x.EndDate >=
+                        monthStart)
+                .OrderBy(x => x.StartDate)
+                .ToListAsync();
+    }
+
+
+    // =========================================================
+    // GET VACATION FOR DAY
+    // =========================================================
+
+    private EmployeeVacation? GetVacationForDay(
+        DateTime day)
+    {
+        return vacations
+            .Where(x =>
+                x.StartDate.Date <=
+                    day.Date &&
+                x.EndDate.Date >=
+                    day.Date)
+            .OrderByDescending(x =>
+                x.Status ==
+                    VacationStatus.Approved)
+            .ThenBy(x =>
+                x.StartDate)
+            .FirstOrDefault();
+    }
+
+
+    // =========================================================
+    // NEW VACATION
+    // =========================================================
+
+    private void NewVacation()
+    {
+        formError = null;
+
+
+        var tomorrow =
+            DateTime.UtcNow.Date
+                .AddDays(1);
+
+
+        vacationForm =
+            new EmployeeVacation
+            {
+                Id =
+                    Guid.Empty,
+
+                CompanyId =
+                    companyId,
+
+                EmployeeId =
+                    employee?.Id ??
+                    Guid.Empty,
+
+                StartDate =
+                    tomorrow,
+
+                EndDate =
+                    tomorrow,
+
+                Status =
+                    VacationStatus.Pending,
+
+                CreatedAt =
+                    DateTime.UtcNow
+            };
+
+
+        editingVacation = true;
+    }
+
+
+    // =========================================================
+    // EDIT
+    // =========================================================
+
+    private void EditVacation(
+        EmployeeVacation vacation)
+    {
+        formError = null;
+
+
+        // Nur Pending darf vom Mitarbeiter
+        // bearbeitet werden.
+
+        if (vacation.Status !=
+            VacationStatus.Pending)
+        {
+            return;
+        }
+
+
+        vacationForm =
+            new EmployeeVacation
+            {
+                Id =
+                    vacation.Id,
+
+                CompanyId =
+                    vacation.CompanyId,
+
+                EmployeeId =
+                    vacation.EmployeeId,
+
+                StartDate =
+                    vacation.StartDate,
+
+                EndDate =
+                    vacation.EndDate,
+
+                Notes =
+                    vacation.Notes,
+
+                Status =
+                    vacation.Status,
+
+                CreatedAt =
+                    vacation.CreatedAt
+            };
+
+
+        editingVacation = true;
+    }
+
+
+    // =========================================================
+    // SAVE
+    // =========================================================
+
+    private async Task SaveVacation()
+    {
+        formError = null;
+
+
+        if (employee is null)
+        {
+            formError =
+                "Mitarbeiter wurde nicht gefunden.";
+
+            return;
+        }
+
+
+        var currentCompany =
+            await CurrentCompany.GetCompanyIdAsync();
+
+
+        if (!currentCompany.HasValue)
+        {
+            formError =
+                "Keine Firma gefunden.";
+
+            return;
+        }
+
+
+        companyId =
+            currentCompany.Value;
+
+
+        var today =
+            DateTime.UtcNow.Date;
+
+
+        var tomorrow =
+            today.AddDays(1);
+
+
+        // =====================================================
+        // FUTURE ONLY
+        // =====================================================
+
+        if (vacationForm.StartDate.Date <
+            tomorrow)
+        {
+            formError =
+                "Urlaub kann nur für zukünftige Tage beantragt werden.";
+
+            return;
+        }
+
+
+        // =====================================================
+        // END DATE
+        // =====================================================
+
+        if (vacationForm.EndDate.Date <
+            vacationForm.StartDate.Date)
+        {
+            formError =
+                "Das Enddatum darf nicht vor dem Startdatum liegen.";
+
+            return;
+        }
+
+
+        // =====================================================
+        // EMPLOYEE SECURITY
+        // =====================================================
+
+        vacationForm.EmployeeId =
+            employee.Id;
+
+
+        // =====================================================
+        // NEW
+        // =====================================================
+
+        if (vacationForm.Id ==
+            Guid.Empty)
+        {
+            vacationForm.Id =
+                Guid.NewGuid();
+
+            vacationForm.CompanyId =
+                companyId;
+
+            vacationForm.StartDate =
+                vacationForm.StartDate.Date;
+
+            vacationForm.EndDate =
+                vacationForm.EndDate.Date;
+
+            vacationForm.Notes =
+                string.IsNullOrWhiteSpace(
+                    vacationForm.Notes)
+                    ? null
+                    : vacationForm.Notes.Trim();
+
+            vacationForm.Status =
+                VacationStatus.Pending;
+
+            vacationForm.CreatedAt =
+                DateTime.UtcNow;
+
+
+            Db.EmployeeVacations.Add(
+                vacationForm);
+        }
+        else
+        {
+            // =================================================
+            // EXISTING
+            // =================================================
+
+            var existing =
+                await Db.EmployeeVacations
+                    .FirstOrDefaultAsync(x =>
+                        x.Id ==
+                            vacationForm.Id &&
+                        x.CompanyId ==
+                            companyId &&
+                        x.EmployeeId ==
+                            employee.Id);
+
+
+            if (existing is null)
+            {
+                formError =
+                    "Urlaubsantrag wurde nicht gefunden.";
+
+                return;
+            }
+
+
+            // Nur Pending darf geändert werden.
+
+            if (existing.Status !=
+                VacationStatus.Pending)
+            {
+                formError =
+                    "Dieser Urlaubsantrag kann nicht mehr geändert werden.";
+
+                return;
+            }
+
+
+            existing.StartDate =
+                vacationForm.StartDate.Date;
+
+            existing.EndDate =
+                vacationForm.EndDate.Date;
+
+            existing.Notes =
+                string.IsNullOrWhiteSpace(
+                    vacationForm.Notes)
+                    ? null
+                    : vacationForm.Notes.Trim();
+        }
+
+
+        await Db.SaveChangesAsync();
+
+
+        editingVacation = false;
+
+
+        message =
+            "Urlaubsantrag wurde erfolgreich gesendet.";
+
+        messageType =
+            "success";
+
+
+        await Load();
+    }
+
+
+    // =========================================================
+    // DELETE
+    // =========================================================
+
+    private async Task DeleteVacation()
+    {
+        if (employee is null ||
+            vacationForm.Id ==
+                Guid.Empty)
+        {
+            return;
+        }
+
+
+        var vacation =
+            await Db.EmployeeVacations
+                .FirstOrDefaultAsync(x =>
+                    x.Id ==
+                        vacationForm.Id &&
+                    x.CompanyId ==
+                        companyId &&
+                    x.EmployeeId ==
+                        employee.Id);
+
+
+        if (vacation is null)
+        {
+            return;
+        }
+
+
+        if (vacation.Status !=
+            VacationStatus.Pending)
+        {
+            formError =
+                "Nur nicht genehmigte Anträge können gelöscht werden.";
+
+            return;
+        }
+
+
+        Db.EmployeeVacations.Remove(
+            vacation);
+
+
+        await Db.SaveChangesAsync();
+
+
+        editingVacation = false;
+
+
+        message =
+            "Urlaubsantrag wurde gelöscht.";
+
+        messageType =
+            "success";
+
+
+        await Load();
+    }
+
+
+    // =========================================================
+    // MONTH
+    // =========================================================
+
+    private async Task PreviousMonth()
+    {
+        CurrentMonth =
+            CurrentMonth.AddMonths(-1);
+
+        await Load();
+    }
+
+
+    private async Task NextMonth()
+    {
+        CurrentMonth =
+            CurrentMonth.AddMonths(1);
+
+        await Load();
+    }
+
+
+    // =========================================================
+    // CHANGE MONTH
+    // =========================================================
+
+    private async Task ChangeMonth(
+        ChangeEventArgs e)
+    {
+        if (!int.TryParse(
+                e.Value?.ToString(),
+                out var month))
+        {
+            return;
+        }
+
+
+        CurrentMonth =
+            new DateTime(
+                CurrentMonth.Year,
+                month,
+                1);
+
+
+        await Load();
+    }
+
+
+    // =========================================================
+    // CHANGE YEAR
+    // =========================================================
+
+    private async Task ChangeYear(
+        ChangeEventArgs e)
+    {
+        if (!int.TryParse(
+                e.Value?.ToString(),
+                out var year))
+        {
+            return;
+        }
+
+
+        CurrentMonth =
+            new DateTime(
+                year,
+                CurrentMonth.Month,
+                1);
+
+
+        await Load();
+    }
+
+
+    // =========================================================
+    // TODAY
+    // =========================================================
+
+    private async Task GoToday()
+    {
+        CurrentMonth =
+            new DateTime(
+                DateTime.Today.Year,
+                DateTime.Today.Month,
+                1);
+
+        await Load();
+    }
+
+
+    // =========================================================
+    // STATUS
+    // =========================================================
+
+    private static string GetStatusText(
+        VacationStatus status)
+    {
+        return status switch
+        {
+            VacationStatus.Approved =>
+                "Genehmigt",
+
+            VacationStatus.Rejected =>
+                "Abgelehnt",
+
+            _ =>
+                "Nicht genehmigt"
+        };
+    }
+
+
+    private static string GetStatusBadgeClass(
+        VacationStatus status)
+    {
+        return status switch
+        {
+            VacationStatus.Approved =>
+                "status-badge status-approved",
+
+            VacationStatus.Rejected =>
+                "status-badge status-rejected",
+
+            _ =>
+                "status-badge status-pending"
+        };
+    }
+
+
+    // =========================================================
+    // VACATION CSS
+    // =========================================================
+
+    private static string GetVacationCssClass(
+        EmployeeVacation vacation)
+    {
+        return vacation.Status switch
+        {
+            VacationStatus.Approved =>
+                "vacation-block vacation-approved",
+
+            VacationStatus.Rejected =>
+                "vacation-block vacation-rejected",
+
+            _ =>
+                "vacation-block vacation-pending"
+        };
+    }
+
+
+    // =========================================================
+    // TOOLTIP
+    // =========================================================
+
+    private string VacationTooltip(
+        EmployeeVacation vacation)
+    {
+        var text =
+            $"{vacation.StartDate:dd.MM.yyyy} – " +
+            $"{vacation.EndDate:dd.MM.yyyy}" +
+            $" | {GetStatusText(vacation.Status)}";
+
+
+        if (!string.IsNullOrWhiteSpace(
+                vacation.Notes))
+        {
+            text +=
+                $" | {vacation.Notes}";
+        }
+
+
+        return text;
+    }
+
+
+    // =========================================================
+    // WEEKEND
+    // =========================================================
+
+    private static bool IsWeekend(
+        DateTime day)
+    {
+        return
+            day.DayOfWeek ==
+                DayOfWeek.Saturday ||
+            day.DayOfWeek ==
+                DayOfWeek.Sunday;
+    }
+
+
+    // =========================================================
+    // CLOSE
+    // =========================================================
+
+    private void CloseVacation()
+    {
+        editingVacation = false;
+
+        formError = null;
+    }
+
+
+    // =========================================================
+    // INITIALS
+    // =========================================================
+
+    private static string EmployeeInitials(
+        Employee employee)
+    {
+        var first =
+            employee.FirstName?
+                .FirstOrDefault() ?? 'M';
+
+        var last =
+            employee.LastName?
+                .FirstOrDefault() ?? 'A';
+
+        return
+            $"{first}{last}"
+                .ToUpperInvariant();
+    }
+
+}

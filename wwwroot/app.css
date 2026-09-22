@@ -13,7 +13,7 @@ a, .btn-link {
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 .content {
@@ -58,3 +58,72 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+    .employee-header > div:first-child {
+        flex: 1;
+    }
+
+    .employee-header > button {
+        margin-left: auto;
+        flex-shrink: 0;
+    }
+
+.nav-icon {
+    font-size: 18px;
+    width: 24px;
+    min-width: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* =========================================================
+   ALL PRIMARY BUTTONS
+   ========================================================= */
+
+.btn-primary {
+    background: #111 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #ff7a00 !important;
+    border-radius: 9px;
+    font-weight: 600;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+}
+
+
+    /* HOVER */
+
+    .btn-primary:hover:not(:disabled) {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+    }
+
+
+    /* ACTIVE */
+
+    .btn-primary:active:not(:disabled) {
+        background: #e96f00 !important;
+        border-color: #e96f00 !important;
+        color: #fff !important;
+    }
+
+
+    /* DISABLED */
+
+    .btn-primary:disabled {
+        background: #181818 !important;
+        border-color: #333 !important;
+        color: #666 !important;
+        opacity: .7;
+        cursor: not-allowed;
+    }

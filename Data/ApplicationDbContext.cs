@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using BauManagement.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         : base(options)
     {
     }
-
+    public DbSet<EmployeeVacation> EmployeeVacations { get; set; }
     public DbSet<Company> Companies => Set<Company>();
 
     public DbSet<Employee> Employees => Set<Employee>();
@@ -21,6 +22,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<WorkAssignment> WorkAssignments => Set<WorkAssignment>();
 
     public DbSet<WorkTask> WorkTasks => Set<WorkTask>();
+    public DbSet<WorkTimeEntry> WorkTimeEntries => Set<WorkTimeEntry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -124,5 +126,48 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(x => x.Tasks)
             .HasForeignKey(x => x.EmployeeId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<EmployeeVacation>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasOne(x => x.Company)
+                .WithMany()
+                .HasForeignKey(x => x.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Employee)
+                .WithMany()
+                .HasForeignKey(x => x.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        builder.Entity<WorkTimeEntry>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasOne(x => x.Company)
+                .WithMany()
+                .HasForeignKey(x => x.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Employee)
+                .WithMany()
+                .HasForeignKey(x => x.EmployeeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(x => x.Baustelle)
+                .WithMany()
+                .HasForeignKey(x => x.BaustelleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(x => x.BreakMinutes)
+                .HasDefaultValue(0);
+
+            entity.Property(x => x.Status)
+                .HasDefaultValue(WorkTimeStatus.NotStarted);
+
+            entity.Property(x => x.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+        });
     }
 }

@@ -1,0 +1,279 @@
+﻿/* =========================================================
+   BAUSTELLEN - DARK / ORANGE BUTTONS
+   ========================================================= */
+
+/* =========================
+   PRIMARY BUTTONS
+   ========================= */
+
+.btn-primary {
+    background: #111 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #ff7a00 !important;
+    border-radius: 9px;
+    font-weight: 600;
+    transition: all .2s ease;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+    }
+
+    .btn-primary:active:not(:disabled) {
+        background: #e96f00 !important;
+        border-color: #e96f00 !important;
+        color: #fff !important;
+    }
+
+    .btn-primary:disabled {
+        background: #181818 !important;
+        border-color: #333 !important;
+        color: #666 !important;
+        opacity: .7;
+        cursor: not-allowed;
+    }
+
+
+/* =========================
+   SEARCH
+   ========================= */
+
+.search-box {
+    background: #111;
+    border: 1px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+    .search-box .input-group-text {
+        background: #111 !important;
+        border: 0 !important;
+        color: #ff7a00 !important;
+        font-size: 20px;
+        padding-left: 15px;
+        padding-right: 10px;
+    }
+
+    .search-box .form-control {
+        background: #111 !important;
+        border: 0 !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+
+        .search-box .form-control::placeholder {
+            color: #777 !important;
+        }
+
+        .search-box .form-control:focus {
+            background: #111 !important;
+            color: #fff !important;
+            box-shadow: none !important;
+        }
+
+    .search-box:focus-within {
+        border-color: #ff7a00;
+        box-shadow: 0 0 0 2px rgba(255, 122, 0, .12);
+    }
+
+
+/* =========================
+   PAGINATION
+   ========================= */
+
+.border-top {
+    border-color: #2b2b2b !important;
+}
+
+.btn-light {
+    background: #111 !important;
+    border: 1px solid #333 !important;
+    color: #fff !important;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all .2s ease;
+}
+
+    .btn-light:hover:not(:disabled) {
+        background: #1d1d1d !important;
+        border-color: #ff7a00 !important;
+        color: #ff7a00 !important;
+    }
+
+    .btn-light:active:not(:disabled) {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+    }
+
+    .btn-light:disabled {
+        background: #181818 !important;
+        border-color: #2b2b2b !important;
+        color: #555 !important;
+        opacity: .7;
+        cursor: not-allowed;
+    }
+
+
+/* =========================
+   DETAILS BUTTON
+   ========================= */
+
+.btn-outline-primary {
+    background: #111 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #ff7a00 !important;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+    .btn-outline-primary:hover {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+    }
+
+
+/* =========================
+   DANGER BUTTON
+   ========================= */
+
+.btn-outline-danger {
+    background: #111 !important;
+    border: 1px solid #dc3545 !important;
+    color: #dc3545 !important;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+    .btn-outline-danger:hover {
+        background: #dc3545 !important;
+        border-color: #dc3545 !important;
+        color: #fff !important;
+    }
+
+
+/* =========================
+   PAGINATION TEXT
+   ========================= */
+
+.text-muted.small {
+    color: #888 !important;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 767.98px) {
+
+    .search-box {
+        border-radius: 9px;
+    }
+
+        .search-box .form-control {
+            font-size: 14px;
+        }
+
+    .btn-primary,
+    .btn-light,
+    .btn-outline-primary,
+    .btn-outline-danger {
+        border-radius: 8px;
+    }
+}
+
+/* =========================================================
+   BAUSTELLEN PAGINATION
+   ========================================================= */
+
+.baustellen-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #2a2a2a;
+    background: #111;
+}
+
+.baustellen-pagination-info {
+    color: #9ca3af;
+    font-size: .875rem;
+}
+
+.baustellen-pagination .btn {
+    min-width: 38px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: .875rem;
+    font-weight: 500;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+
+
+/* NORMAL BUTTON */
+
+.baustellen-pagination .btn-light {
+    background: #1c1c1c !important;
+    border: 1px solid #333 !important;
+    color: #fff !important;
+}
+
+    .baustellen-pagination .btn-light:hover:not(:disabled) {
+        background: #292929 !important;
+        border-color: #ff7a00 !important;
+        color: #ff7a00 !important;
+    }
+
+
+/* ACTIVE PAGE */
+
+.baustellen-pagination .btn-primary {
+    background: #ff7a00 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #fff !important;
+}
+
+    .baustellen-pagination .btn-primary:hover:not(:disabled) {
+        background: #e96f00 !important;
+        border-color: #e96f00 !important;
+        color: #fff !important;
+    }
+
+
+/* DISABLED */
+
+.baustellen-pagination .btn:disabled {
+    background: #181818 !important;
+    border-color: #292929 !important;
+    color: #666 !important;
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .baustellen-pagination {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+    }
+
+    .baustellen-pagination-info {
+        text-align: center;
+    }
+
+    .baustellen-pagination > .d-flex {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}

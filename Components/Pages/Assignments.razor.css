@@ -1,0 +1,230 @@
+﻿/* =========================================================
+   EINSÄTZE HEADER
+   ========================================================= */
+
+.employee-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+    .employee-header h3 {
+        margin: 0;
+        font-weight: 700;
+    }
+
+    .employee-header p {
+        margin-top: 4px;
+    }
+
+
+    /* =========================================================
+   EINSATZ HINZUFÜGEN
+   ========================================================= */
+
+    .employee-header .btn-primary {
+        background: #111 !important;
+        border: 1px solid #ff7a00 !important;
+        color: #ff7a00 !important;
+        border-radius: 9px;
+        font-weight: 600;
+        transition: all .15s ease;
+    }
+
+        .employee-header .btn-primary:hover:not(:disabled) {
+            background: #ff7a00 !important;
+            border-color: #ff7a00 !important;
+            color: #fff !important;
+        }
+
+        .employee-header .btn-primary:disabled {
+            background: #181818 !important;
+            border-color: #333 !important;
+            color: #666 !important;
+            opacity: .7;
+        }
+
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.search-box {
+    background: #111 !important;
+    border: 1px solid #333;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+    .search-box .input-group-text {
+        background: #111 !important;
+        border: 0 !important;
+        color: #ff7a00 !important;
+        padding-left: 14px;
+        padding-right: 10px;
+    }
+
+    .search-box .form-control {
+        background: #111 !important;
+        border: 0 !important;
+        color: #fff !important;
+        height: 44px;
+        box-shadow: none !important;
+    }
+
+        .search-box .form-control::placeholder {
+            color: #777 !important;
+        }
+
+    .search-box:focus-within {
+        border-color: #ff7a00;
+        box-shadow: 0 0 0 2px rgba(255, 122, 0, .12);
+    }
+
+    .search-box .form-control:focus {
+        background: #111 !important;
+        color: #fff !important;
+        box-shadow: none !important;
+    }
+
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid #2a2a2a;
+    background: #111 !important;
+}
+
+    .pagination-container > .text-muted {
+        color: #9ca3af !important;
+    }
+
+
+    /* PAGINATION BUTTONS */
+
+    .pagination-container .btn {
+        min-width: 38px;
+        height: 36px;
+        border-radius: 8px;
+        font-size: .875rem;
+        font-weight: 500;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+    }
+
+
+    /* NORMAL */
+
+    .pagination-container .btn-light {
+        background: #1c1c1c !important;
+        border: 1px solid #333 !important;
+        color: #fff !important;
+    }
+
+        .pagination-container .btn-light:hover:not(:disabled) {
+            background: #292929 !important;
+            border-color: #ff7a00 !important;
+            color: #ff7a00 !important;
+        }
+
+
+    /* ACTIVE */
+
+    .pagination-container .btn-primary {
+        background: #ff7a00 !important;
+        border: 1px solid #ff7a00 !important;
+        color: #fff !important;
+    }
+
+        .pagination-container .btn-primary:hover:not(:disabled) {
+            background: #e96f00 !important;
+            border-color: #e96f00 !important;
+            color: #fff !important;
+        }
+
+
+    /* DISABLED */
+
+    .pagination-container .btn:disabled {
+        background: #181818 !important;
+        border-color: #292929 !important;
+        color: #666 !important;
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+
+/* =========================================================
+   FORM BUTTONS
+   ========================================================= */
+
+.btn-primary {
+    background: #111 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #ff7a00 !important;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+    }
+
+
+/* =========================================================
+   ABbrechen / LIGHT BUTTON
+   ========================================================= */
+
+.btn-light {
+    background: #111 !important;
+    border: 1px solid #333 !important;
+    color: #fff !important;
+    border-radius: 8px;
+}
+
+    .btn-light:hover:not(:disabled) {
+        background: #222 !important;
+        border-color: #ff7a00 !important;
+        color: #ff7a00 !important;
+    }
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .employee-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+        .employee-header .btn-primary {
+            width: 100%;
+        }
+
+    .pagination-container {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+    }
+
+        .pagination-container > .text-muted {
+            text-align: center;
+        }
+
+        .pagination-container > .d-flex {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+}

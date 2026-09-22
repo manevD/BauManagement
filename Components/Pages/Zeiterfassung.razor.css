@@ -1,0 +1,797 @@
+﻿/* =========================================================
+   ZEITERFASSUNG
+   ========================================================= */
+
+.time-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 28px 0 50px;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.time-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+}
+
+    .time-page-header .eyebrow {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        color: #ff7a00;
+    }
+
+    .time-page-header h1 {
+        margin: 0;
+        font-size: 32px;
+        line-height: 1.15;
+        font-weight: 750;
+        color: #111827;
+    }
+
+    .time-page-header p {
+        margin-top: 6px;
+        font-size: 15px;
+    }
+
+
+/* =========================================================
+   MESSAGE
+   ========================================================= */
+
+.time-message {
+    margin-bottom: 20px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    padding: 14px 18px;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+.time-loading-card {
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    color: #6b7280;
+}
+
+.time-loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #ff7a00;
+    border-radius: 50%;
+    animation: time-spin .7s linear infinite;
+}
+
+@keyframes time-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.time-empty-card {
+    padding: 50px 30px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+}
+
+.time-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 18px;
+    background: #fff3e8;
+    color: #ff7a00;
+    font-size: 28px;
+}
+
+.time-empty-card h3 {
+    margin-bottom: 8px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.time-empty-card p {
+    margin: 0;
+    color: #6b7280;
+}
+
+
+/* =========================================================
+   MAIN CARD
+   ========================================================= */
+
+.time-card {
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, .06);
+}
+
+
+/* =========================================================
+   CARD TOP
+   ========================================================= */
+
+.time-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 30px 20px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.time-card-eyebrow {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    color: #9ca3af;
+}
+
+.time-card-top h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 750;
+    color: #111827;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.time-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+    .time-status.active {
+        background: #ecfdf3;
+        color: #16a34a;
+    }
+
+    .time-status.completed {
+        background: #ecfdf3;
+        color: #15803d;
+    }
+
+    .time-status.waiting {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+
+/* =========================================================
+   START AREA
+   ========================================================= */
+
+.time-start-area {
+    padding: 45px 30px 35px;
+    text-align: center;
+}
+
+.time-start-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: #fff3e8;
+    color: #ff7a00;
+    font-size: 31px;
+}
+
+.time-start-area h3 {
+    margin: 0 0 8px;
+    font-size: 21px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.time-start-area p {
+    margin: 0 auto 24px;
+    max-width: 520px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   SITE SELECT
+   ========================================================= */
+
+.time-site-select {
+    max-width: 520px;
+    margin: 0 auto 20px;
+    text-align: left;
+}
+
+    .time-site-select label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 13px;
+        font-weight: 650;
+        color: #374151;
+    }
+
+    .time-site-select .form-select {
+        min-height: 46px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 14px;
+        box-shadow: none;
+    }
+
+        .time-site-select .form-select:focus {
+            border-color: #ff7a00;
+            box-shadow: 0 0 0 3px rgba(255, 122, 0, .12);
+        }
+
+
+/* =========================================================
+   WARNING
+   ========================================================= */
+
+.time-warning {
+    max-width: 520px;
+    margin: 0 auto 20px;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+    background: #fff7ed;
+    color: #c2410c;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   CURRENT TIME
+   ========================================================= */
+
+.current-time-area {
+    padding: 38px 30px 30px;
+    text-align: center;
+}
+
+.current-time-label {
+    display: block;
+    margin-bottom: 3px;
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.current-time-value {
+    margin-top: 0;
+    font-size: clamp(52px, 8vw, 76px);
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -3px;
+    color: #111;
+}
+
+.current-site {
+    margin-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+    .current-site i {
+        color: #ff7a00;
+    }
+
+
+/* =========================================================
+   WORK TIME SUMMARY
+   ========================================================= */
+
+.time-summary-box {
+    margin: 0 30px 18px;
+    padding: 16px 18px;
+    border: 1px solid #f0f0f0;
+    border-radius: 13px;
+    background: #fafafa;
+}
+
+.time-summary-left {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.time-summary-label {
+    font-size: 14px;
+    color: #374151;
+}
+
+.time-summary-value {
+    font-size: 15px;
+    color: #111827;
+}
+
+.time-summary-description {
+    margin-top: 5px;
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   INFO GRID
+   ========================================================= */
+
+.time-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 0 30px;
+}
+
+.time-info-box {
+    min-height: 82px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #f7f7f8;
+    text-align: center;
+}
+
+    .time-info-box > span:first-child {
+        margin-bottom: 7px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #9ca3af;
+    }
+
+    .time-info-box > strong {
+        font-size: 15px;
+        font-weight: 750;
+        color: #111827;
+    }
+
+
+/* =========================================================
+   PAUSE INPUT
+   ========================================================= */
+
+.pause-box {
+    padding-left: 12px;
+    padding-right: 12px;
+}
+
+.pause-input-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+.pause-input {
+    width: 90px;
+    height: 38px;
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    background: #fff;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: none;
+}
+
+    .pause-input:focus {
+        border-color: #ff7a00;
+        box-shadow: 0 0 0 3px rgba(255, 122, 0, .12);
+    }
+
+.pause-unit {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+
+/* =========================================================
+   PAUSE SAVE AREA
+   ========================================================= */
+
+.pause-save-area {
+    margin: 16px 30px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 13px 14px;
+    border: 1px solid #f0f0f0;
+    border-radius: 12px;
+    background: #fafafa;
+}
+
+.pause-help {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+    .pause-help i {
+        flex-shrink: 0;
+        color: #ff7a00;
+        font-size: 15px;
+    }
+
+
+/* =========================================================
+   SECONDARY BUTTON - PAUSE
+   ========================================================= */
+
+.time-secondary-button {
+    flex-shrink: 0;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 17px;
+    border: 1px solid #ff7a00;
+    border-radius: 9px;
+    background: #fff;
+    color: #ff7a00;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+    .time-secondary-button:hover:not(:disabled) {
+        background: #ff7a00;
+        border-color: #ff7a00;
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 14px rgba(255, 122, 0, .18);
+    }
+
+    .time-secondary-button:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .time-secondary-button:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+    }
+
+
+/* =========================================================
+   MAIN BUTTON
+   ========================================================= */
+
+.time-main-button {
+    width: calc(100% - 60px);
+    min-height: 49px;
+    margin: 24px 30px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 0;
+    border-radius: 10px;
+    background: #ff7a00;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(255, 122, 0, .18);
+    transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
+}
+
+    .time-main-button:hover:not(:disabled) {
+        background: #ed6d00;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 22px rgba(255, 122, 0, .25);
+    }
+
+    .time-main-button:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .time-main-button:disabled {
+        opacity: .55;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .time-main-button i {
+        font-size: 18px;
+    }
+
+
+/* =========================================================
+   START BUTTON
+   ========================================================= */
+
+.time-start-area .time-main-button {
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   STOP BUTTON
+   ========================================================= */
+
+.time-main-button.stop {
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   COMPLETED
+   ========================================================= */
+
+.time-completed-box {
+    margin: 20px 30px 30px;
+    padding: 17px 18px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    border: 1px solid #bbf7d0;
+    border-radius: 13px;
+    background: #f0fdf4;
+}
+
+.completed-icon {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #22c55e;
+    color: #fff;
+    font-size: 18px;
+}
+
+.time-completed-box strong {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 14px;
+    color: #166534;
+}
+
+.time-completed-box span {
+    display: block;
+    color: #4b5563;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SMALL INFO NOTE
+   ========================================================= */
+
+.time-info-note {
+    margin-top: 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 13px;
+    background: #fafafa;
+}
+
+.time-note-icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: #fff3e8;
+    color: #ff7a00;
+    font-size: 15px;
+}
+
+.time-info-note strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #374151;
+    font-size: 13px;
+}
+
+.time-info-note p {
+    margin: 0;
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   MODERN CARD FALLBACK
+   ========================================================= */
+
+.modern-card {
+    background: #fff;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .time-page {
+        padding: 20px 12px 35px;
+    }
+
+    .time-page-header {
+        margin-bottom: 20px;
+    }
+
+        .time-page-header h1 {
+            font-size: 27px;
+        }
+
+    .time-card {
+        border-radius: 17px;
+    }
+
+    .time-card-top {
+        padding: 21px 18px 17px;
+    }
+
+        .time-card-top h2 {
+            font-size: 20px;
+        }
+
+    .time-status {
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+
+    .time-start-area {
+        padding: 35px 18px 28px;
+    }
+
+    .current-time-area {
+        padding: 32px 18px 24px;
+    }
+
+    .current-time-value {
+        font-size: 58px;
+    }
+
+    .current-site {
+        max-width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .time-summary-box {
+        margin-left: 18px;
+        margin-right: 18px;
+    }
+
+    .time-info-grid {
+        grid-template-columns: 1fr;
+        margin-left: 18px;
+        margin-right: 18px;
+        gap: 8px;
+    }
+
+    .time-info-box {
+        min-height: 70px;
+    }
+
+    .pause-save-area {
+        margin-left: 18px;
+        margin-right: 18px;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .pause-help {
+        justify-content: center;
+    }
+
+    .time-secondary-button {
+        width: 100%;
+    }
+
+    .time-main-button {
+        width: calc(100% - 36px);
+        margin-left: 18px;
+        margin-right: 18px;
+    }
+
+    .time-completed-box {
+        margin-left: 18px;
+        margin-right: 18px;
+    }
+
+    .time-info-note {
+        align-items: flex-start;
+    }
+}
+
+
+@media (max-width: 480px) {
+
+    .time-page-header h1 {
+        font-size: 25px;
+    }
+
+    .time-page-header p {
+        font-size: 14px;
+    }
+
+    .current-time-value {
+        font-size: 50px;
+        letter-spacing: -2px;
+    }
+
+    .time-summary-left {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .pause-input {
+        width: 100px;
+    }
+}

@@ -1,0 +1,662 @@
+﻿/* =========================================================
+   MEIN URLAUB
+   ========================================================= */
+
+.vacation-page {
+    width: 100%;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.vacation-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+    .vacation-header h1 {
+        margin: 2px 0 4px;
+        font-size: 28px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+    }
+
+    .vacation-header p {
+        font-size: 14px;
+    }
+
+    .vacation-header .btn-primary {
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 7px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.vacation-page .modern-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+
+/* =========================================================
+   TOOLBAR
+   ========================================================= */
+
+.vacation-toolbar {
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+
+    /* LEFT BUTTONS */
+
+    .vacation-toolbar > div:first-child {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .vacation-toolbar .btn {
+        height: 36px;
+        min-width: 36px;
+        padding: 0 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+
+    /* TODAY */
+
+    .vacation-toolbar .btn-outline-primary {
+        min-width: 58px;
+    }
+
+
+/* =========================================================
+   MONTH / YEAR
+   ========================================================= */
+
+.vacation-date-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+    .vacation-date-selector .form-select {
+        width: 125px;
+        height: 36px;
+        padding: 0 30px 0 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #333;
+    }
+
+
+/* =========================================================
+   MONTH TITLE
+   ========================================================= */
+
+.vacation-month-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #202020;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   LEGEND
+   ========================================================= */
+
+.vacation-legend {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    margin-bottom: 12px;
+    padding-left: 2px;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: #555;
+    white-space: nowrap;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    border-radius: 3px;
+}
+
+.legend-pending {
+    background: #adb5bd;
+}
+
+.legend-approved {
+    background: #ff7a00;
+}
+
+.legend-rejected {
+    background: #dc3545;
+}
+
+
+/* =========================================================
+   CALENDAR
+   ========================================================= */
+
+.vacation-calendar-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.vacation-calendar {
+    min-width: 900px;
+}
+
+
+/* =========================================================
+   CALENDAR GRID
+   ========================================================= */
+
+.vacation-grid {
+    display: grid;
+    grid-template-columns: 190px 1fr;
+}
+
+.vacation-grid-header {
+    background: #fafafa;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+
+/* =========================================================
+   EMPLOYEE HEADER
+   ========================================================= */
+
+.vacation-employee-header {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+    border-right: 1px solid #e8e8e8;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+
+/* =========================================================
+   DAY HEADER
+   ========================================================= */
+
+.vacation-days-header {
+    display: grid;
+    grid-template-columns: repeat( 31, minmax(30px, 1fr) );
+}
+
+.vacation-day-header {
+    height: 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid #eeeeee;
+    background: #fff;
+}
+
+    .vacation-day-header.weekend {
+        background: #f7f7f7;
+    }
+
+    .vacation-day-header.today {
+        background: #fff3e8;
+    }
+
+.day-number {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+}
+
+.day-name {
+    margin-top: 2px;
+    font-size: 9px;
+    color: #999;
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   EMPLOYEE ROW
+   ========================================================= */
+
+.employee-vacation-row {
+    min-height: 54px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+
+/* =========================================================
+   EMPLOYEE CELL
+   ========================================================= */
+
+.vacation-employee-cell {
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 12px;
+    border-right: 1px solid #e8e8e8;
+    background: #fff;
+}
+
+    .vacation-employee-cell strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .vacation-employee-cell small {
+        margin-top: 2px;
+        font-size: 10px;
+    }
+
+
+/* =========================================================
+   AVATAR
+   ========================================================= */
+
+.vacation-avatar {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fff0e3;
+    color: #ff7a00;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   DAYS
+   ========================================================= */
+
+.vacation-days {
+    display: grid;
+    grid-template-columns: repeat( 31, minmax(30px, 1fr) );
+}
+
+.vacation-day {
+    min-height: 54px;
+    position: relative;
+    border-right: 1px solid #eeeeee;
+    background: #fff;
+}
+
+    .vacation-day.weekend {
+        background: #fafafa;
+    }
+
+    .vacation-day.today {
+        background: #fff8f2;
+    }
+
+
+/* =========================================================
+   VACATION BLOCK
+   ========================================================= */
+
+.vacation-block {
+    position: absolute;
+    inset: 6px 1px;
+    width: calc(100% - 2px);
+    border: none;
+    padding: 0 3px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 600;
+    overflow: hidden;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+    .vacation-block:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+
+/* PENDING */
+
+.vacation-pending {
+    background: #adb5bd;
+    color: #212529;
+}
+
+
+/* APPROVED */
+
+.vacation-approved {
+    background: #ff7a00;
+    color: #fff;
+}
+
+
+/* REJECTED */
+
+.vacation-rejected {
+    background: #dc3545;
+    color: #fff;
+}
+
+
+/* START */
+
+.vacation-start {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+
+/* END */
+
+.vacation-end {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 25px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: #e9ecef;
+    color: #62686d;
+}
+
+.status-approved {
+    background: #fff0e3;
+    color: #e66d00;
+}
+
+.status-rejected {
+    background: #fde8ea;
+    color: #c82333;
+}
+
+
+/* =========================================================
+   MY VACATIONS TABLE
+   ========================================================= */
+
+.vacation-page .table {
+    font-size: 13px;
+}
+
+    .vacation-page .table thead th {
+        padding: 11px 12px;
+        border-bottom: 1px solid #e5e5e5;
+        color: #777;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .vacation-page .table tbody td {
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+        vertical-align: middle;
+    }
+
+    .vacation-page .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .vacation-page .table .btn {
+        height: 32px;
+        padding: 0 10px;
+        border-radius: 5px;
+        font-size: 12px;
+    }
+
+
+/* =========================================================
+   MODAL BACKDROP
+   ========================================================= */
+
+.vacation-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.45);
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.vacation-modal {
+    width: 100%;
+    max-width: 560px;
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.18);
+}
+
+
+/* =========================================================
+   MODAL HEADER
+   ========================================================= */
+
+.vacation-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #eeeeee;
+}
+
+    .vacation-modal-header h2 {
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+    .vacation-modal-header p {
+        font-size: 12px;
+    }
+
+
+/* =========================================================
+   MODAL BODY
+   ========================================================= */
+
+.vacation-modal-body {
+    padding: 22px;
+}
+
+    .vacation-modal-body .form-label {
+        margin-bottom: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+    }
+
+    .vacation-modal-body .form-control,
+    .vacation-modal-body .form-select {
+        min-height: 38px;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+
+/* =========================================================
+   STATUS BOX
+   ========================================================= */
+
+.vacation-status-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 13px;
+    border: 1px solid #eeeeee;
+    border-radius: 7px;
+    background: #fafafa;
+}
+
+    .vacation-status-box strong {
+        font-size: 13px;
+    }
+
+
+/* =========================================================
+   MODAL FOOTER
+   ========================================================= */
+
+.vacation-modal-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 22px;
+    border-top: 1px solid #eeeeee;
+    flex-wrap: wrap;
+}
+
+    .vacation-modal-footer .btn {
+        height: 36px;
+        padding: 0 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 13px;
+    }
+
+
+/* =========================================================
+   ALERT
+   ========================================================= */
+
+.vacation-page .alert {
+    border-radius: 7px;
+    font-size: 13px;
+    padding: 10px 13px;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .vacation-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+        .vacation-header h1 {
+            font-size: 24px;
+        }
+
+        .vacation-header .btn-primary {
+            width: 100%;
+        }
+
+
+    .vacation-toolbar {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .vacation-date-selector {
+        order: 3;
+        width: 100%;
+    }
+
+        .vacation-date-selector .form-select {
+            flex: 1;
+            width: auto;
+        }
+
+    .vacation-month-title {
+        font-size: 16px;
+    }
+
+
+    .vacation-legend {
+        gap: 12px;
+    }
+
+
+    .vacation-modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+    }
+
+    .vacation-modal {
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: 14px 14px 0 0;
+    }
+
+    .vacation-modal-footer {
+        padding-bottom: 18px;
+    }
+
+        .vacation-modal-footer .btn {
+            flex: 1;
+        }
+}

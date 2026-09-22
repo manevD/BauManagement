@@ -1,136 +1,568 @@
 @page "/baustellen"
 
-@using Microsoft.EntityFrameworkCore
-@using BauManagement.Data
-@using CompanyModel = BauManagement.Models.Company
-@using BaustelleModel = BauManagement.Models.Baustelle
-@inject ICurrentCompanyContext CurrentCompany
-
+@attribute [Authorize]
 @rendermode InteractiveServer
 
+@using Microsoft.EntityFrameworkCore
+@using BauManagement.Data
+@using BauManagement.Models
+
 @inject ApplicationDbContext Db
+@inject ICurrentCompanyContext CurrentCompany
 
 <PageTitle>Baustellen</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="employee-header mb-4">
+
     <div>
-        <h1>Baustellen</h1>
+        <h3>Baustellen</h3>
+
         <p class="text-muted mb-0">
-            Projekte und Kundendaten pro Firma verwalten.
+            @sites.Count Baustellen verwalten
         </p>
     </div>
 
-    <button class="btn btn-primary" @onclick="New">
-        + Baustelle
+    <button class="btn btn-primary px-4"
+            @onclick="New">
+
+        + Baustelle hinzufügen
+
     </button>
+
 </div>
+
+
+<!-- =========================================================
+     SEARCH
+     ========================================================= -->
+
+<div class="card modern-card mb-4">
+
+    <div class="card-body p-3">
+
+        <div class="input-group search-box">
+
+            <span class="input-group-text">
+                ⌕
+            </span>
+
+            <input class="form-control"
+                   value="@search"
+                   @oninput="OnSearch"
+                   placeholder="Baustelle live suchen – Name, Kunde, Adresse oder Stadt"
+                   autocomplete="off" />
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MESSAGE
+     ========================================================= -->
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-@messageType">
+        @message
+    </div>
+}
+
+
+<!-- =========================================================
+     DETAILS
+     ========================================================= -->
+
+@if (detailsSite is not null)
+{
+    <div class="card modern-card mb-4">
+
+        <div class="card-body p-4 p-lg-5">
+
+            <!-- HEADER -->
+
+            <div class="d-flex justify-content-between align-items-start mb-4">
+
+                <div>
+
+                    <span class="eyebrow text-primary">
+                        BAUSTELLE
+                    </span>
+
+                    <h2 class="h4 mb-1">
+                        @detailsSite.Name
+                    </h2>
+
+                    <p class="text-muted small mb-0">
+                        Details und zugewiesene Mitarbeiter
+                    </p>
+
+                </div>
+
+                <button class="btn-close"
+                        type="button"
+                        @onclick="CloseDetails">
+                </button>
+
+            </div>
+
+
+            <!-- =====================================================
+                 BAUSTELLEN DATEN
+                 ===================================================== -->
+
+            <div class="row g-3">
+
+                <!-- NAME -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Baustelle
+                    </label>
+
+                    <input class="form-control"
+                           value="@detailsSite.Name"
+                           readonly />
+
+                </div>
+
+
+                <!-- KUNDE -->
+
+                <div class="col-md-6">
+
+                    <label class="form-label">
+                        Kunde
+                    </label>
+
+                    <input class="form-control"
+                           value="@detailsSite.CustomerName"
+                           readonly />
+
+                </div>
+
+
+                <!-- KUNDEN TELEFON -->
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
+                        Kunden-Telefon
+                    </label>
+
+                    <input class="form-control"
+                           value="@detailsSite.CustomerPhone"
+                           readonly />
+
+                </div>
+
+
+                <!-- ADRESSE -->
+
+                <div class="col-md-4">
+
+                    <label class="form-label">
+                        Adresse
+                    </label>
+
+                    <input class="form-control"
+                           value="@detailsSite.Address"
+                           readonly />
+
+                </div>
+
+
+                <!-- PLZ -->
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+                        PLZ
+                    </label>
+
+                    <input class="form-control"
+                           value="@detailsSite.PostalCode"
+                           readonly />
+
+                </div>
+                
+                <!-- STADT -->
+
+                <div class="col-md-2">
+
+                    <label class="form-label">
+                        Stadt
+                    </label>
+
+                    <input class="form-control"
+                           value="@detailsSite.City"
+                           readonly />
+
+                </div>
+
+
+                <!-- START -->
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Start
+                    </label>
+
+                    <input class="form-control"
+                           value="@(detailsSite.StartDate?.ToString("dd.MM.yyyy") ?? "–")"
+                           readonly />
+
+                </div>
+
+
+                <!-- ENDE -->
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Ende
+                    </label>
+
+                    <input class="form-control"
+                           value="@(detailsSite.EndDate?.ToString("dd.MM.yyyy") ?? "–")"
+                           readonly />
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Status
+                    </label>
+
+                    <input class="form-control"
+                           value="@(detailsSite.IsActive ? "Aktiv" : "Inaktiv")"
+                           readonly />
+
+                </div>
+
+
+                <!-- ERSTELLT -->
+
+                <div class="col-md-3">
+
+                    <label class="form-label">
+                        Erstellt am
+                    </label>
+
+                    <input class="form-control"
+                           value="@detailsSite.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")"
+                           readonly />
+
+                </div>
+
+
+                <!-- BESCHREIBUNG -->
+
+                <div class="col-12">
+
+                    <label class="form-label">
+                        Beschreibung
+                    </label>
+
+                    <textarea class="form-control"
+                              rows="4"
+                              readonly>@detailsSite.Description</textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- =====================================================
+                 MITARBEITER
+                 ===================================================== -->
+
+            <div class="mt-5">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+
+                    <div>
+
+                        <h3 class="h5 mb-1">
+                            Zugewiesene Mitarbeiter
+                        </h3>
+
+                        <p class="text-muted small mb-0">
+                            Mitarbeiter, die dieser Baustelle über Einsätze zugewiesen wurden.
+                        </p>
+
+                    </div>
+
+                    <span class="badge bg-light text-dark">
+                        @assignedEmployees.Count
+                    </span>
+
+                </div>
+
+
+                @if (assignedEmployees.Count == 0)
+                {
+                    <div class="alert alert-light border mb-0">
+
+                        <span class="text-muted">
+                            Noch keine Mitarbeiter dieser Baustelle zugewiesen.
+                        </span>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-3">
+
+                        @foreach (var employee in assignedEmployees)
+                        {
+                            <div class="col-md-6 col-lg-4">
+
+                                <div class="d-flex align-items-center gap-3 p-3 border rounded">
+
+                                    <span class="employee-avatar">
+                                        @EmployeeInitials(employee)
+                                    </span>
+
+                                    <div class="flex-grow-1">
+
+                                        <strong class="d-block">
+                                            @employee.FirstName @employee.LastName
+                                        </strong>
+
+                                        @if (!string.IsNullOrWhiteSpace(employee.Position))
+                                        {
+                                            <small class="text-muted d-block">
+                                                @employee.Position
+                                            </small>
+                                        }
+
+                                        @if (!string.IsNullOrWhiteSpace(employee.Phone))
+                                        {
+                                            <small class="text-muted d-block">
+                                                @employee.Phone
+                                            </small>
+                                        }
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- CLOSE -->
+
+            <div class="mt-4">
+
+                <button type="button"
+                        class="btn btn-light"
+                        @onclick="CloseDetails">
+
+                    Schließen
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+
+<!-- =========================================================
+     EDIT / NEW FORM
+     ========================================================= -->
 
 @if (editing)
 {
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
+    <div class="card modern-card mb-4">
 
-            <h2 class="h5">
-                @(form.Id == Guid.Empty
-                    ? "Neue Baustelle"
-                    : "Baustelle bearbeiten")
-            </h2>
+        <div class="card-body p-4 p-lg-5">
 
-            <EditForm Model="form" OnValidSubmit="Save">
+            <div class="d-flex justify-content-between">
 
-                <div class="row g-3">
+                <div>
 
-                    <!-- Name -->
+                    <h2 class="h4">
+
+                        @(form.Id == Guid.Empty
+                            ? "Neue Baustelle anlegen"
+                            : "Baustelle bearbeiten")
+
+                    </h2>
+
+                    <p class="text-muted small mb-0">
+                        Projektdaten und Kundendaten verwalten.
+                    </p>
+
+                </div>
+
+                <button class="btn-close"
+                        type="button"
+                        @onclick="Cancel">
+                </button>
+
+            </div>
+
+
+            <EditForm Model="form"
+                      OnValidSubmit="Save">
+
+                <DataAnnotationsValidator />
+
+                <div class="row g-3 mt-2">
+
+                    <!-- NAME -->
+
                     <div class="col-md-6">
+
                         <label class="form-label">
-                            Name *
+                            Baustelle *
                         </label>
 
                         <InputText class="form-control"
-                                   @bind-Value="form.Name" />
+                                   @bind-Value="form.Name"
+                                   placeholder="z. B. Neubau Müller" />
+
                     </div>
 
-                    <!-- Kunde -->
-                    <div class="col-md-4">
+
+                    <!-- KUNDE -->
+
+                    <div class="col-md-6">
+
                         <label class="form-label">
                             Kunde
                         </label>
 
                         <InputText class="form-control"
-                                   @bind-Value="form.CustomerName" />
+                                   @bind-Value="form.CustomerName"
+                                   placeholder="Kundenname" />
+
                     </div>
 
-                    <!-- Kunden Telefon -->
+
+                    <!-- KUNDEN TELEFON -->
+
                     <div class="col-md-4">
+
                         <label class="form-label">
                             Kunden-Telefon
                         </label>
 
                         <InputText class="form-control"
-                                   @bind-Value="form.CustomerPhone" />
+                                   @bind-Value="form.CustomerPhone"
+                                   placeholder="+49 ..." />
+
                     </div>
 
-                    <!-- Adresse -->
+
+                    <!-- ADRESSE -->
+
                     <div class="col-md-4">
+
                         <label class="form-label">
                             Adresse
                         </label>
 
                         <InputText class="form-control"
-                                   @bind-Value="form.Address" />
+                                   @bind-Value="form.Address"
+                                   placeholder="Straße und Hausnummer" />
+
                     </div>
 
+
                     <!-- PLZ -->
-                    <div class="col-md-3">
+
+                    <div class="col-md-2">
+
                         <label class="form-label">
                             PLZ
                         </label>
 
                         <InputText class="form-control"
                                    @bind-Value="form.PostalCode" />
-                    </div>
 
-                    <!-- Stadt -->
-                    <div class="col-md-3">
+                    </div>
+                                 
+
+
+                    <!-- STADT -->
+
+                    <div class="col-md-2">
+
                         <label class="form-label">
                             Stadt
                         </label>
 
                         <InputText class="form-control"
                                    @bind-Value="form.City" />
+
                     </div>
 
-                    <!-- Start -->
+
+                    <!-- START -->
+
                     <div class="col-md-3">
+
                         <label class="form-label">
                             Start
                         </label>
 
                         <InputDate class="form-control"
                                    @bind-Value="form.StartDate" />
+
                     </div>
 
-                    <!-- Ende -->
+
+                    <!-- ENDE -->
+
                     <div class="col-md-3">
+
                         <label class="form-label">
                             Ende
                         </label>
 
                         <InputDate class="form-control"
                                    @bind-Value="form.EndDate" />
+
                     </div>
 
-                    <!-- Beschreibung -->
+
+                    <!-- BESCHREIBUNG -->
+
                     <div class="col-12">
+
                         <label class="form-label">
                             Beschreibung
                         </label>
 
                         <InputTextArea class="form-control"
-                                       @bind-Value="form.Description" />
+                                       rows="4"
+                                       @bind-Value="form.Description"
+                                       placeholder="Zusätzliche Informationen zur Baustelle..." />
+
                     </div>
 
-                    <!-- Aktiv -->
+
+                    <!-- AKTIV -->
+
                     <div class="col-12">
 
                         <div class="form-check">
@@ -139,7 +571,7 @@
                                            @bind-Value="form.IsActive" />
 
                             <label class="form-check-label">
-                                Aktiv
+                                Baustelle ist aktiv
                             </label>
 
                         </div>
@@ -148,17 +580,24 @@
 
                 </div>
 
-                <div class="mt-3">
+
+                <!-- BUTTONS -->
+
+                <div class="mt-4">
 
                     <button type="submit"
-                            class="btn btn-success me-2">
-                        Speichern
+                            class="btn btn-primary me-2">
+
+                        Baustelle speichern
+
                     </button>
 
                     <button type="button"
-                            class="btn btn-outline-secondary"
+                            class="btn btn-light"
                             @onclick="Cancel">
+
                         Abbrechen
+
                     </button>
 
                 </div>
@@ -166,91 +605,219 @@
             </EditForm>
 
         </div>
+
     </div>
 }
 
-@if (message is not null)
-{
-    <div class="alert alert-warning">
-        @message
-    </div>
-}
 
-<div class="card shadow-sm">
+<!-- =========================================================
+     TABLE
+     ========================================================= -->
+
+<div class="card modern-card overflow-hidden">
 
     <div class="table-responsive">
 
-        <table class="table table-hover mb-0">
+        <table class="table table-modern align-middle mb-0">
 
             <thead>
+
                 <tr>
+
                     <th>Baustelle</th>
-                    <th>Firma</th>
+                    <th>Kunde</th>
                     <th>Adresse</th>
                     <th>Zeitraum</th>
                     <th>Status</th>
                     <th></th>
+
                 </tr>
+
             </thead>
+
 
             <tbody>
 
-                @foreach (var site in sites)
+                @foreach (var site in PagedSites)
                 {
                     <tr>
 
+                        <!-- =================================================
+                             BAUSTELLE
+                             ================================================= -->
+
                         <td>
-                            <strong>
-                                @site.Name
-                            </strong>
 
-                            <br />
+                            <div class="d-flex align-items-center gap-3">
 
-                            <small class="text-muted">
-                                @site.CustomerName
-                            </small>
+                                <span class="employee-avatar">
+                                    @Initials(site)
+                                </span>
+
+                                <div>
+
+                                    <strong>
+                                        @site.Name
+                                    </strong>
+
+                                    <small class="d-block text-muted">
+                                        Seit
+                                        @site.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy")
+                                    </small>
+
+                                </div>
+
+                            </div>
+
                         </td>
 
+
+                        <!-- =================================================
+                             KUNDE
+                             ================================================= -->
+
                         <td>
-                            @site.Company.Name
+
+                            @if (!string.IsNullOrWhiteSpace(site.CustomerName))
+                            {
+                                <strong>
+                                    @site.CustomerName
+                                </strong>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Kein Kunde
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(site.CustomerPhone))
+                            {
+                                <small class="d-block text-muted">
+                                    @site.CustomerPhone
+                                </small>
+                            }
+
                         </td>
 
+
+                        <!-- =================================================
+                             ADRESSE
+                             ================================================= -->
+
                         <td>
-                            @site.Address
-                            <br />
-                            @site.PostalCode @site.City
+
+                            @if (!string.IsNullOrWhiteSpace(site.Address))
+                            {
+                                <span>
+                                    @site.Address
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(site.PostalCode) ||
+                                 !string.IsNullOrWhiteSpace(site.City))
+                            {
+                                <small class="d-block text-muted">
+
+                                    @site.PostalCode
+
+                                    @if (!string.IsNullOrWhiteSpace(site.PostalCode) &&
+                                         !string.IsNullOrWhiteSpace(site.City))
+                                    {
+                                        <span> </span>
+                                    }
+                                    , 
+                                    @site.City
+
+                                </small>
+                            }
+
+                            @if (string.IsNullOrWhiteSpace(site.Address) &&
+                                 string.IsNullOrWhiteSpace(site.PostalCode) &&
+                                 string.IsNullOrWhiteSpace(site.City))
+                            {
+                                <span class="text-muted">
+                                    Keine Adresse
+                                </span>
+                            }
+
                         </td>
 
+
+                        <!-- =================================================
+                             ZEITRAUM
+                             ================================================= -->
+
                         <td>
-                            @site.StartDate?.ToString("dd.MM.yyyy")
-                            –
-                            @site.EndDate?.ToString("dd.MM.yyyy")
+
+                            @if (site.StartDate.HasValue ||
+                                 site.EndDate.HasValue)
+                            {
+                                <span>
+
+                                    @(site.StartDate?.ToString("dd.MM.yyyy")
+                                      ?? "–")
+
+                                    –
+
+                                    @(site.EndDate?.ToString("dd.MM.yyyy")
+                                      ?? "–")
+
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">
+                                    Kein Zeitraum
+                                </span>
+                            }
+
                         </td>
 
+
+                        <!-- =================================================
+                             STATUS
+                             ================================================= -->
+
                         <td>
 
-                            <span class="badge @(site.IsActive
-                                ? "text-bg-success"
-                                : "text-bg-secondary")">
-
-                                @(site.IsActive
-                                    ? "Aktiv"
-                                    : "Inaktiv")
-
+                            <span class="status-dot @(site.IsActive
+                                ? "active"
+                                : "inactive")">
                             </span>
 
+                            @(site.IsActive
+                                ? "Aktiv"
+                                : "Inaktiv")
+
                         </td>
+
+
+                        <!-- =================================================
+                             ACTIONS
+                             ================================================= -->
 
                         <td class="text-end">
 
                             <button class="btn btn-sm btn-outline-primary me-1"
+                                    @onclick="() => ShowDetails(site)">
+
+                                Details
+
+                            </button>
+
+                            <button class="btn btn-sm btn-light me-1"
                                     @onclick="() => Edit(site)">
+
                                 Bearbeiten
+
                             </button>
 
                             <button class="btn btn-sm btn-outline-danger"
                                     @onclick="() => Delete(site)">
+
                                 Löschen
+
                             </button>
 
                         </td>
@@ -258,15 +825,33 @@
                     </tr>
                 }
 
-                @if (!sites.Any())
+
+                <!-- =================================================
+                     NO RESULTS
+                     ================================================= -->
+
+                @if (!FilteredSites.Any())
                 {
                     <tr>
-                        <td colspan="6"
-                            class="text-center text-muted py-4">
 
-                            Noch keine Baustellen angelegt.
+                        <td colspan="6"
+                            class="text-center text-muted py-5">
+
+                            @if (string.IsNullOrWhiteSpace(search))
+                            {
+                                <span>
+                                    Noch keine Baustellen angelegt.
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    Keine Baustelle gefunden.
+                                </span>
+                            }
 
                         </td>
+
                     </tr>
                 }
 
@@ -276,139 +861,746 @@
 
     </div>
 
+
+    <!-- =========================================================
+         PAGINATION
+         ========================================================= -->
+
+    @if (TotalPages > 1)
+    {
+   <div class="baustellen-pagination">
+
+            <!-- RESULT INFO -->
+
+            <div class="text-muted small">
+
+                @{
+                    var totalResults = FilteredSites.Count();
+
+                    var from =
+                        ((CurrentPage - 1) * PageSize) + 1;
+
+                    var to =
+                        Math.Min(
+                            CurrentPage * PageSize,
+                            totalResults);
+                }
+
+                @if (totalResults > 0)
+                {
+                    <span>
+                        @from–@to von @totalResults Baustellen
+                    </span>
+                }
+
+            </div>
+
+
+            <!-- PAGINATION -->
+
+            <div class="d-flex align-items-center gap-1">
+
+                <!-- PREVIOUS -->
+
+                <button class="btn btn-sm btn-light"
+                        disabled="@(CurrentPage <= 1)"
+                        @onclick="PreviousPage">
+
+                    ‹ Zurück
+
+                </button>
+
+
+                <!-- PAGE NUMBERS -->
+
+                @for (var page = 1; page <= TotalPages; page++)
+                {
+                    var pageNumber = page;
+
+                    <button class="btn btn-sm @(CurrentPage == pageNumber
+                        ? "btn-primary"
+                        : "btn-light")"
+                            @onclick="() => GoToPage(pageNumber)">
+
+                        @pageNumber
+
+                    </button>
+                }
+
+
+                <!-- NEXT -->
+
+                <button class="btn btn-sm btn-light"
+                        disabled="@(CurrentPage >= TotalPages)"
+                        @onclick="NextPage">
+
+                    Weiter ›
+
+                </button>
+
+            </div>
+
+        </div>
+    }
+
 </div>
+
 
 @code {
 
-    private List<BaustelleModel> sites = [];
-    private List<CompanyModel> companies = [];
+    // =========================================================
+    // DATA
+    // =========================================================
 
-    private BaustelleModel form = new();
+    private List<Baustelle> sites = [];
+
+    private Baustelle form = new();
+
+    private Baustelle? detailsSite;
+
+    private List<Employee> assignedEmployees = [];
+
+    private Guid companyId;
 
     private bool editing;
+
+    private string search = "";
+
+    private string messageType = "warning";
 
     private string? message;
 
 
+    // =========================================================
+    // PAGINATION
+    // =========================================================
+
+    private const int PageSize = 10;
+
+    private int CurrentPage = 1;
+
+
+    // =========================================================
+    // FILTERED SITES
+    // =========================================================
+
+    private IEnumerable<Baustelle> FilteredSites =>
+        sites.Where(x =>
+            string.IsNullOrWhiteSpace(search) ||
+            (
+                $"{x.Name} " +
+                $"{x.CustomerName} " +
+                $"{x.CustomerPhone} " +
+                $"{x.Address} " +
+                $"{x.PostalCode} " +
+                $"{x.City} " +
+                $"{x.Description}"
+            ).Contains(
+                search.Trim(),
+                StringComparison.OrdinalIgnoreCase
+            )
+        );
+
+
+    // =========================================================
+    // PAGED SITES
+    // =========================================================
+
+    private IEnumerable<Baustelle> PagedSites =>
+        FilteredSites
+            .Skip((CurrentPage - 1) * PageSize)
+            .Take(PageSize);
+
+
+    // =========================================================
+    // TOTAL PAGES
+    // =========================================================
+
+    private int TotalPages =>
+        Math.Max(
+            1,
+            (int)Math.Ceiling(
+                FilteredSites.Count() /
+                (double)PageSize));
+
+
+    // =========================================================
+    // INITIALIZE
+    // =========================================================
+
     protected override async Task OnInitializedAsync()
     {
-        companies = await Db.Companies
-            .AsNoTracking()
-            .OrderBy(x => x.Name)
-            .ToListAsync();
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!id.HasValue)
+        {
+            message = "Keine Firma gefunden.";
+            messageType = "danger";
+            return;
+        }
+
+        companyId = id.Value;
 
         await Load();
     }
 
 
+    // =========================================================
+    // LOAD
+    // =========================================================
+
     private async Task Load()
     {
         sites = await Db.Baustellen
-            .Include(x => x.Company)
             .AsNoTracking()
+            .Where(x =>
+                x.CompanyId == companyId)
             .OrderBy(x => x.Name)
             .ToListAsync();
+
+        if (CurrentPage > TotalPages)
+        {
+            CurrentPage = TotalPages;
+        }
+
+        if (CurrentPage < 1)
+        {
+            CurrentPage = 1;
+        }
     }
 
 
-    private void New()
+    // =========================================================
+    // SEARCH
+    // =========================================================
+
+    private void OnSearch(ChangeEventArgs e)
     {
-        form = new BaustelleModel
+        search =
+            e.Value?.ToString() ?? "";
+
+        CurrentPage = 1;
+    }
+
+
+    // =========================================================
+    // GO TO PAGE
+    // =========================================================
+
+    private void GoToPage(int page)
+    {
+        if (page < 1)
         {
+            page = 1;
+        }
+
+        if (page > TotalPages)
+        {
+            page = TotalPages;
+        }
+
+        CurrentPage = page;
+    }
+
+
+    // =========================================================
+    // PREVIOUS PAGE
+    // =========================================================
+
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage--;
+        }
+    }
+
+
+    // =========================================================
+    // NEXT PAGE
+    // =========================================================
+
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages)
+        {
+            CurrentPage++;
+        }
+    }
+
+
+    // =========================================================
+    // NEW
+    // =========================================================
+
+    private async Task New()
+    {
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!id.HasValue)
+        {
+            message = "Keine Firma gefunden.";
+            messageType = "danger";
+            return;
+        }
+
+        companyId = id.Value;
+
+        detailsSite = null;
+        assignedEmployees = [];
+
+        form = new Baustelle
+        {
+            Id = Guid.Empty,
+            CompanyId = companyId,
             IsActive = true
         };
 
         editing = true;
+
         message = null;
     }
 
 
-    private void Edit(BaustelleModel x)
+    // =========================================================
+    // DETAILS
+    // =========================================================
+
+    private async Task ShowDetails(Baustelle site)
     {
-        form = new BaustelleModel
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!id.HasValue)
         {
-            Id = x.Id,
-            CompanyId = x.CompanyId,
-            Name = x.Name,
-            Address = x.Address,
-            PostalCode = x.PostalCode,
-            City = x.City,
-            CustomerName = x.CustomerName,
-            CustomerPhone = x.CustomerPhone,
-            StartDate = x.StartDate,
-            EndDate = x.EndDate,
-            IsActive = x.IsActive,
-            Description = x.Description,
-            CreatedAt = x.CreatedAt
+            message = "Keine Firma gefunden.";
+            messageType = "danger";
+            return;
+        }
+
+        companyId = id.Value;
+
+
+        // =====================================================
+        // SECURITY
+        // =====================================================
+
+        if (site.CompanyId != companyId)
+        {
+            message = "Zugriff verweigert.";
+            messageType = "danger";
+            return;
+        }
+
+
+        // =====================================================
+        // LOAD BAUSTELLE
+        // =====================================================
+
+        var siteFromDb =
+            await Db.Baustellen
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.Id == site.Id &&
+                    x.CompanyId == companyId);
+
+
+        if (siteFromDb is null)
+        {
+            message = "Baustelle wurde nicht gefunden.";
+            messageType = "danger";
+            return;
+        }
+
+
+        detailsSite = siteFromDb;
+
+
+        // =====================================================
+        // LOAD MITARBEITER
+        //
+        // Nur Mitarbeiter, die über einen WorkAssignment
+        // dieser Baustelle zugewiesen wurden.
+        // =====================================================
+
+        var assignments =
+            await Db.WorkAssignments
+                .AsNoTracking()
+                .Include(x => x.Employee)
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.BaustelleId == site.Id)
+                .ToListAsync();
+
+
+        assignedEmployees =
+            assignments
+                .Where(x => x.Employee != null)
+                .Select(x => x.Employee!)
+                .GroupBy(x => x.Id)
+                .Select(x => x.First())
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .ToList();
+
+
+        editing = false;
+
+        message = null;
+    }
+
+
+    // =========================================================
+    // CLOSE DETAILS
+    // =========================================================
+
+    private void CloseDetails()
+    {
+        detailsSite = null;
+
+        assignedEmployees = [];
+    }
+
+
+    // =========================================================
+    // EDIT
+    // =========================================================
+
+    private async Task Edit(Baustelle site)
+    {
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!id.HasValue)
+        {
+            message = "Keine Firma gefunden.";
+            messageType = "danger";
+            return;
+        }
+
+        companyId = id.Value;
+
+
+        // =====================================================
+        // SECURITY
+        // =====================================================
+
+        if (site.CompanyId != companyId)
+        {
+            message = "Zugriff verweigert.";
+            messageType = "danger";
+            return;
+        }
+
+
+        detailsSite = null;
+
+        assignedEmployees = [];
+
+
+        // =====================================================
+        // FORM
+        // =====================================================
+
+        form = new Baustelle
+        {
+            Id = site.Id,
+
+            CompanyId = companyId,
+
+            Name = site.Name,
+
+            Address = site.Address,
+
+            PostalCode = site.PostalCode,
+
+            City = site.City,
+
+            CustomerName = site.CustomerName,
+
+            CustomerPhone = site.CustomerPhone,
+
+            StartDate = site.StartDate,
+
+            EndDate = site.EndDate,
+
+            IsActive = site.IsActive,
+
+            Description = site.Description,
+
+            CreatedAt = site.CreatedAt
         };
 
+
         editing = true;
+
         message = null;
     }
 
+
+    // =========================================================
+    // SAVE
+    // =========================================================
 
     private async Task Save()
     {
         message = null;
-                var id = await CurrentCompany.GetCompanyIdAsync();
 
-        if (!id.HasValue || 
-            string.IsNullOrWhiteSpace(form.Name))
+
+        // =====================================================
+        // CURRENT COMPANY
+        // =====================================================
+
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!id.HasValue)
         {
-            message = "Firma und Baustellenname sind erforderlich.";
+            message = "Keine Firma gefunden.";
+            messageType = "danger";
             return;
         }
-        form.CompanyId = id.Value;
+
+        companyId = id.Value;
+
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (string.IsNullOrWhiteSpace(form.Name))
+        {
+            message =
+                "Der Baustellenname ist erforderlich.";
+
+            messageType = "warning";
+
+            return;
+        }
+
+
+        form.Name =
+            form.Name.Trim();
+
+
+        form.CustomerName =
+            string.IsNullOrWhiteSpace(form.CustomerName)
+                ? null
+                : form.CustomerName.Trim();
+
+
+        form.CustomerPhone =
+            string.IsNullOrWhiteSpace(form.CustomerPhone)
+                ? null
+                : form.CustomerPhone.Trim();
+
+
+        form.Address =
+            string.IsNullOrWhiteSpace(form.Address)
+                ? null
+                : form.Address.Trim();
+
+
+        form.PostalCode =
+            string.IsNullOrWhiteSpace(form.PostalCode)
+                ? null
+                : form.PostalCode.Trim();
+
+
+        form.City =
+            string.IsNullOrWhiteSpace(form.City)
+                ? null
+                : form.City.Trim();
+
+
+        form.Description =
+            string.IsNullOrWhiteSpace(form.Description)
+                ? null
+                : form.Description.Trim();
+
+
+        // =====================================================
+        // DATE VALIDATION
+        // =====================================================
 
         if (form.StartDate.HasValue &&
             form.EndDate.HasValue &&
             form.EndDate < form.StartDate)
         {
-            message = "Das Enddatum muss nach dem Startdatum liegen.";
+            message =
+                "Das Enddatum muss nach dem Startdatum liegen.";
+
+            messageType = "warning";
+
             return;
         }
 
 
+        // =====================================================
+        // NEW
+        // =====================================================
+
         if (form.Id == Guid.Empty)
         {
-            form.Id = Guid.NewGuid();
+            form.Id =
+                Guid.NewGuid();
+
+            form.CompanyId =
+                companyId;
+
+            form.CreatedAt =
+                DateTime.UtcNow;
 
             Db.Baustellen.Add(form);
         }
         else
         {
-            Db.Baustellen.Update(form);
+            // =================================================
+            // EXISTING
+            // =================================================
+
+            var existingSite =
+                await Db.Baustellen
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == form.Id &&
+                        x.CompanyId == companyId);
+
+
+            if (existingSite is null)
+            {
+                message =
+                    "Baustelle wurde nicht gefunden.";
+
+                messageType = "danger";
+
+                return;
+            }
+
+
+            existingSite.Name =
+                form.Name;
+
+            existingSite.Address =
+                form.Address;
+
+            existingSite.PostalCode =
+                form.PostalCode;
+
+            existingSite.City =
+                form.City;
+
+            existingSite.CustomerName =
+                form.CustomerName;
+
+            existingSite.CustomerPhone =
+                form.CustomerPhone;
+
+            existingSite.StartDate =
+                form.StartDate;
+
+            existingSite.EndDate =
+                form.EndDate;
+
+            existingSite.IsActive =
+                form.IsActive;
+
+            existingSite.Description =
+                form.Description;
         }
 
 
         await Db.SaveChangesAsync();
 
+
         editing = false;
+
+        message =
+            "Baustelle wurde erfolgreich gespeichert.";
+
+        messageType = "success";
+
 
         await Load();
     }
 
 
+    // =========================================================
+    // CANCEL
+    // =========================================================
+
     private void Cancel()
     {
         editing = false;
+
         message = null;
+
+        form = new Baustelle();
     }
 
 
-    private async Task Delete(BaustelleModel x)
+    // =========================================================
+    // DELETE
+    // =========================================================
+
+    private async Task Delete(Baustelle site)
     {
         try
         {
-            var site = await Db.Baustellen
-                .FirstOrDefaultAsync(b => b.Id == x.Id);
+            var id =
+                await CurrentCompany.GetCompanyIdAsync();
 
-            if (site is null)
+            if (!id.HasValue)
+            {
+                message =
+                    "Keine Firma gefunden.";
+
+                messageType = "danger";
+
                 return;
+            }
 
-            Db.Baustellen.Remove(site);
+            companyId = id.Value;
+
+
+            // =================================================
+            // SECURITY
+            // =================================================
+
+            var siteFromDb =
+                await Db.Baustellen
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == site.Id &&
+                        x.CompanyId == companyId);
+
+
+            if (siteFromDb is null)
+            {
+                message =
+                    "Baustelle wurde nicht gefunden.";
+
+                messageType = "danger";
+
+                return;
+            }
+
+
+            Db.Baustellen.Remove(siteFromDb);
 
             await Db.SaveChangesAsync();
+
+
+            detailsSite = null;
+
+            assignedEmployees = [];
+
+
+            message =
+                "Baustelle wurde gelöscht.";
+
+            messageType = "success";
+
 
             await Load();
         }
@@ -416,6 +1608,71 @@
         {
             message =
                 "Baustellen mit zugehörigen Aufgaben oder Einsätzen können nicht gelöscht werden.";
+
+            messageType = "danger";
         }
     }
+
+
+    // =========================================================
+    // BAUSTELLE INITIALS
+    // =========================================================
+
+    private static string Initials(Baustelle site)
+    {
+        if (string.IsNullOrWhiteSpace(site.Name))
+        {
+            return "BS";
+        }
+
+
+        var words =
+            site.Name
+                .Split(
+                    ' ',
+                    StringSplitOptions.RemoveEmptyEntries);
+
+
+        if (words.Length == 1)
+        {
+            return words[0]
+                .Substring(
+                    0,
+                    Math.Min(
+                        2,
+                        words[0].Length))
+                .ToUpperInvariant();
+        }
+
+
+        var first =
+            words[0].FirstOrDefault();
+
+        var last =
+            words[1].FirstOrDefault();
+
+
+        return $"{first}{last}"
+            .ToUpperInvariant();
+    }
+
+
+    // =========================================================
+    // MITARBEITER INITIALS
+    // =========================================================
+
+    private static string EmployeeInitials(Employee employee)
+    {
+        var first =
+            employee.FirstName?
+                .FirstOrDefault() ?? 'M';
+
+        var last =
+            employee.LastName?
+                .FirstOrDefault() ?? 'A';
+
+        return $"{first}{last}"
+            .ToUpperInvariant();
+    }
+
 }

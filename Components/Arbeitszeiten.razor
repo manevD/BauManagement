@@ -1,0 +1,1987 @@
+﻿@page "/arbeitszeiten"
+
+@attribute [Authorize(Roles = "Admin,Chef")]
+
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using BauManagement.Data
+@using BauManagement.Models
+@using Microsoft.JSInterop
+@using System.Text
+
+@inject IJSRuntime JS
+@inject ApplicationDbContext Db
+@inject ICurrentCompanyContext CurrentCompany
+
+<PageTitle>Arbeitszeiten</PageTitle>
+
+<div class="working-times-page">
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="working-times-header">
+
+        <div>
+
+            <h3>
+                Arbeitszeiten
+            </h3>
+
+            <p>
+                Arbeitszeiten deiner Mitarbeiter im Überblick.
+            </p>
+
+        </div>
+
+        <div class="working-times-header-actions">
+
+            <button type="button"
+                    class="export-button"
+                    @onclick="ExportCsv">
+
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+
+                CSV Export
+
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         MONTH FILTER
+         ========================================================= -->
+
+    <div class="working-times-filter-card">
+
+        <div class="filter-group">
+
+            <label>
+                Monat
+            </label>
+
+            <div class="month-selector">
+
+                <button type="button"
+                        class="month-button"
+                        @onclick="PreviousMonth">
+
+                    <i class="bi bi-chevron-left"></i>
+
+                </button>
+
+                <div class="month-value">
+                    @CurrentMonth.ToString("MMMM yyyy")
+                </div>
+
+                <button type="button"
+                        class="month-button"
+                        @onclick="NextMonth">
+
+                    <i class="bi bi-chevron-right"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="filter-group search-group">
+
+            <label>
+                Mitarbeiter
+            </label>
+
+            <div class="search-input-wrapper">
+
+                <i class="bi bi-search"></i>
+
+                <input type="text"
+                       class="form-control"
+                       placeholder="Mitarbeiter suchen..."
+                       @bind="searchText"
+                       @bind:event="oninput" />
+
+            </div>
+
+        </div>
+
+
+        <button type="button"
+                class="today-button"
+                @onclick="GoToCurrentMonth">
+
+            <i class="bi bi-calendar-check"></i>
+
+            Heute
+
+        </button>
+
+    </div>
+
+
+    <!-- =========================================================
+         LOADING
+         ========================================================= -->
+
+    @if (loading)
+    {
+        <div class="working-times-loading">
+
+            <div class="working-times-spinner"></div>
+
+            <span>
+                Arbeitszeiten werden geladen...
+            </span>
+
+        </div>
+    }
+    else
+    {
+        <!-- =====================================================
+             SUMMARY CARDS
+             ===================================================== -->
+
+        <div class="working-times-summary-grid">
+
+            <!-- TOTAL WORK -->
+
+            <div class="summary-card">
+
+                <div class="summary-icon orange">
+                    <i class="bi bi-clock"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Gesamt Arbeitszeit
+                    </span>
+
+                    <strong>
+                        @FormatDuration(TotalCompanyWorkTime)
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- TOTAL BREAK -->
+
+            <div class="summary-card">
+
+                <div class="summary-icon gray">
+                    <i class="bi bi-cup-hot"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Gesamt Pause
+                    </span>
+
+                    <strong>
+                        @FormatDuration(TotalCompanyBreakTime)
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- EMPLOYEES -->
+
+            <div class="summary-card">
+
+                <div class="summary-icon blue">
+                    <i class="bi bi-people"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Mitarbeiter
+                    </span>
+
+                    <strong>
+                        @FilteredEmployees.Count
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- WORK DAYS -->
+
+            <div class="summary-card">
+
+                <div class="summary-icon green">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+
+                <div>
+
+                    <span>
+                        Arbeitstage
+                    </span>
+
+                    <strong>
+                        @TotalWorkDays
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             EMPLOYEE SUMMARY
+             ===================================================== -->
+
+        <div class="section-header">
+
+            <div>
+
+                <h2>
+                    Mitarbeiter
+                </h2>
+
+                <span>
+                    @FilteredEmployees.Count Mitarbeiter
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="employee-summary-card">
+
+            <div class="table-responsive">
+
+                <table class="working-times-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Mitarbeiter
+                            </th>
+
+                            <th>
+                                Arbeitstage
+                            </th>
+
+                            <th>
+                                Arbeitszeit
+                            </th>
+
+                            <th>
+                                Pause
+                            </th>
+
+                            <th>
+                                Ø pro Arbeitstag
+                            </th>
+
+                            <th class="text-end">
+                                Details
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (FilteredEmployees.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="6">
+
+                                    <div class="empty-state">
+
+                                        <div class="empty-icon">
+                                            <i class="bi bi-search"></i>
+                                        </div>
+
+                                        <strong>
+                                            Keine Mitarbeiter gefunden
+                                        </strong>
+
+                                        <span>
+                                            Für die Suche wurden keine Mitarbeiter gefunden.
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var employee in FilteredEmployees)
+                            {
+                                var workTime =
+                                    GetEmployeeWorkTime(employee.Id);
+
+                                var breakTime =
+                                    GetEmployeeBreakTime(employee.Id);
+
+                                var workDays =
+                                    GetEmployeeWorkDays(employee.Id);
+
+                                var average =
+                                    workDays > 0
+                                        ? TimeSpan.FromTicks(
+                                            workTime.Ticks / workDays)
+                                        : TimeSpan.Zero;
+
+                                <tr>
+
+                                    <!-- EMPLOYEE -->
+
+                                    <td>
+
+                                        <div class="employee-cell">
+
+                                            <div class="employee-avatar">
+                                                @GetInitials(employee)
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    @employee.FirstName
+                                                    @employee.LastName
+                                                </strong>
+
+                                                @if (!string.IsNullOrWhiteSpace(employee.Position))
+                                                {
+                                                    <span>
+                                                        @employee.Position
+                                                    </span>
+                                                }
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- DAYS -->
+
+                                    <td>
+
+                                        <span class="days-value">
+                                            @workDays
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- WORK TIME -->
+
+                                    <td>
+
+                                        <strong class="work-time-value">
+                                            @FormatDuration(workTime)
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- BREAK -->
+
+                                    <td>
+
+                                        <span class="break-value">
+                                            @FormatDuration(breakTime)
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- AVERAGE -->
+
+                                    <td>
+
+                                        <span class="average-value">
+                                            @FormatDuration(average)
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- DETAILS -->
+
+                                    <td class="text-end">
+
+                                        <button type="button"
+                                                class="details-button"
+                                                @onclick="() => OpenEmployee(employee)">
+
+                                            <i class="bi bi-eye"></i>
+
+                                            Details
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             DAILY OVERVIEW
+             ===================================================== -->
+
+        <div class="section-header daily-header">
+
+            <div>
+
+                <h2>
+                    Tagesübersicht
+                </h2>
+
+                <span>
+                    Alle erfassten Arbeitszeiten im
+                    @CurrentMonth.ToString("MMMM yyyy")
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- DAILY SEARCH -->
+
+        <div class="daily-search-card">
+
+            <div class="daily-search-wrapper">
+
+                <i class="bi bi-search"></i>
+
+                <input type="text"
+                       class="form-control"
+                       placeholder="Nach Mitarbeiter oder Datum suchen..."
+                       value="@dailySearchText"
+                       @oninput="OnDailySearchChanged" />
+
+                @if (!string.IsNullOrWhiteSpace(dailySearchText))
+                {
+                    <button type="button"
+                            class="daily-search-clear"
+                            @onclick="ClearDailySearch">
+
+                        <i class="bi bi-x-lg"></i>
+
+                    </button>
+                }
+
+            </div>
+
+            <div class="daily-search-info">
+
+                @if (FilteredDailyEntries.Count > 0)
+                {
+                    <span>
+                        @DailyFirstItem–@DailyLastItem
+                        von @FilteredDailyEntries.Count
+                    </span>
+                }
+                else
+                {
+                    <span>
+                        0 Einträge
+                    </span>
+                }
+
+            </div>
+
+        </div>
+
+
+        <!-- DAILY TABLE -->
+
+        <div class="employee-summary-card">
+
+            <div class="table-responsive">
+
+                <table class="working-times-table daily-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Datum
+                            </th>
+
+                            <th>
+                                Mitarbeiter
+                            </th>
+
+                            <th>
+                                Baustelle
+                            </th>
+
+                            <th>
+                                Beginn
+                            </th>
+
+                            <th>
+                                Ende
+                            </th>
+
+                            <th>
+                                Pause
+                            </th>
+
+                            <th>
+                                Arbeitszeit
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th class="text-end">
+                                Details
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @if (PagedDailyEntries.Count == 0)
+                        {
+                            <tr>
+
+                                <td colspan="9">
+
+                                    <div class="empty-state">
+
+                                        <div class="empty-icon">
+                                            <i class="bi bi-calendar-x"></i>
+                                        </div>
+
+                                        <strong>
+                                            Keine Arbeitszeiten
+                                        </strong>
+
+                                        <span>
+                                            Für die Suche wurden keine Arbeitszeiten gefunden.
+                                        </span>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var entry in PagedDailyEntries)
+                            {
+                                <tr>
+
+                                    <!-- DATE -->
+
+                                    <td>
+
+                                        <div class="date-cell">
+
+                                            <strong>
+                                                @entry.WorkDate.ToString("dd.MM.yyyy")
+                                            </strong>
+
+                                            <span>
+                                                @entry.WorkDate.ToString("ddd")
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- EMPLOYEE -->
+
+                                    <td>
+
+                                        <div class="employee-cell small">
+
+                                            <div class="employee-avatar small">
+                                                @GetInitials(entry.Employee)
+                                            </div>
+
+                                            <div>
+
+                                                <strong>
+                                                    @entry.Employee.FirstName
+                                                    @entry.Employee.LastName
+                                                </strong>
+
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- SITE -->
+
+                                    <td>
+
+                                        <div class="site-cell">
+
+                                            <i class="bi bi-geo-alt"></i>
+
+                                            <span>
+                                                @GetSiteLabel(entry.Baustelle)
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- START -->
+
+                                    <td>
+
+                                        @if (entry.StartTime.HasValue)
+                                        {
+                                            <strong>
+                                                @entry.StartTime.Value.ToString("HH:mm")
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="muted-value">
+                                                —
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- END -->
+
+                                    <td>
+
+                                        @if (entry.EndTime.HasValue)
+                                        {
+                                            <strong>
+                                                @entry.EndTime.Value.ToString("HH:mm")
+                                            </strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="muted-value">
+                                                —
+                                            </span>
+                                        }
+
+                                    </td>
+
+
+                                    <!-- BREAK -->
+
+                                    <td>
+                                        @FormatBreak(entry.BreakMinutes)
+                                    </td>
+
+
+                                    <!-- WORK -->
+
+                                    <td>
+
+                                        <strong class="work-time-value">
+                                            @FormatDuration(GetWorkTime(entry))
+                                        </strong>
+
+                                    </td>
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        <span class="@GetStatusClass(entry.Status)">
+                                            @GetStatusText(entry.Status)
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- DETAILS -->
+
+                                    <td class="text-end">
+
+                                        <button type="button"
+                                                class="icon-details-button"
+                                                title="Details"
+                                                @onclick="() => OpenEntry(entry)">
+
+                                            <i class="bi bi-eye"></i>
+
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- DAILY PAGINATION -->
+
+            @if (DailyTotalPages > 1)
+            {
+                <div class="daily-pagination">
+
+                    <div class="daily-pagination-info">
+
+                        Seite @DailyCurrentPage
+                        von @DailyTotalPages
+
+                    </div>
+
+
+                    <div class="daily-pagination-buttons">
+
+                        <button type="button"
+                                class="daily-page-button"
+                                disabled="@(DailyCurrentPage == 1)"
+                                @onclick="PreviousDailyPage">
+
+                            <i class="bi bi-chevron-left"></i>
+
+                        </button>
+
+
+                        @for (var page = 1; page <= DailyTotalPages; page++)
+                        {
+                            var pageNumber = page;
+
+                            <button type="button"
+                                    class="daily-page-button @(DailyCurrentPage == pageNumber ? "active" : "")"
+                                    @onclick="() => GoToDailyPage(pageNumber)">
+
+                                @pageNumber
+
+                            </button>
+                        }
+
+
+                        <button type="button"
+                                class="daily-page-button"
+                                disabled="@(DailyCurrentPage == DailyTotalPages)"
+                                @onclick="NextDailyPage">
+
+                            <i class="bi bi-chevron-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+
+    }
+
+</div>
+
+
+<!-- =========================================================
+     EMPLOYEE DETAIL MODAL
+     ========================================================= -->
+
+@if (selectedEmployee is not null)
+{
+    <div class="modal-backdrop-custom"
+         @onclick="CloseEmployee">
+
+        <div class="working-times-modal"
+             @onclick:stopPropagation>
+
+            <div class="modal-header-custom">
+
+                <div>
+
+                    <span class="modal-eyebrow">
+                        MITARBEITER
+                    </span>
+
+                    <h3>
+                        @selectedEmployee.FirstName
+                        @selectedEmployee.LastName
+                    </h3>
+
+                </div>
+
+                <button type="button"
+                        class="modal-close-button"
+                        @onclick="CloseEmployee">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="modal-summary">
+
+                <div class="modal-summary-item">
+
+                    <span>
+                        Arbeitszeit
+                    </span>
+
+                    <strong>
+                        @FormatDuration(
+                            GetEmployeeWorkTime(
+                                selectedEmployee.Id))
+                    </strong>
+
+                </div>
+
+
+                <div class="modal-summary-item">
+
+                    <span>
+                        Pause
+                    </span>
+
+                    <strong>
+                        @FormatDuration(
+                            GetEmployeeBreakTime(
+                                selectedEmployee.Id))
+                    </strong>
+
+                </div>
+
+
+                <div class="modal-summary-item">
+
+                    <span>
+                        Arbeitstage
+                    </span>
+
+                    <strong>
+                        @GetEmployeeWorkDays(
+                            selectedEmployee.Id)
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-table-wrapper">
+
+                <table class="modal-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Datum
+                            </th>
+
+                            <th>
+                                Beginn
+                            </th>
+
+                            <th>
+                                Ende
+                            </th>
+
+                            <th>
+                                Pause
+                            </th>
+
+                            <th>
+                                Arbeitszeit
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var entry in GetEmployeeEntries(selectedEmployee.Id))
+                        {
+                            <tr>
+
+                                <td>
+                                    @entry.WorkDate.ToString("dd.MM.yyyy")
+                                </td>
+
+                                <td>
+                                    @(entry.StartTime?.ToString("HH:mm") ?? "—")
+                                </td>
+
+                                <td>
+                                    @(entry.EndTime?.ToString("HH:mm") ?? "—")
+                                </td>
+
+                                <td>
+                                    @FormatBreak(entry.BreakMinutes)
+                                </td>
+
+                                <td>
+
+                                    <strong>
+                                        @FormatDuration(
+                                            GetWorkTime(entry))
+                                    </strong>
+
+                                </td>
+
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+
+<!-- =========================================================
+     ENTRY DETAIL MODAL
+     ========================================================= -->
+
+@if (selectedEntry is not null)
+{
+    <div class="modal-backdrop-custom"
+         @onclick="CloseEntry">
+
+        <div class="entry-modal"
+             @onclick:stopPropagation>
+
+            <div class="modal-header-custom">
+
+                <div>
+
+                    <span class="modal-eyebrow">
+                        ARBEITSZEIT
+                    </span>
+
+                    <h3>
+                        @selectedEntry.Employee.FirstName
+                        @selectedEntry.Employee.LastName
+                    </h3>
+
+                    <span class="modal-date">
+                        @selectedEntry.WorkDate.ToString(
+                            "dddd, dd. MMMM yyyy")
+                    </span>
+
+                </div>
+
+                <button type="button"
+                        class="modal-close-button"
+                        @onclick="CloseEntry">
+
+                    <i class="bi bi-x-lg"></i>
+
+                </button>
+
+            </div>
+
+
+            <div class="entry-detail-grid">
+
+                <div class="entry-detail-box">
+
+                    <span>
+                        Beginn
+                    </span>
+
+                    <strong>
+                        @(selectedEntry.StartTime?.ToString("HH:mm") ?? "—")
+                    </strong>
+
+                </div>
+
+
+                <div class="entry-detail-box">
+
+                    <span>
+                        Ende
+                    </span>
+
+                    <strong>
+                        @(selectedEntry.EndTime?.ToString("HH:mm") ?? "—")
+                    </strong>
+
+                </div>
+
+
+                <div class="entry-detail-box">
+
+                    <span>
+                        Pause
+                    </span>
+
+                    <strong>
+                        @FormatBreak(selectedEntry.BreakMinutes)
+                    </strong>
+
+                </div>
+
+
+                <div class="entry-detail-box highlight">
+
+                    <span>
+                        Arbeitszeit
+                    </span>
+
+                    <strong>
+                        @FormatDuration(
+                            GetWorkTime(selectedEntry))
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="entry-detail-site">
+
+                <i class="bi bi-geo-alt"></i>
+
+                <div>
+
+                    <span>
+                        Baustelle
+                    </span>
+
+                    <strong>
+                        @GetSiteLabel(selectedEntry.Baustelle)
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="entry-detail-status">
+
+                <span class="@GetStatusClass(selectedEntry.Status)">
+                    @GetStatusText(selectedEntry.Status)
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+}
+
+
+@code {
+
+    // =========================================================
+    // DATA
+    // =========================================================
+
+    private Guid companyId;
+
+    private DateTime CurrentMonth =
+        new DateTime(
+            DateTime.Today.Year,
+            DateTime.Today.Month,
+            1);
+
+    private List<Employee> employees = new();
+
+    private List<WorkTimeEntry> entries = new();
+
+
+    // =========================================================
+    // EMPLOYEE SEARCH
+    // =========================================================
+
+    private string searchText = string.Empty;
+
+
+    // =========================================================
+    // DAILY SEARCH + PAGINATION
+    // =========================================================
+
+    private string dailySearchText = string.Empty;
+
+    private int DailyCurrentPage = 1;
+
+    private const int DailyPageSize = 10;
+
+
+    // =========================================================
+    // MODALS
+    // =========================================================
+
+    private Employee? selectedEmployee;
+
+    private WorkTimeEntry? selectedEntry;
+
+
+    // =========================================================
+    // STATE
+    // =========================================================
+
+    private bool loading = true;
+
+
+    // =========================================================
+    // FILTERED EMPLOYEES
+    // =========================================================
+
+    private List<Employee> FilteredEmployees =>
+        employees
+            .Where(x =>
+                string.IsNullOrWhiteSpace(searchText) ||
+
+                $"{x.FirstName} {x.LastName}"
+                    .Contains(
+                        searchText,
+                        StringComparison.OrdinalIgnoreCase) ||
+
+                (x.Email ?? "")
+                    .Contains(
+                        searchText,
+                        StringComparison.OrdinalIgnoreCase) ||
+
+                (x.Position ?? "")
+                    .Contains(
+                        searchText,
+                        StringComparison.OrdinalIgnoreCase))
+            .OrderBy(x => x.LastName)
+            .ThenBy(x => x.FirstName)
+            .ToList();
+
+
+    // =========================================================
+    // DAILY FILTER
+    // =========================================================
+
+    private List<WorkTimeEntry> FilteredDailyEntries =>
+        entries
+            .Where(x =>
+            {
+                if (string.IsNullOrWhiteSpace(dailySearchText))
+                    return true;
+
+                var search =
+                    dailySearchText.Trim();
+
+                var employeeName =
+                    $"{x.Employee.FirstName} {x.Employee.LastName}";
+
+                var date1 =
+                    x.WorkDate.ToString("dd.MM.yyyy");
+
+                var date2 =
+                    x.WorkDate.ToString("dd.MM");
+
+                var date3 =
+                    x.WorkDate.ToString("yyyy-MM-dd");
+
+                var date4 =
+                    x.WorkDate.ToString("yyyy");
+
+                return
+                    employeeName.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase)
+
+                    ||
+
+                    date1.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase)
+
+                    ||
+
+                    date2.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase)
+
+                    ||
+
+                    date3.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase)
+
+                    ||
+
+                    date4.Contains(
+                        search,
+                        StringComparison.OrdinalIgnoreCase);
+            })
+            .OrderByDescending(x => x.WorkDate)
+            .ThenBy(x => x.Employee.LastName)
+            .ThenBy(x => x.Employee.FirstName)
+            .ToList();
+
+
+    // =========================================================
+    // DAILY PAGINATION
+    // =========================================================
+
+    private List<WorkTimeEntry> PagedDailyEntries =>
+        FilteredDailyEntries
+            .Skip(
+                (DailyCurrentPage - 1) *
+                DailyPageSize)
+            .Take(DailyPageSize)
+            .ToList();
+
+
+    private int DailyTotalPages =>
+        Math.Max(
+            1,
+            (int)Math.Ceiling(
+                FilteredDailyEntries.Count /
+                (double)DailyPageSize));
+
+
+    private int DailyFirstItem =>
+        FilteredDailyEntries.Count == 0
+            ? 0
+            : ((DailyCurrentPage - 1) *
+               DailyPageSize) + 1;
+
+
+    private int DailyLastItem =>
+        Math.Min(
+            DailyCurrentPage *
+            DailyPageSize,
+            FilteredDailyEntries.Count);
+
+
+    // =========================================================
+    // COMPANY TOTAL
+    // =========================================================
+
+    private TimeSpan TotalCompanyWorkTime
+    {
+        get
+        {
+            var total =
+                TimeSpan.Zero;
+
+            foreach (var entry in FilteredEmployees
+                .SelectMany(x =>
+                    GetEmployeeEntries(x.Id)))
+            {
+                total +=
+                    GetWorkTime(entry);
+            }
+
+            return total;
+        }
+    }
+
+
+    private TimeSpan TotalCompanyBreakTime
+    {
+        get
+        {
+            var total =
+                TimeSpan.Zero;
+
+            foreach (var entry in FilteredEmployees
+                .SelectMany(x =>
+                    GetEmployeeEntries(x.Id)))
+            {
+                total +=
+                    TimeSpan.FromMinutes(
+                        Math.Max(
+                            0,
+                            entry.BreakMinutes));
+            }
+
+            return total;
+        }
+    }
+
+
+    private int TotalWorkDays =>
+        FilteredEmployees
+            .SelectMany(x =>
+                GetEmployeeEntries(x.Id))
+            .Count(x =>
+                x.StartTime.HasValue);
+
+
+    // =========================================================
+    // INIT
+    // =========================================================
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+
+        loading = false;
+    }
+
+
+    // =========================================================
+    // LOAD
+    // =========================================================
+
+    private async Task LoadData()
+    {
+        var company =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!company.HasValue)
+        {
+            return;
+        }
+
+        companyId =
+            company.Value;
+
+
+        // EMPLOYEES
+
+        employees =
+            await Db.Employees
+                .AsNoTracking()
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.IsActive)
+                .OrderBy(x => x.LastName)
+                .ThenBy(x => x.FirstName)
+                .ToListAsync();
+
+
+        // MONTH RANGE
+
+        var monthStart =
+            new DateTime(
+                CurrentMonth.Year,
+                CurrentMonth.Month,
+                1);
+
+        var monthEnd =
+            monthStart.AddMonths(1);
+
+
+        // WORK TIMES
+
+        entries =
+            await Db.WorkTimeEntries
+                .AsNoTracking()
+                .Include(x => x.Employee)
+                .Include(x => x.Baustelle)
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.WorkDate >= monthStart &&
+                    x.WorkDate < monthEnd)
+                .OrderByDescending(x => x.WorkDate)
+                .ToListAsync();
+
+
+        // Keep pagination valid
+
+        if (DailyCurrentPage > DailyTotalPages)
+        {
+            DailyCurrentPage =
+                DailyTotalPages;
+        }
+    }
+
+
+    // =========================================================
+    // MONTH NAVIGATION
+    // =========================================================
+
+    private async Task PreviousMonth()
+    {
+        CurrentMonth =
+            CurrentMonth.AddMonths(-1);
+
+        DailyCurrentPage = 1;
+
+        await LoadData();
+
+        StateHasChanged();
+    }
+
+
+    private async Task NextMonth()
+    {
+        CurrentMonth =
+            CurrentMonth.AddMonths(1);
+
+        DailyCurrentPage = 1;
+
+        await LoadData();
+
+        StateHasChanged();
+    }
+
+
+    private async Task GoToCurrentMonth()
+    {
+        CurrentMonth =
+            new DateTime(
+                DateTime.Today.Year,
+                DateTime.Today.Month,
+                1);
+
+        DailyCurrentPage = 1;
+
+        await LoadData();
+
+        StateHasChanged();
+    }
+
+
+    // =========================================================
+    // DAILY SEARCH
+    // =========================================================
+
+    private void OnDailySearchChanged(
+        ChangeEventArgs e)
+    {
+        dailySearchText =
+            e.Value?.ToString() ?? string.Empty;
+
+        DailyCurrentPage = 1;
+    }
+
+
+    private void ClearDailySearch()
+    {
+        dailySearchText =
+            string.Empty;
+
+        DailyCurrentPage = 1;
+    }
+
+
+    // =========================================================
+    // DAILY PAGINATION
+    // =========================================================
+
+    private void PreviousDailyPage()
+    {
+        if (DailyCurrentPage <= 1)
+            return;
+
+        DailyCurrentPage--;
+    }
+
+
+    private void NextDailyPage()
+    {
+        if (DailyCurrentPage >= DailyTotalPages)
+            return;
+
+        DailyCurrentPage++;
+    }
+
+
+    private void GoToDailyPage(
+        int page)
+    {
+        if (page < 1)
+            page = 1;
+
+        if (page > DailyTotalPages)
+            page = DailyTotalPages;
+
+        DailyCurrentPage =
+            page;
+    }
+
+
+    // =========================================================
+    // EMPLOYEE ENTRIES
+    // =========================================================
+
+    private IEnumerable<WorkTimeEntry> GetEmployeeEntries(
+        Guid employeeId)
+    {
+        return entries
+            .Where(x =>
+                x.EmployeeId == employeeId)
+            .OrderBy(x => x.WorkDate);
+    }
+
+
+    // =========================================================
+    // EMPLOYEE WORK TIME
+    // =========================================================
+
+    private TimeSpan GetEmployeeWorkTime(
+        Guid employeeId)
+    {
+        var total =
+            TimeSpan.Zero;
+
+        foreach (var entry in
+            GetEmployeeEntries(employeeId))
+        {
+            total +=
+                GetWorkTime(entry);
+        }
+
+        return total;
+    }
+
+
+    // =========================================================
+    // EMPLOYEE BREAK
+    // =========================================================
+
+    private TimeSpan GetEmployeeBreakTime(
+        Guid employeeId)
+    {
+        var total =
+            TimeSpan.Zero;
+
+        foreach (var entry in
+            GetEmployeeEntries(employeeId))
+        {
+            total +=
+                TimeSpan.FromMinutes(
+                    Math.Max(
+                        0,
+                        entry.BreakMinutes));
+        }
+
+        return total;
+    }
+
+
+    // =========================================================
+    // WORK DAYS
+    // =========================================================
+
+    private int GetEmployeeWorkDays(
+        Guid employeeId)
+    {
+        return
+            GetEmployeeEntries(employeeId)
+                .Count(x =>
+                    x.StartTime.HasValue);
+    }
+
+
+    // =========================================================
+    // WORK TIME CALCULATION
+    // =========================================================
+
+    private static TimeSpan GetWorkTime(
+        WorkTimeEntry entry)
+    {
+        if (!entry.StartTime.HasValue)
+        {
+            return TimeSpan.Zero;
+        }
+
+        var end =
+            entry.EndTime ??
+            DateTime.Now;
+
+        var duration =
+            end -
+            entry.StartTime.Value -
+            TimeSpan.FromMinutes(
+                Math.Max(
+                    0,
+                    entry.BreakMinutes));
+
+        if (duration < TimeSpan.Zero)
+        {
+            return TimeSpan.Zero;
+        }
+
+        return duration;
+    }
+
+
+    // =========================================================
+    // INITIALS
+    // =========================================================
+
+    private static string GetInitials(
+        Employee employee)
+    {
+        var first =
+            string.IsNullOrWhiteSpace(
+                employee.FirstName)
+                    ? ""
+                    : employee.FirstName
+                        .Trim()
+                        .Substring(0, 1);
+
+        var last =
+            string.IsNullOrWhiteSpace(
+                employee.LastName)
+                    ? ""
+                    : employee.LastName
+                        .Trim()
+                        .Substring(0, 1);
+
+        return
+            $"{first}{last}".ToUpper();
+    }
+
+
+    // =========================================================
+    // SITE LABEL
+    // =========================================================
+
+    private static string GetSiteLabel(
+        Baustelle site)
+    {
+        if (site is null)
+        {
+            return "—";
+        }
+
+        if (string.IsNullOrWhiteSpace(
+            site.City))
+        {
+            return site.Name;
+        }
+
+        return
+            $"{site.Name} – {site.City}";
+    }
+
+
+    // =========================================================
+    // STATUS
+    // =========================================================
+
+    private static string GetStatusText(
+        WorkTimeStatus status)
+    {
+        return status switch
+        {
+            WorkTimeStatus.Running =>
+                "Aktiv",
+
+            WorkTimeStatus.Completed =>
+                "Abgeschlossen",
+
+            WorkTimeStatus.MissingEnd =>
+                "Ende fehlt",
+
+            WorkTimeStatus.Corrected =>
+                "Korrigiert",
+
+            _ =>
+                "Nicht gestartet"
+        };
+    }
+
+
+    private static string GetStatusClass(
+        WorkTimeStatus status)
+    {
+        return status switch
+        {
+            WorkTimeStatus.Running =>
+                "work-status active",
+
+            WorkTimeStatus.Completed =>
+                "work-status completed",
+
+            WorkTimeStatus.MissingEnd =>
+                "work-status missing",
+
+            WorkTimeStatus.Corrected =>
+                "work-status corrected",
+
+            _ =>
+                "work-status waiting"
+        };
+    }
+
+
+    // =========================================================
+    // FORMAT
+    // =========================================================
+
+    private static string FormatDuration(
+        TimeSpan duration)
+    {
+        if (duration < TimeSpan.Zero)
+        {
+            duration =
+                TimeSpan.Zero;
+        }
+
+        return
+            $"{(int)duration.TotalHours:00}:{duration.Minutes:00}";
+    }
+
+
+    private static string FormatBreak(
+        int minutes)
+    {
+        if (minutes < 0)
+        {
+            minutes = 0;
+        }
+
+        var hours =
+            minutes / 60;
+
+        var remaining =
+            minutes % 60;
+
+        return
+            $"{hours:00}:{remaining:00}";
+    }
+
+
+    // =========================================================
+    // OPEN EMPLOYEE
+    // =========================================================
+
+    private void OpenEmployee(
+        Employee employee)
+    {
+        selectedEmployee =
+            employee;
+
+        selectedEntry =
+            null;
+    }
+
+
+    private void CloseEmployee()
+    {
+        selectedEmployee =
+            null;
+    }
+
+
+    // =========================================================
+    // OPEN ENTRY
+    // =========================================================
+
+    private void OpenEntry(
+        WorkTimeEntry entry)
+    {
+        selectedEntry =
+            entry;
+
+        selectedEmployee =
+            null;
+    }
+
+
+    private void CloseEntry()
+    {
+        selectedEntry =
+            null;
+    }
+
+
+    // =========================================================
+    // CSV EXPORT
+    // =========================================================
+
+    private async Task ExportCsv()
+    {
+        var monthStart =
+            new DateTime(
+                CurrentMonth.Year,
+                CurrentMonth.Month,
+                1);
+
+        var monthEnd =
+            monthStart.AddMonths(1);
+
+
+        var exportEntries =
+            await Db.WorkTimeEntries
+                .AsNoTracking()
+                .Include(x => x.Employee)
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.WorkDate >= monthStart &&
+                    x.WorkDate < monthEnd)
+                .ToListAsync();
+
+
+        var csv =
+            new StringBuilder();
+
+
+        // UTF-8 BOM für Excel
+
+        csv.Append('\uFEFF');
+
+
+        // Header
+
+        csv.AppendLine(
+            "Mitarbeiter;Arbeitszeit ohne Pause;Pause;Arbeitstage");
+
+
+        // GROUP BY EMPLOYEE
+
+        var employeeGroups =
+            exportEntries
+                .GroupBy(x => x.EmployeeId)
+                .Select(group =>
+                {
+                    var employee =
+                        group.First().Employee;
+
+                    var totalWorkTime =
+                        TimeSpan.Zero;
+
+                    var totalBreakMinutes =
+                        0;
+
+                    var workDays =
+                        0;
+
+
+                    foreach (var entry in group)
+                    {
+                        totalWorkTime +=
+                            GetWorkTime(entry);
+
+                        totalBreakMinutes +=
+                            Math.Max(
+                                0,
+                                entry.BreakMinutes);
+
+                        if (entry.StartTime.HasValue)
+                        {
+                            workDays++;
+                        }
+                    }
+
+
+                    return new
+                    {
+                        Employee =
+                            $"{employee.FirstName} {employee.LastName}"
+                                .Trim(),
+
+                        WorkTime =
+                            totalWorkTime,
+
+                        BreakTime =
+                            TimeSpan.FromMinutes(
+                                totalBreakMinutes),
+
+                        WorkDays =
+                            workDays
+                    };
+                })
+                .OrderBy(x => x.Employee)
+                .ToList();
+
+
+        foreach (var employee in employeeGroups)
+        {
+            csv.AppendLine(
+                $"{CsvEscape(employee.Employee)};" +
+                $"{FormatDuration(employee.WorkTime)};" +
+                $"{FormatDuration(employee.BreakTime)};" +
+                $"{employee.WorkDays}");
+        }
+
+
+        var fileName =
+            $"Arbeitszeiten_{CurrentMonth:yyyy-MM}.csv";
+
+
+        var bytes =
+            Encoding.UTF8.GetBytes(
+                csv.ToString());
+
+
+        var base64 =
+            Convert.ToBase64String(
+                bytes);
+
+
+        await JS.InvokeVoidAsync(
+            "arbeitszeiten.downloadCsv",
+            fileName,
+            base64);
+    }
+
+
+    private static string CsvEscape(
+        string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return "";
+        }
+
+        if (value.Contains(';') ||
+            value.Contains('"') ||
+            value.Contains('\n') ||
+            value.Contains('\r'))
+        {
+            return
+                $"\"{value.Replace("\"", "\"\"")}\"";
+        }
+
+        return value;
+    }
+
+}

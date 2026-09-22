@@ -1,0 +1,1471 @@
+@page "/zeiterfassung"
+
+@attribute [Authorize(Roles = "Mitarbeiter")]
+
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using BauManagement.Data
+@using BauManagement.Models
+
+@inject ApplicationDbContext Db
+@inject ICurrentCompanyContext CurrentCompany
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
+@implements IAsyncDisposable
+
+<PageTitle>Arbeitszeit erfassen</PageTitle>
+
+<div class="time-page">
+
+    <!-- ===================================================== -->
+    <!-- HEADER -->
+    <!-- ===================================================== -->
+
+    <div class="time-page-header">
+
+        <div>
+            <span class="eyebrow text-primary">
+                ARBEITSZEIT
+            </span>
+
+            <h1>
+                Zeiterfassung
+            </h1>
+
+            <p class="text-muted mb-0">
+                Deine Arbeitszeit für heute.
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- ===================================================== -->
+    <!-- MESSAGE -->
+    <!-- ===================================================== -->
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="alert alert-@messageType time-message">
+            @message
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- LOADING -->
+    <!-- ===================================================== -->
+    @if (loading)
+    {
+        <div class="card modern-card time-loading-card">
+
+            <div class="time-loading-spinner"></div>
+
+            <span>
+                Zeiterfassung wird geladen...
+            </span>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- EMPLOYEE NOT FOUND -->
+    <!-- ===================================================== -->
+    @if (!loading && employee is null)
+    {
+        <div class="card modern-card time-empty-card">
+
+            <div class="time-empty-icon">
+                <i class="bi bi-person-x"></i>
+            </div>
+
+            <h3>
+                Mitarbeiter nicht gefunden
+            </h3>
+
+            <p>
+                Deinem Benutzerkonto ist kein Mitarbeiterprofil zugeordnet.
+            </p>
+
+        </div>
+    }
+
+
+    <!-- ===================================================== -->
+    <!-- MAIN -->
+    <!-- ===================================================== -->
+    @if (!loading && employee is not null)
+    {
+        <div class="time-card">
+
+            <!-- ================================================= -->
+            <!-- TOP -->
+            <!-- ================================================= -->
+
+            <div class="time-card-top">
+
+                <div>
+
+                    <span class="time-card-eyebrow">
+                        ARBEITSZEIT
+                    </span>
+
+                    <h2>
+                        Heute
+                    </h2>
+
+                </div>
+
+
+                @if (IsRunning)
+                {
+                    <div class="time-status active">
+
+                        <span class="status-dot"></span>
+
+                        <span>
+                            Aktiv
+                        </span>
+
+                    </div>
+                }
+
+
+                @if (IsCompleted)
+                {
+                    <div class="time-status completed">
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                        <span>
+                            Abgeschlossen
+                        </span>
+
+                    </div>
+                }
+
+
+                @if (!IsRunning && !IsCompleted)
+                {
+                    <div class="time-status waiting">
+
+                        <span class="status-dot"></span>
+
+                        <span>
+                            Nicht gestartet
+                        </span>
+
+                    </div>
+                }
+
+            </div>
+
+
+            <!-- ================================================= -->
+            <!-- NOT STARTED -->
+            <!-- ================================================= -->
+            @if (todayEntry is null)
+            {
+                <div class="time-start-area">
+
+                    <div class="time-start-icon">
+                        <i class="bi bi-clock"></i>
+                    </div>
+
+                    <h3>
+                        Arbeitszeit starten
+                    </h3>
+
+                    <p>
+                        Wähle die Baustelle aus, auf der du heute arbeitest.
+                    </p>
+
+
+                    @if (sites.Count > 0)
+                    {
+                        <div class="time-site-select">
+
+                            <label>
+                                Baustelle
+                            </label>
+
+                            <select class="form-select"
+                                    @bind="selectedBaustelleId">
+
+                                <option value="@Guid.Empty">
+                                    Baustelle auswählen
+                                </option>
+
+                                @foreach (var site in sites)
+                                {
+                                    <option value="@site.Id">
+                                        @GetSiteLabel(site)
+                                    </option>
+                                }
+
+                            </select>
+
+                        </div>
+                    }
+
+
+                    @if (sites.Count == 0)
+                    {
+                        <div class="time-warning">
+
+                            <i class="bi bi-exclamation-circle"></i>
+
+                            <span>
+                                Es sind keine aktiven Baustellen vorhanden.
+                            </span>
+
+                        </div>
+                    }
+
+
+                    <button type="button"
+                            class="time-main-button"
+                            disabled="@StartButtonDisabled"
+                            @onclick="StartWork">
+
+                        @if (saving)
+                        {
+                            <span class="spinner-border spinner-border-sm"></span>
+
+                            <span>
+                                Wird gestartet...
+                            </span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-play-circle"></i>
+
+                            <span>
+                                Arbeitszeit starten
+                            </span>
+                        }
+
+                    </button>
+
+                </div>
+            }
+
+
+            <!-- ================================================= -->
+            <!-- TODAY ENTRY -->
+            <!-- ================================================= -->
+            @if (todayEntry is not null)
+            {
+                <div class="current-time-area">
+
+                    <span class="current-time-label">
+                        @CurrentTimeLabel
+                    </span>
+
+                    <div class="current-time-value">
+                        @FormatDuration(CurrentWorkTime)
+                    </div>
+
+
+                    @if (todayEntry.Baustelle is not null)
+                    {
+                        <div class="current-site">
+
+                            <i class="bi bi-geo-alt"></i>
+
+                            <span>
+                                @GetSiteLabel(todayEntry.Baustelle)
+                            </span>
+
+                        </div>
+                    }
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- WORK TIME SUMMARY -->
+                <!-- ================================================= -->
+
+                <div class="time-summary-box">
+
+                    <div class="time-summary-left">
+
+                        <span class="time-summary-label">
+                            Arbeitszeit heute
+                        </span>
+
+                        <strong class="time-summary-value">
+                            @FormatDuration(CurrentWorkTime)
+                        </strong>
+
+                    </div>
+
+                    <div class="time-summary-description">
+                        Start bis Ende abzüglich der eingetragenen Pause.
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- INFO GRID -->
+                <!-- ================================================= -->
+
+                <div class="time-info-grid">
+
+                    <!-- BEGINN -->
+                    <div class="time-info-box">
+
+                        <span>
+                            Beginn
+                        </span>
+
+                        <strong>
+                            @StartTimeText
+                        </strong>
+
+                    </div>
+
+
+                    <!-- PAUSE -->
+                    <div class="time-info-box pause-box">
+
+                        <span>
+                            Pause
+                        </span>
+
+                        @if (CanEditPause)
+                        {
+                            <div class="pause-input-row">
+
+                                <input type="number"
+                                       class="form-control pause-input"
+                                       min="0"
+                                       max="1440"
+                                       step="1"
+                                       @bind="breakMinutesInput" />
+
+                                <span class="pause-unit">
+                                    Min.
+                                </span>
+
+                            </div>
+                        }
+                        else
+                        {
+                            <strong>
+                                @FormatBreak(todayEntry.BreakMinutes)
+                            </strong>
+                        }
+
+                    </div>
+
+
+                    <!-- ENDE -->
+                    <div class="time-info-box">
+
+                        <span>
+                            Ende
+                        </span>
+
+                        <strong>
+                            @EndTimeText
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ================================================= -->
+                <!-- PAUSE SAVE -->
+                <!-- ================================================= -->
+                @if (IsRunning)
+                {
+                    <div class="pause-save-area">
+
+                        <div class="pause-help">
+
+                            <i class="bi bi-info-circle"></i>
+
+                            <span>
+                                Gesamte Pause in Minuten
+                            </span>
+
+                        </div>
+
+
+                        <button type="button"
+                                class="time-secondary-button"
+                                disabled="@savingPause"
+                                @onclick="SavePause">
+
+                            @if (savingPause)
+                            {
+                                <span class="spinner-border spinner-border-sm"></span>
+
+                                <span>
+                                    Wird gespeichert...
+                                </span>
+                            }
+                            else
+                            {
+                                <i class="bi bi-check2"></i>
+
+                                <span>
+                                    Pause speichern
+                                </span>
+                            }
+
+                        </button>
+
+                    </div>
+                }
+
+
+                <!-- ================================================= -->
+                <!-- STOP -->
+                <!-- ================================================= -->
+                @if (IsRunning)
+                {
+                    <button type="button"
+                            class="time-main-button stop"
+                            disabled="@saving"
+                            @onclick="StopWork">
+
+                        @if (saving)
+                        {
+                            <span class="spinner-border spinner-border-sm"></span>
+
+                            <span>
+                                Wird beendet...
+                            </span>
+                        }
+                        else
+                        {
+                            <i class="bi bi-stop-circle"></i>
+
+                            <span>
+                                Arbeitszeit beenden
+                            </span>
+                        }
+
+                    </button>
+                }
+
+
+                <!-- ================================================= -->
+                <!-- COMPLETED -->
+                <!-- ================================================= -->
+                @if (IsCompleted)
+                {
+                    <div class="time-completed-box">
+
+                        <div class="completed-icon">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Arbeitszeit abgeschlossen
+                            </strong>
+
+                            <span>
+                                Deine Arbeitszeit für heute wurde gespeichert.
+                            </span>
+
+                        </div>
+
+                    </div>
+                }
+
+            }
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- SMALL INFO -->
+        <!-- ===================================================== -->
+
+        <div class="time-info-note">
+
+            <div class="time-note-icon">
+                <i class="bi bi-info-circle"></i>
+            </div>
+
+            <div>
+
+                <strong>
+                    Hinweis
+                </strong>
+
+                <p>
+                    Die Pause wird manuell in Minuten eingetragen.
+                </p>
+
+            </div>
+
+        </div>
+    }
+
+</div>
+
+
+@code {
+
+    // =========================================================
+    // DATA
+    // =========================================================
+
+    private Guid companyId;
+
+    private Employee? employee;
+
+    private WorkTimeEntry? todayEntry;
+
+    private List<Baustelle> sites = new();
+
+    private Guid selectedBaustelleId = Guid.Empty;
+
+
+    // =========================================================
+    // STATE
+    // =========================================================
+
+    private bool loading = true;
+
+    private bool saving = false;
+
+    private bool savingPause = false;
+
+    private string? message;
+
+    private string messageType = "danger";
+
+
+    // =========================================================
+    // PAUSE
+    // =========================================================
+
+    private int breakMinutesInput;
+
+
+    // =========================================================
+    // TIMER
+    // =========================================================
+
+    private CancellationTokenSource? timerCts;
+
+    private Task? timerTask;
+
+
+    // =========================================================
+    // COMPUTED STATE
+    // =========================================================
+
+    private bool IsRunning =>
+        todayEntry?.Status == WorkTimeStatus.Running;
+
+
+    private bool IsCompleted =>
+        todayEntry?.Status == WorkTimeStatus.Completed ||
+        todayEntry?.Status == WorkTimeStatus.Corrected;
+
+
+    private bool CanEditPause =>
+        todayEntry is not null &&
+        IsRunning;
+
+
+    private bool StartButtonDisabled =>
+        selectedBaustelleId == Guid.Empty ||
+        saving ||
+        sites.Count == 0;
+
+
+    private string CurrentTimeLabel =>
+        IsRunning
+            ? "Aktuelle Arbeitszeit"
+            : "Arbeitszeit heute";
+
+
+    private string StartTimeText =>
+        todayEntry?.StartTime.HasValue == true
+            ? todayEntry.StartTime.Value.ToString("HH:mm")
+            : "--:--";
+
+
+    private string EndTimeText =>
+        todayEntry?.EndTime.HasValue == true
+            ? todayEntry.EndTime.Value.ToString("HH:mm")
+            : "--:--";
+
+
+    // =========================================================
+    // CURRENT WORK TIME
+    // =========================================================
+
+    private TimeSpan CurrentWorkTime
+    {
+        get
+        {
+            if (todayEntry is null ||
+                !todayEntry.StartTime.HasValue)
+            {
+                return TimeSpan.Zero;
+            }
+
+            /*
+             * WICHTIG:
+             *
+             * Während die Arbeitszeit noch läuft,
+             * wird die manuell eingetragene Pause NICHT
+             * abgezogen.
+             *
+             * Beispiel:
+             *
+             * Start 08:00
+             * Jetzt 10:00
+             * Pause 30 Minuten
+             *
+             * Live-Anzeige = 02:00
+             *
+             * Erst beim Beenden wird die Pause abgezogen.
+             */
+
+            if (!todayEntry.EndTime.HasValue)
+            {
+                var liveDuration =
+                    DateTime.Now -
+                    todayEntry.StartTime.Value;
+
+                if (liveDuration < TimeSpan.Zero)
+                {
+                    return TimeSpan.Zero;
+                }
+
+                return liveDuration;
+            }
+
+
+            /*
+             * Arbeitszeit ist beendet.
+             *
+             * Jetzt:
+             *
+             * Ende - Start - Pause
+             */
+
+            var duration =
+                todayEntry.EndTime.Value -
+                todayEntry.StartTime.Value -
+                TimeSpan.FromMinutes(
+                    Math.Max(0, todayEntry.BreakMinutes));
+
+
+            if (duration < TimeSpan.Zero)
+            {
+                return TimeSpan.Zero;
+            }
+
+            return duration;
+        }
+    }
+
+
+    // =========================================================
+    // SITE LABEL
+    // =========================================================
+
+    private static string GetSiteLabel(Baustelle site)
+    {
+        if (string.IsNullOrWhiteSpace(site.City))
+        {
+            return site.Name;
+        }
+
+        return $"{site.Name} – {site.City}";
+    }
+
+
+    // =========================================================
+    // INITIALIZE
+    // =========================================================
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Load();
+
+        loading = false;
+
+        if (IsRunning)
+        {
+            StartTimer();
+        }
+    }
+
+
+    // =========================================================
+    // LOAD
+    // =========================================================
+
+    private async Task Load()
+    {
+        message = null;
+
+        // COMPANY
+        var company =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!company.HasValue)
+        {
+            message =
+                "Keine Firma gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+        companyId =
+            company.Value;
+
+
+        // CURRENT USER
+        var authState =
+            await AuthenticationStateProvider
+                .GetAuthenticationStateAsync();
+
+        var user =
+            await UserManager.GetUserAsync(
+                authState.User);
+
+        if (user is null)
+        {
+            message =
+                "Benutzer konnte nicht ermittelt werden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        // EMPLOYEE
+        employee =
+            await Db.Employees
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.CompanyId == companyId &&
+                    x.ApplicationUserId == user.Id &&
+                    x.IsActive);
+
+        if (employee is null)
+        {
+            return;
+        }
+
+
+        // TODAY
+        var today =
+            DateTime.Today;
+
+        var tomorrow =
+            today.AddDays(1);
+
+
+        // ACTIVE BAUSTELLEN
+        sites =
+            await Db.Baustellen
+                .AsNoTracking()
+                .Where(x =>
+                    x.CompanyId == companyId &&
+                    x.IsActive)
+                .OrderBy(x => x.Name)
+                .ToListAsync();
+
+
+        // TODAY WORK TIME
+        todayEntry =
+            await Db.WorkTimeEntries
+                .Include(x => x.Baustelle)
+                .FirstOrDefaultAsync(x =>
+                    x.CompanyId == companyId &&
+                    x.EmployeeId == employee.Id &&
+                    x.WorkDate >= today &&
+                    x.WorkDate < tomorrow);
+
+
+        // SELECT BAUSTELLE
+        if (todayEntry is null)
+        {
+            if (sites.Count == 1)
+            {
+                selectedBaustelleId =
+                    sites[0].Id;
+            }
+            else
+            {
+                var selectedExists =
+                    sites.Any(x =>
+                        x.Id ==
+                        selectedBaustelleId);
+
+                if (!selectedExists)
+                {
+                    selectedBaustelleId =
+                        Guid.Empty;
+                }
+            }
+
+            breakMinutesInput =
+                0;
+        }
+        else
+        {
+            selectedBaustelleId =
+                todayEntry.BaustelleId;
+
+            breakMinutesInput =
+                Math.Max(
+                    0,
+                    todayEntry.BreakMinutes);
+        }
+    }
+
+
+    // =========================================================
+    // START WORK
+    // =========================================================
+
+    private async Task StartWork()
+    {
+        if (saving)
+        {
+            return;
+        }
+
+        message = null;
+
+
+        // EMPLOYEE
+        if (employee is null)
+        {
+            message =
+                "Mitarbeiter wurde nicht gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        // BAUSTELLE
+        if (selectedBaustelleId ==
+            Guid.Empty)
+        {
+            message =
+                "Bitte zuerst eine Baustelle auswählen.";
+
+            messageType =
+                "warning";
+
+            return;
+        }
+
+
+        // COMPANY
+        var currentCompany =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!currentCompany.HasValue)
+        {
+            message =
+                "Keine Firma gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+        companyId =
+            currentCompany.Value;
+
+
+        // VERIFY EMPLOYEE
+        var employeeFromDb =
+            await Db.Employees
+                .FirstOrDefaultAsync(x =>
+                    x.Id == employee.Id &&
+                    x.CompanyId == companyId &&
+                    x.IsActive);
+
+        if (employeeFromDb is null)
+        {
+            message =
+                "Zugriff auf diesen Mitarbeiter wurde verweigert.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        // TODAY
+        var today =
+            DateTime.Today;
+
+        var tomorrow =
+            today.AddDays(1);
+
+
+        // VERIFY BAUSTELLE
+        var site =
+            await Db.Baustellen
+                .FirstOrDefaultAsync(x =>
+                    x.Id ==
+                    selectedBaustelleId &&
+                    x.CompanyId ==
+                    companyId &&
+                    x.IsActive);
+
+        if (site is null)
+        {
+            message =
+                "Die ausgewählte Baustelle wurde nicht gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        // CHECK EXISTING ENTRY
+        var existing =
+            await Db.WorkTimeEntries
+                .FirstOrDefaultAsync(x =>
+                    x.CompanyId ==
+                    companyId &&
+                    x.EmployeeId ==
+                    employee.Id &&
+                    x.WorkDate >= today &&
+                    x.WorkDate < tomorrow);
+
+        if (existing is not null)
+        {
+            message =
+                "Für heute wurde bereits eine Arbeitszeit erfasst.";
+
+            messageType =
+                "warning";
+
+            await Load();
+
+            return;
+        }
+
+
+        // CREATE
+        saving = true;
+
+        try
+        {
+            var entry =
+                new WorkTimeEntry
+                {
+                    Id =
+                        Guid.NewGuid(),
+
+                    CompanyId =
+                        companyId,
+
+                    EmployeeId =
+                        employee.Id,
+
+                    BaustelleId =
+                        site.Id,
+
+                    WorkDate =
+                        DateTime.Today,
+
+                    StartTime =
+                        DateTime.Now,
+
+                    EndTime =
+                        null,
+
+                    BreakMinutes =
+                        0,
+
+                    Status =
+                        WorkTimeStatus.Running,
+
+                    IsManuallyCorrected =
+                        false,
+
+                    CorrectionNote =
+                        null,
+
+                    CreatedAt =
+                        DateTime.UtcNow,
+
+                    UpdatedAt =
+                        null
+                };
+
+            Db.WorkTimeEntries.Add(entry);
+
+            await Db.SaveChangesAsync();
+        }
+        catch
+        {
+            message =
+                "Die Arbeitszeit konnte nicht gestartet werden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+        finally
+        {
+            saving = false;
+        }
+
+
+        await Load();
+
+        message =
+            "Arbeitszeit wurde gestartet.";
+
+        messageType =
+            "success";
+
+        StartTimer();
+    }
+
+
+    // =========================================================
+    // SAVE PAUSE
+    // =========================================================
+
+    private async Task SavePause()
+    {
+        if (saving ||
+            savingPause)
+        {
+            return;
+        }
+
+        message = null;
+
+
+        // EMPLOYEE
+        if (employee is null)
+        {
+            message =
+                "Mitarbeiter wurde nicht gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        // VALIDATE MINUTES
+        if (breakMinutesInput < 0)
+        {
+            breakMinutesInput =
+                0;
+        }
+
+
+        if (breakMinutesInput > 1440)
+        {
+            message =
+                "Die Pause darf maximal 1440 Minuten betragen.";
+
+            messageType =
+                "warning";
+
+            return;
+        }
+
+
+        // COMPANY
+        var currentCompany =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!currentCompany.HasValue)
+        {
+            message =
+                "Keine Firma gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+        companyId =
+            currentCompany.Value;
+
+
+        var today =
+            DateTime.Today;
+
+        var tomorrow =
+            today.AddDays(1);
+
+
+        savingPause = true;
+
+        try
+        {
+            /*
+             * Den Eintrag direkt aus der Datenbank laden.
+             * Dadurch ist SavePause unabhängig davon,
+             * was aktuell im UI-Objekt gespeichert ist.
+             */
+
+            var entry =
+                await Db.WorkTimeEntries
+                    .FirstOrDefaultAsync(x =>
+                        x.CompanyId ==
+                        companyId &&
+                        x.EmployeeId ==
+                        employee.Id &&
+                        x.WorkDate >=
+                        today &&
+                        x.WorkDate <
+                        tomorrow);
+
+            if (entry is null)
+            {
+                message =
+                    "Für heute wurde kein Arbeitszeiteintrag gefunden.";
+
+                messageType =
+                    "danger";
+
+                return;
+            }
+
+
+            // Nur aktive Arbeitszeit bearbeiten
+            if (entry.Status !=
+                WorkTimeStatus.Running)
+            {
+                message =
+                    "Die Arbeitszeit ist nicht mehr aktiv.";
+
+                messageType =
+                    "warning";
+
+                return;
+            }
+
+
+            // PAUSE SPEICHERN
+            entry.BreakMinutes =
+                breakMinutesInput;
+
+            entry.UpdatedAt =
+                DateTime.UtcNow;
+
+            await Db.SaveChangesAsync();
+
+
+            /*
+             * UI-Objekt aktualisieren.
+             *
+             * WICHTIG:
+             * Der Live-Timer zieht die Pause NICHT ab,
+             * solange EndTime noch null ist.
+             */
+
+            if (todayEntry is not null)
+            {
+                todayEntry.BreakMinutes =
+                    breakMinutesInput;
+            }
+
+
+            message =
+                "Pause wurde gespeichert.";
+
+            messageType =
+                "success";
+        }
+        catch (Exception ex)
+        {
+            message =
+                $"Die Pause konnte nicht gespeichert werden: {ex.Message}";
+
+            messageType =
+                "danger";
+        }
+        finally
+        {
+            savingPause =
+                false;
+        }
+
+
+        await InvokeAsync(
+            StateHasChanged);
+    }
+
+
+    // =========================================================
+    // STOP WORK
+    // =========================================================
+
+    private async Task StopWork()
+    {
+        if (saving || savingPause)
+        {
+            return;
+        }
+
+        message = null;
+
+        if (employee is null)
+        {
+            message = "Mitarbeiter wurde nicht gefunden.";
+            messageType = "danger";
+            return;
+        }
+
+        var currentCompany =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!currentCompany.HasValue)
+        {
+            message = "Keine Firma gefunden.";
+            messageType = "danger";
+            return;
+        }
+
+        companyId = currentCompany.Value;
+
+        var today = DateTime.Today;
+        var tomorrow = today.AddDays(1);
+
+        saving = true;
+
+        try
+        {
+            // Aktiven heutigen Eintrag direkt aus der DB laden
+            var entry =
+                await Db.WorkTimeEntries
+                    .FirstOrDefaultAsync(x =>
+                        x.CompanyId == companyId &&
+                        x.EmployeeId == employee.Id &&
+                        x.WorkDate >= today &&
+                        x.WorkDate < tomorrow);
+
+            if (entry is null)
+            {
+                message =
+                    "Für heute wurde kein Arbeitszeiteintrag gefunden.";
+
+                messageType = "danger";
+                return;
+            }
+
+            // Prüfen, ob bereits beendet
+            if (entry.Status != WorkTimeStatus.Running)
+            {
+                message =
+                    "Diese Arbeitszeit ist bereits beendet.";
+
+                messageType = "warning";
+
+                await Load();
+
+                return;
+            }
+
+            // Pause übernehmen
+            var finalBreakMinutes =
+                Math.Max(0, breakMinutesInput);
+
+            if (finalBreakMinutes > 1440)
+            {
+                message =
+                    "Die Pause darf maximal 1440 Minuten betragen.";
+
+                messageType = "warning";
+                return;
+            }
+
+            // Ende setzen
+            entry.EndTime = DateTime.Now;
+
+            // Letzte eingegebene Pause speichern
+            entry.BreakMinutes = finalBreakMinutes;
+
+            // Status abschließen
+            entry.Status =
+                WorkTimeStatus.Completed;
+
+            entry.UpdatedAt =
+                DateTime.UtcNow;
+
+            await Db.SaveChangesAsync();
+
+            // Alles neu aus DB laden
+            await Load();
+
+            message =
+                "Arbeitszeit wurde erfolgreich beendet.";
+
+            messageType = "success";
+        }
+        catch (Exception ex)
+        {
+            message =
+                $"Die Arbeitszeit konnte nicht beendet werden: {ex.Message}";
+
+            messageType = "danger";
+        }
+        finally
+        {
+            saving = false;
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    // =========================================================
+    // TIMER
+    // =========================================================
+
+    private void StartTimer()
+    {
+        if (timerTask is not null &&
+            !timerTask.IsCompleted)
+        {
+            return;
+        }
+
+        timerCts =
+            new CancellationTokenSource();
+
+        timerTask =
+            RunTimerAsync(
+                timerCts.Token);
+    }
+
+
+    private async Task RunTimerAsync(
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var timer =
+                new PeriodicTimer(
+                    TimeSpan.FromSeconds(1));
+
+            while (
+                await timer.WaitForNextTickAsync(
+                    cancellationToken))
+            {
+                await InvokeAsync(
+                    StateHasChanged);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+
+    // =========================================================
+    // FORMAT
+    // =========================================================
+
+    private static string FormatDuration(
+        TimeSpan duration)
+    {
+        if (duration <
+            TimeSpan.Zero)
+        {
+            duration =
+                TimeSpan.Zero;
+        }
+
+        return
+            $"{(int)duration.TotalHours:00}:{duration.Minutes:00}";
+    }
+
+
+    private static string FormatBreak(
+        int minutes)
+    {
+        if (minutes < 0)
+        {
+            minutes = 0;
+        }
+
+        var hours =
+            minutes / 60;
+
+        var remainingMinutes =
+            minutes % 60;
+
+        return
+            $"{hours:00}:{remainingMinutes:00}";
+    }
+
+
+    // =========================================================
+    // DISPOSE
+    // =========================================================
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (timerCts is not null)
+            {
+                await timerCts.CancelAsync();
+
+                timerCts.Dispose();
+
+                timerCts = null;
+            }
+
+            if (timerTask is not null)
+            {
+                try
+                {
+                    await timerTask;
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
+        catch
+        {
+        }
+    }
+
+}

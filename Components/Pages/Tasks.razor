@@ -1,180 +1,721 @@
 @page "/tasks"
 
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+
 @using BauManagement.Data
-@using CompanyModel = BauManagement.Models.Company
+@using BauManagement.Models
+
 @using EmployeeModel = BauManagement.Models.Employee
 @using BaustelleModel = BauManagement.Models.Baustelle
 @using WorkTaskModel = BauManagement.Models.WorkTask
 @using WorkTaskStatus = BauManagement.Models.TaskStatus
 
-@rendermode InteractiveServer
-
 @inject ApplicationDbContext Db
+@inject ICurrentCompanyContext CurrentCompany
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+
 
 <PageTitle>Aufgaben</PageTitle>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h1>Aufgaben</h1>
-        <p class="text-muted mb-0">
-            Baustellenaufgaben mit optionaler Mitarbeiter-Zuweisung.
-        </p>
+
+<div class="tasks-page">
+
+    <!-- =========================================================
+         HEADER
+         ========================================================= -->
+
+    <div class="employee-header mb-4">
+
+        <div>
+
+            <h3>Aufgaben</h3>
+
+            <p class="text-muted mb-0">
+
+                @if (isAdmin)
+                {
+                    <text>
+                        Alle Aufgaben der Firma verwalten.
+                    </text>
+                }
+                else
+                {
+                    <text>
+                        Meine zugewiesenen Aufgaben.
+                    </text>
+                }
+
+            </p>
+
+        </div>
+
+
+        @if (isAdmin)
+        {
+            <button class="btn btn-primary px-4"
+                    type="button"
+                    @onclick="New">
+
+                + Aufgabe hinzufügen
+
+            </button>
+        }
+
     </div>
 
-    <button class="btn btn-primary" @onclick="New">
-        + Aufgabe
-    </button>
+
+    <!-- =========================================================
+         MESSAGE
+         ========================================================= -->
+
+    @if (!string.IsNullOrWhiteSpace(message))
+    {
+        <div class="alert alert-@messageType alert-dismissible">
+
+            @message
+
+            <button type="button"
+                    class="btn-close"
+                    @onclick="ClearMessage">
+            </button>
+
+        </div>
+    }
+
+
+    <!-- =========================================================
+         SEARCH (LIVE SEARCH ZA SITE - ADMIN I MITARBEITER)
+         ========================================================= -->
+
+    <div class="card modern-card mb-4">
+
+        <div class="card-body p-3">
+
+            <div class="input-group search-box">
+
+                <span class="input-group-text">
+                    ⌕
+                </span>
+
+
+                <input class="form-control"
+                       value="@search"
+                       @oninput="OnSearch"
+                       placeholder="@(isAdmin ? "Aufgaben live suchen – Aufgabe, Mitarbeiter, Baustelle oder Beschreibung" : "Meine Aufgaben live suchen – Aufgabe, Baustelle oder Beschreibung")"
+                       autocomplete="off" />
+
+
+                @if (!string.IsNullOrWhiteSpace(search))
+                {
+                    <button type="button"
+                            class="btn btn-light"
+                            @onclick="ClearSearch">
+
+                        ✕
+
+                    </button>
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @if (isAdmin)
+    {
+        <!-- =========================================================
+             ADMIN / CHEF TABLE
+             ========================================================= -->
+
+        <div class="card modern-card overflow-hidden tasks-desktop">
+
+            <div class="table-responsive">
+
+                <table class="table table-modern align-middle mb-0">
+
+                    <thead>
+                        <tr>
+                            <th>Aufgabe</th>
+                            <th>Baustelle</th>
+                            <th>Mitarbeiter</th>
+                            <th>Fällig</th>
+                            <th>Status</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @if (PagedTasks.Any())
+                        {
+                            @foreach (var task in PagedTasks)
+                            {
+                                <tr @key="task.Id">
+
+                                    <td>
+                                        <div class="task-title-cell">
+                                            <div class="fw-semibold">
+                                                @task.Title
+                                            </div>
+
+                                            @if (!string.IsNullOrWhiteSpace(task.Description))
+                                            {
+                                                <small class="text-muted task-description">
+                                                    @task.Description
+                                                </small>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="fw-semibold">
+                                            @(task.Baustelle?.Name ?? "–")
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(task.Baustelle?.City))
+                                        {
+                                            <small class="text-muted">
+                                                @task.Baustelle.City
+                                            </small>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (task.Employee is not null)
+                                        {
+                                            <div class="d-flex align-items-center gap-3">
+                                                <div class="employee-avatar">
+                                                    @EmployeeInitials(task.Employee)
+                                                </div>
+
+                                                <div>
+                                                    <div class="fw-semibold">
+                                                        @task.Employee.FirstName @task.Employee.LastName
+                                                    </div>
+
+                                                    @if (!string.IsNullOrWhiteSpace(task.Employee.Position))
+                                                    {
+                                                        <small class="text-muted">
+                                                            @task.Employee.Position
+                                                        </small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                Nicht zugewiesen
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @if (task.DueDate.HasValue)
+                                        {
+                                            <div class="@DueDateClass(task.DueDate.Value)">
+                                                @task.DueDate.Value.ToString("dd.MM.yyyy")
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">–</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <span class="@StatusBadgeClass(task.Status)">
+                                            @StatusText(task.Status)
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <button type="button"
+                                                class="btn btn-sm btn-light me-1"
+                                                @onclick="() => Edit(task)">
+                                            Bearbeiten
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger"
+                                                @onclick="() => Delete(task)">
+                                            Löschen
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">⌕</div>
+
+                                        @if (string.IsNullOrWhiteSpace(search))
+                                        {
+                                            <h6>Noch keine Aufgaben</h6>
+                                            <p class="text-muted mb-0">
+                                                Lege die erste Aufgabe an.
+                                            </p>
+                                        }
+                                        else
+                                        {
+                                            <h6>Keine Aufgabe gefunden</h6>
+                                            <p class="text-muted mb-0">
+                                                Versuche einen anderen Suchbegriff.
+                                            </p>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- ADMIN PAGINATION -->
+            @if (FilteredTasks.Any())
+            {
+                <div class="pagination-container">
+
+                    <div class="text-muted small">
+                        @{
+                            var totalResults = FilteredTasks.Count();
+                            var from = ((CurrentPage - 1) * PageSize) + 1;
+                            var to = Math.Min(CurrentPage * PageSize, totalResults);
+                        }
+
+                        @from–@to von @totalResults Aufgaben
+                    </div>
+
+                    @if (TotalPages > 1)
+                    {
+                        <div class="d-flex align-items-center gap-1">
+
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    disabled="@(CurrentPage <= 1)"
+                                    @onclick="PreviousPage">
+                                ‹
+                            </button>
+
+                            @for (var page = 1; page <= TotalPages; page++)
+                            {
+                                var pageNumber = page;
+
+                                <button type="button"
+                                        class="btn btn-sm @(CurrentPage == pageNumber ? "btn-primary" : "btn-light")"
+                                        @onclick="() => GoToPage(pageNumber)">
+                                    @pageNumber
+                                </button>
+                            }
+
+                            <button type="button"
+                                    class="btn btn-sm btn-light"
+                                    disabled="@(CurrentPage >= TotalPages)"
+                                    @onclick="NextPage">
+                                ›
+                            </button>
+
+                        </div>
+                    }
+
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- =========================================================
+             MITARBEITER - CARD VIEW
+             ========================================================= -->
+
+        <div class="employee-task-cards">
+
+            @if (PagedTasks.Any())
+            {
+                @foreach (var task in PagedTasks)
+                {
+                    <div class="employee-task-card" @key="task.Id">
+
+                        <div class="employee-task-card-header">
+
+                            <div class="employee-task-main">
+                                <div class="employee-task-label">
+                                    AUFGABE
+                                </div>
+
+                                <h4>@task.Title</h4>
+
+                                @if (!string.IsNullOrWhiteSpace(task.Description))
+                                {
+                                    <p>@task.Description</p>
+                                }
+                            </div>
+
+                            <span class="@StatusBadgeClass(task.Status)">
+                                @StatusText(task.Status)
+                            </span>
+
+                        </div>
+
+                        <div class="employee-task-details">
+
+                            <div class="employee-task-detail">
+                                <div class="employee-task-icon">
+                                    <i class="bi bi-building"></i>
+                                </div>
+
+                                <div>
+                                    <span>Baustelle</span>
+                                    <strong>
+                                        @(task.Baustelle?.Name ?? "–")
+                                    </strong>
+
+                                    @if (!string.IsNullOrWhiteSpace(task.Baustelle?.City))
+                                    {
+                                        <small>@task.Baustelle.City</small>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="employee-task-detail">
+                                <div class="employee-task-icon">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+
+                                <div>
+                                    <span>Fällig am</span>
+
+                                    @if (task.DueDate.HasValue)
+                                    {
+                                        <strong class="@DueDateClass(task.DueDate.Value)">
+                                            @task.DueDate.Value.ToString("dd.MM.yyyy")
+                                        </strong>
+                                    }
+                                    else
+                                    {
+                                        <strong>Kein Termin</strong>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="employee-task-footer">
+                            <button type="button"
+                                    class="btn btn-primary w-100"
+                                    @onclick="() => OpenStatus(task)">
+                                <i class="bi bi-arrow-repeat me-2"></i>
+                                Status ändern
+                            </button>
+                        </div>
+
+                    </div>
+                }
+
+                @if (TotalPages > 1)
+                {
+                    <div class="employee-task-pagination">
+
+                        <button type="button"
+                                class="btn btn-sm"
+                                disabled="@(CurrentPage <= 1)"
+                                @onclick="PreviousPage">
+                            ‹ Zurück
+                        </button>
+
+                        <span class="small text-muted">
+                            Seite @CurrentPage von @TotalPages
+                        </span>
+
+                        <button type="button"
+                                class="btn btn-sm"
+                                disabled="@(CurrentPage >= TotalPages)"
+                                @onclick="NextPage">
+                            Weiter ›
+                        </button>
+
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="employee-task-empty">
+                    <div class="employee-task-empty-icon">
+                        <i class="bi bi-check2-square"></i>
+                    </div>
+
+                    @if (string.IsNullOrWhiteSpace(search))
+                    {
+                        <h5>Keine Aufgaben</h5>
+                        <p>
+                            Du hast aktuell keine zugewiesenen Aufgaben.
+                        </p>
+                    }
+                    else
+                    {
+                        <h5>Keine Aufgabe gefunden</h5>
+                        <p>
+                            Versuche einen anderen Suchbegriff.
+                        </p>
+                    }
+                </div>
+            }
+
+        </div>
+    }
+
 </div>
 
-@if (editing)
+
+<!-- =============================================================
+     ADMIN CREATE / EDIT MODAL
+     ============================================================= -->
+
+@if (editing && isAdmin)
 {
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
+    <div class="task-modal-backdrop"
+         @onclick="Cancel">
 
-            <h2 class="h5">
-                @(form.Id == Guid.Empty
-                    ? "Neue Aufgabe"
-                    : "Aufgabe bearbeiten")
-            </h2>
+        <div class="task-modal"
+             @onclick:stopPropagation="true">
 
-            <EditForm Model="form" OnValidSubmit="Save">
+            <div class="task-modal-header">
 
-                <div class="row g-3">
+                <div>
 
-                    <!-- Firma -->
-                    <div class="col-md-4">
-                        <label class="form-label">
-                            Firma *
-                        </label>
+                    <span class="eyebrow text-primary">
+                        AUFGABE
+                    </span>
 
-                        <InputSelect class="form-select"
-                                     @bind-Value="form.CompanyId">
+                    <h2>
 
-                            <option value="@Guid.Empty">
-                                Bitte wählen
-                            </option>
+                        @(form.Id == Guid.Empty
+                            ? "Neue Aufgabe"
+                            : "Aufgabe bearbeiten")
 
-                            @foreach (var company in companies)
+                    </h2>
+
+                </div>
+
+
+                <button class="btn-close"
+                        type="button"
+                        @onclick="Cancel">
+                </button>
+
+            </div>
+
+
+            <EditForm Model="form"
+                      OnValidSubmit="Save">
+
+                <DataAnnotationsValidator />
+
+
+                <div class="task-modal-body">
+
+                    <div class="row g-3">
+
+                        <!-- LIVE SEARCH ZA BAUSTELLE -->
+                        <div class="col-md-6 position-relative">
+
+                            <label class="form-label">
+                                Baustelle *
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   value="@siteSearchText"
+                                   @oninput="OnSiteSearchInput"
+                                   @focus="() => showSiteDropdown = true"
+                                   placeholder="Baustelle suchen..."
+                                   autocomplete="off" />
+
+                            @if (showSiteDropdown)
                             {
-                                <option value="@company.Id">
-                                    @company.Name
-                                </option>
+                                <div class="dropdown-menu show w-100 shadow-sm mt-1 position-absolute" style="max-height: 200px; overflow-y: auto; z-index: 1060;">
+                                    @if (FilteredSites.Any())
+                                    {
+                                        @foreach (var site in FilteredSites)
+                                        {
+                                            <button type="button"
+                                                    class="dropdown-item @(form.BaustelleId == site.Id ? "active" : "")"
+                                                    @onclick="() => SelectSite(site)">
+                                                @site.Name @(!string.IsNullOrWhiteSpace(site.City) ? $"({site.City})" : "")
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="dropdown-item text-muted disabled">Keine Baustelle gefunden</div>
+                                    }
+                                </div>
                             }
 
-                        </InputSelect>
-                    </div>
+                        </div>
 
-                    <!-- Baustelle -->
-                    <div class="col-md-4">
-                        <label class="form-label">
-                            Baustelle *
-                        </label>
 
-                        <InputSelect class="form-select"
-                                     @bind-Value="form.BaustelleId">
+                        <!-- LIVE SEARCH ZA MITARBEITER -->
+                        <div class="col-md-6 position-relative">
 
-                            <option value="@Guid.Empty">
-                                Bitte wählen
-                            </option>
+                            <label class="form-label">
+                                Mitarbeiter
+                            </label>
 
-                            @foreach (var site in sites
-                                .Where(x => x.CompanyId == form.CompanyId))
+                            <input type="text"
+                                   class="form-control"
+                                   value="@employeeSearchText"
+                                   @oninput="OnEmployeeSearchInput"
+                                   @focus="() => showEmployeeDropdown = true"
+                                   placeholder="Mitarbeiter suchen..."
+                                   autocomplete="off" />
+
+                            @if (showEmployeeDropdown)
                             {
-                                <option value="@site.Id">
-                                    @site.Name
-                                </option>
+                                <div class="dropdown-menu show w-100 shadow-sm mt-1 position-absolute" style="max-height: 200px; overflow-y: auto; z-index: 1060;">
+                                    <button type="button"
+                                            class="dropdown-item @(!form.EmployeeId.HasValue ? "active" : "")"
+                                            @onclick="SelectNoEmployee">
+                                        <em>Nicht zugewiesen</em>
+                                    </button>
+
+                                    @if (FilteredEmployees.Any())
+                                    {
+                                        @foreach (var employee in FilteredEmployees)
+                                        {
+                                            <button type="button"
+                                                    class="dropdown-item @(form.EmployeeId == employee.Id ? "active" : "")"
+                                                    @onclick="() => SelectEmployee(employee)">
+                                                @employee.FirstName @employee.LastName
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="dropdown-item text-muted disabled">Kein Mitarbeiter gefunden</div>
+                                    }
+                                </div>
                             }
 
-                        </InputSelect>
-                    </div>
+                        </div>
 
-                    <!-- Mitarbeiter -->
-                    <div class="col-md-4">
-                        <label class="form-label">
-                            Mitarbeiter
-                        </label>
 
-                        <InputSelect class="form-select"
-                                     @bind-Value="form.EmployeeId">
+                        <div class="col-md-8">
 
-                            <option value="">
-                                Nicht zugewiesen
-                            </option>
+                            <label class="form-label">
+                                Titel *
+                            </label>
 
-                            @foreach (var employee in employees
-                                .Where(x => x.CompanyId == form.CompanyId))
-                            {
-                                <option value="@employee.Id">
-                                    @employee.FirstName @employee.LastName
-                                </option>
-                            }
 
-                        </InputSelect>
-                    </div>
+                            <InputText class="form-control"
+                                       @bind-Value="form.Title"
+                                       placeholder="Aufgabe eingeben..." />
 
-                    <!-- Titel -->
-                    <div class="col-md-6">
-                        <label class="form-label">
-                            Titel *
-                        </label>
+                        </div>
 
-                        <InputText class="form-control"
-                                   @bind-Value="form.Title" />
-                    </div>
 
-                    <!-- Fällig -->
-                    <div class="col-md-3">
-                        <label class="form-label">
-                            Fällig am
-                        </label>
+                        <div class="col-md-4">
 
-                        <InputDate class="form-control"
-                                   @bind-Value="form.DueDate" />
-                    </div>
+                            <label class="form-label">
+                                Fällig am
+                            </label>
 
-                    <!-- Status -->
-                    <div class="col-md-3">
-                        <label class="form-label">
-                            Status
-                        </label>
 
-                        <InputSelect class="form-select"
-                                     @bind-Value="form.Status">
+                            <InputDate class="form-control"
+                                       @bind-Value="form.DueDate" />
 
-                            @foreach (var status in Enum.GetValues<WorkTaskStatus>())
-                            {
-                                <option value="@status">
-                                    @StatusText(status)
-                                </option>
-                            }
+                        </div>
 
-                        </InputSelect>
-                    </div>
 
-                    <!-- Beschreibung -->
-                    <div class="col-12">
-                        <label class="form-label">
-                            Beschreibung
-                        </label>
+                        <div class="col-md-4">
 
-                        <InputTextArea class="form-control"
-                                       @bind-Value="form.Description" />
+                            <label class="form-label">
+                                Status
+                            </label>
+
+
+                            <InputSelect class="form-select"
+                                         @bind-Value="form.Status">
+
+                                @foreach (var status in Enum.GetValues<WorkTaskStatus>())
+                                {
+                                    <option value="@status">
+
+                                        @StatusText(status)
+
+                                    </option>
+                                }
+
+                            </InputSelect>
+
+                        </div>
+
+
+                        <div class="col-12">
+
+                            <label class="form-label">
+                                Beschreibung
+                            </label>
+
+
+                            <InputTextArea class="form-control"
+                                           rows="4"
+                                           @bind-Value="form.Description"
+                                           placeholder="Beschreibung der Aufgabe..." />
+
+                        </div>
+
+
+                        @if (!string.IsNullOrWhiteSpace(formError))
+                        {
+                            <div class="col-12">
+
+                                <div class="alert alert-warning mb-0">
+
+                                    @formError
+
+                                </div>
+
+                            </div>
+                        }
+
                     </div>
 
                 </div>
 
-                <div class="mt-3">
 
-                    <button type="submit"
-                            class="btn btn-success me-2">
-                        Speichern
-                    </button>
+                <div class="task-modal-footer">
 
                     <button type="button"
-                            class="btn btn-outline-secondary"
+                            class="btn btn-light"
                             @onclick="Cancel">
+
                         Abbrechen
+
+                    </button>
+
+
+                    <button type="submit"
+                            class="btn btn-primary">
+
+                        @(form.Id == Guid.Empty ? "Aufgabe erstellen" : "Änderungen speichern")
+
                     </button>
 
                 </div>
@@ -182,265 +723,849 @@
             </EditForm>
 
         </div>
+
     </div>
 }
 
-@if (message is not null)
+
+<!-- =============================================================
+     EMPLOYEE STATUS MODAL
+     ============================================================= -->
+
+@if (changingStatus && !isAdmin)
 {
-    <div class="alert alert-warning">
-        @message
+    <div class="task-modal-backdrop"
+         @onclick="CloseStatus">
+
+        <div class="task-modal task-status-modal"
+             @onclick:stopPropagation="true">
+
+            <div class="task-modal-header">
+
+                <div>
+                    <h2>
+                        Status ändern
+                    </h2>
+
+
+                    @if (statusTask is not null)
+                    {
+                        <p class="text-muted mb-0">
+
+                            @statusTask.Title
+
+                        </p>
+                    }
+
+                </div>
+
+
+                <button class="btn-close"
+                        type="button"
+                        @onclick="CloseStatus">
+                </button>
+
+            </div>
+
+
+            <div class="task-modal-body">
+
+                <label class="form-label">
+                    Neuer Status
+                </label>
+
+
+                <select class="form-select"
+                        @bind="selectedStatus">
+
+                    @foreach (var status in Enum.GetValues<WorkTaskStatus>())
+                    {
+                        <option value="@status">
+
+                            @StatusText(status)
+
+                        </option>
+                    }
+
+                </select>
+
+            </div>
+
+
+            <div class="task-modal-footer">
+
+                <button type="button"
+                        class="btn btn-light"
+                        @onclick="CloseStatus">
+
+                    Abbrechen
+
+                </button>
+
+
+                <button type="button"
+                        class="btn btn-primary"
+                        @onclick="SaveStatus">
+
+                    Status speichern
+
+                </button>
+
+            </div>
+
+        </div>
+
     </div>
 }
 
-<div class="card shadow-sm">
-
-    <div class="table-responsive">
-
-        <table class="table table-hover mb-0">
-
-            <thead>
-                <tr>
-                    <th>Aufgabe</th>
-                    <th>Baustelle</th>
-                    <th>Mitarbeiter</th>
-                    <th>Fällig</th>
-                    <th>Status</th>
-                    <th></th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                @foreach (var task in tasks)
-                {
-                    <tr>
-
-                        <td>
-                            <strong>
-                                @task.Title
-                            </strong>
-
-                            <br />
-
-                            <small class="text-muted">
-                                @task.Company.Name
-                            </small>
-                        </td>
-
-                        <td>
-                            @task.Baustelle.Name
-                        </td>
-
-                        <td>
-                            @(task.Employee is null
-                                ? "–"
-                                : $"{task.Employee.FirstName} {task.Employee.LastName}")
-                        </td>
-
-                        <td>
-                            @task.DueDate?.ToString("dd.MM.yyyy")
-                        </td>
-
-                        <td>
-                            <span class="badge text-bg-@StatusClass(task.Status)">
-                                @StatusText(task.Status)
-                            </span>
-                        </td>
-
-                        <td class="text-end">
-
-                            <button class="btn btn-sm btn-outline-primary me-1"
-                                    @onclick="() => Edit(task)">
-                                Bearbeiten
-                            </button>
-
-                            <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="() => Delete(task)">
-                                Löschen
-                            </button>
-
-                        </td>
-
-                    </tr>
-                }
-
-                @if (!tasks.Any())
-                {
-                    <tr>
-                        <td colspan="6"
-                            class="text-center text-muted py-4">
-
-                            Noch keine Aufgaben angelegt.
-
-                        </td>
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
 
 @code {
 
+    // =========================================================
+    // DATA
+    // =========================================================
+
+    private Guid companyId;
+
+    private EmployeeModel? currentEmployee;
+
+    private bool isAdmin;
+
     private List<WorkTaskModel> tasks = [];
-    private List<CompanyModel> companies = [];
+
     private List<EmployeeModel> employees = [];
+
     private List<BaustelleModel> sites = [];
+
+
+    // =========================================================
+    // FORM
+    // =========================================================
 
     private WorkTaskModel form = new();
 
     private bool editing;
 
+    private string? formError;
+
+
+    // =========================================================
+    // MODAL LIVE SEARCH STATE
+    // =========================================================
+
+    private string siteSearchText = "";
+
+    private bool showSiteDropdown = false;
+
+    private string employeeSearchText = "";
+
+    private bool showEmployeeDropdown = false;
+
+
+    private IEnumerable<BaustelleModel> FilteredSites =>
+        sites.Where(x =>
+            string.IsNullOrWhiteSpace(siteSearchText) ||
+            $"{x.Name} {x.City}".Contains(siteSearchText.Trim(), StringComparison.OrdinalIgnoreCase));
+
+
+    private IEnumerable<EmployeeModel> FilteredEmployees =>
+        employees.Where(x =>
+            string.IsNullOrWhiteSpace(employeeSearchText) ||
+            $"{x.FirstName} {x.LastName}".Contains(employeeSearchText.Trim(), StringComparison.OrdinalIgnoreCase));
+
+
+    // =========================================================
+    // MESSAGE
+    // =========================================================
+
     private string? message;
 
+    private string messageType = "success";
+
+
+    // =========================================================
+    // SEARCH
+    // =========================================================
+
+    private string search = "";
+
+
+    // =========================================================
+    // PAGINATION
+    // =========================================================
+
+    private const int PageSize = 10;
+
+    private int CurrentPage = 1;
+
+
+    // =========================================================
+    // STATUS
+    // =========================================================
+
+    private bool changingStatus;
+
+    private WorkTaskModel? statusTask;
+
+    private WorkTaskStatus selectedStatus;
+
+
+    // =========================================================
+    // FILTERED TASKS
+    // =========================================================
+
+    private IEnumerable<WorkTaskModel> FilteredTasks =>
+        tasks.Where(x =>
+            string.IsNullOrWhiteSpace(search)
+
+            ||
+
+            (
+                $"{x.Title} " +
+                $"{x.Description} " +
+                $"{x.Baustelle?.Name} " +
+                $"{x.Baustelle?.City} " +
+                $"{x.Employee?.FirstName} " +
+                $"{x.Employee?.LastName} " +
+                $"{x.DueDate:dd.MM.yyyy} " +
+                $"{StatusText(x.Status)}"
+            )
+            .Contains(
+                search.Trim(),
+                StringComparison.OrdinalIgnoreCase));
+
+
+    // =========================================================
+    // PAGED TASKS
+    // =========================================================
+
+    private IEnumerable<WorkTaskModel> PagedTasks =>
+        FilteredTasks
+            .Skip((CurrentPage - 1) * PageSize)
+            .Take(PageSize);
+
+
+    // =========================================================
+    // TOTAL PAGES
+    // =========================================================
+
+    private int TotalPages =>
+        Math.Max(
+            1,
+            (int)Math.Ceiling(FilteredTasks.Count() / (double)PageSize));
+
+
+    // =========================================================
+    // INITIALIZE
+    // =========================================================
 
     protected override async Task OnInitializedAsync()
     {
-        companies = await Db.Companies
-            .AsNoTracking()
-            .OrderBy(x => x.Name)
-            .ToListAsync();
+        var id = await CurrentCompany.GetCompanyIdAsync();
 
+
+        if (!id.HasValue)
+        {
+            message = "Keine Firma gefunden.";
+
+            messageType = "danger";
+
+            return;
+        }
+
+
+        companyId = id.Value;
+
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+
+        var user = await UserManager.GetUserAsync(authState.User);
+
+
+        if (user is null)
+        {
+            message = "Benutzer wurde nicht gefunden.";
+
+            messageType = "danger";
+
+            return;
+        }
+
+
+        // =====================================================
+        // ADMIN / CHEF
+        // =====================================================
+
+        isAdmin = await UserManager.IsInRoleAsync(user, "Admin") || await UserManager.IsInRoleAsync(user, "Chef");
+
+
+        // =====================================================
+        // MITARBEITER
+        // =====================================================
+
+        if (!isAdmin)
+        {
+            currentEmployee = await Db.Employees
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x =>
+                    x.CompanyId == companyId &&
+                    x.ApplicationUserId == user.Id &&
+                    x.IsActive);
+
+
+            if (currentEmployee is null)
+            {
+                message = "Für dein Benutzerkonto wurde kein Mitarbeiter gefunden.";
+
+                messageType = "danger";
+
+                return;
+            }
+        }
+
+
+        // =====================================================
+        // ADMIN DATA
+        // =====================================================
+
+        if (isAdmin)
+        {
+            await LoadEmployeesAndSites();
+        }
+
+
+        await LoadTasks();
+    }
+
+
+    // =========================================================
+    // LOAD EMPLOYEES / SITES
+    // =========================================================
+
+    private async Task LoadEmployeesAndSites()
+    {
         employees = await Db.Employees
             .AsNoTracking()
-            .Where(x => x.IsActive)
+            .Where(x => x.CompanyId == companyId && x.IsActive)
             .OrderBy(x => x.LastName)
+            .ThenBy(x => x.FirstName)
             .ToListAsync();
+
 
         sites = await Db.Baustellen
             .AsNoTracking()
-            .Where(x => x.IsActive)
+            .Where(x => x.CompanyId == companyId && x.IsActive)
             .OrderBy(x => x.Name)
             .ToListAsync();
-
-        await Load();
     }
 
 
-    private async Task Load()
+    // =========================================================
+    // LOAD TASKS
+    // =========================================================
+
+    private async Task LoadTasks()
     {
-        tasks = await Db.WorkTasks
-            .Include(x => x.Company)
+        IQueryable<WorkTaskModel> query = Db.WorkTasks
             .Include(x => x.Baustelle)
             .Include(x => x.Employee)
+            .Where(x => x.CompanyId == companyId);
+
+
+        // =====================================================
+        // MITARBEITER:
+        // NUR EIGENE AUFGABEN
+        // =====================================================
+
+        if (!isAdmin)
+        {
+            if (currentEmployee is null)
+            {
+                tasks = [];
+
+                return;
+            }
+
+
+    query = query.Where(x =>
+        x.EmployeeId == currentEmployee.Id &&
+        x.Status != WorkTaskStatus.Completed);      
+        }
+
+
+        tasks = await query
             .AsNoTracking()
             .OrderBy(x => x.Status)
             .ThenBy(x => x.DueDate)
+            .ThenBy(x => x.Title)
             .ToListAsync();
+
+
+        if (CurrentPage > TotalPages)
+        {
+            CurrentPage = TotalPages;
+        }
+
+
+        if (CurrentPage < 1)
+        {
+            CurrentPage = 1;
+        }
     }
 
+
+    // =========================================================
+    // SEARCH (VOSTROJUVA LIVE SEARCH ZA SITE)
+    // =========================================================
+
+    private void OnSearch(ChangeEventArgs e)
+    {
+        search = e.Value?.ToString() ?? "";
+
+        CurrentPage = 1;
+    }
+
+
+    private void ClearSearch()
+    {
+        search = "";
+
+        CurrentPage = 1;
+    }
+
+
+    // =========================================================
+    // LIVE SEARCH INPUT HANDLERS
+    // =========================================================
+
+    private void OnSiteSearchInput(ChangeEventArgs e)
+    {
+        siteSearchText = e.Value?.ToString() ?? "";
+        showSiteDropdown = true;
+    }
+
+    private void SelectSite(BaustelleModel site)
+    {
+        form.BaustelleId = site.Id;
+        siteSearchText = site.Name;
+        showSiteDropdown = false;
+    }
+
+    private void OnEmployeeSearchInput(ChangeEventArgs e)
+    {
+        employeeSearchText = e.Value?.ToString() ?? "";
+        showEmployeeDropdown = true;
+    }
+
+    private void SelectEmployee(EmployeeModel employee)
+    {
+        form.EmployeeId = employee.Id;
+        employeeSearchText = $"{employee.FirstName} {employee.LastName}";
+        showEmployeeDropdown = false;
+    }
+
+    private void SelectNoEmployee()
+    {
+        form.EmployeeId = null;
+        employeeSearchText = "";
+        showEmployeeDropdown = false;
+    }
+
+
+    // =========================================================
+    // NEW
+    // =========================================================
 
     private void New()
     {
-        form = new WorkTaskModel();
+        if (!isAdmin)
+        {
+            return;
+        }
 
-        editing = true;
-        message = null;
-    }
 
-
-    private void Edit(WorkTaskModel x)
-    {
         form = new WorkTaskModel
         {
-            Id = x.Id,
-            CompanyId = x.CompanyId,
-            BaustelleId = x.BaustelleId,
-            EmployeeId = x.EmployeeId,
-            Title = x.Title,
-            Description = x.Description,
-            Status = x.Status,
-            DueDate = x.DueDate,
-            CreatedAt = x.CreatedAt
+            Id = Guid.Empty,
+            CompanyId = companyId,
+            BaustelleId = Guid.Empty,
+            EmployeeId = null,
+            Title = "",
+            Description = null,
+            Status = WorkTaskStatus.Open,
+            DueDate = null,
+            CreatedAt = DateTime.UtcNow
         };
 
+
+        siteSearchText = "";
+        showSiteDropdown = false;
+        employeeSearchText = "";
+        showEmployeeDropdown = false;
+
         editing = true;
+
+        formError = null;
+
         message = null;
     }
 
+
+    // =========================================================
+    // EDIT
+    // =========================================================
+
+    private void Edit(WorkTaskModel task)
+    {
+        if (!isAdmin)
+        {
+            return;
+        }
+
+
+        form = new WorkTaskModel
+        {
+            Id = task.Id,
+            CompanyId = task.CompanyId,
+            BaustelleId = task.BaustelleId,
+            EmployeeId = task.EmployeeId,
+            Title = task.Title,
+            Description = task.Description,
+            Status = task.Status,
+            DueDate = task.DueDate,
+            CreatedAt = task.CreatedAt
+        };
+
+
+        var site = sites.FirstOrDefault(s => s.Id == task.BaustelleId);
+        siteSearchText = site?.Name ?? "";
+        showSiteDropdown = false;
+
+        var emp = employees.FirstOrDefault(e => e.Id == task.EmployeeId);
+        employeeSearchText = emp != null ? $"{emp.FirstName} {emp.LastName}" : "";
+        showEmployeeDropdown = false;
+
+        editing = true;
+
+        formError = null;
+
+        message = null;
+    }
+
+
+    // =========================================================
+    // SAVE
+    // =========================================================
 
     private async Task Save()
     {
+        if (!isAdmin)
+        {
+            return;
+        }
+
+
+        formError = null;
+
         message = null;
 
-        if (form.CompanyId == Guid.Empty ||
-            form.BaustelleId == Guid.Empty ||
-            string.IsNullOrWhiteSpace(form.Title))
+
+        if (form.BaustelleId == Guid.Empty)
         {
-            message =
-                "Firma, Baustelle und Titel sind erforderlich.";
+            formError = "Bitte eine Baustelle auswählen.";
 
             return;
         }
 
 
-        var siteExists = sites.Any(x =>
-            x.Id == form.BaustelleId &&
-            x.CompanyId == form.CompanyId);
-
-
-        var employeeExists =
-            !form.EmployeeId.HasValue ||
-            employees.Any(x =>
-                x.Id == form.EmployeeId.Value &&
-                x.CompanyId == form.CompanyId);
-
-
-        if (!siteExists || !employeeExists)
+        if (string.IsNullOrWhiteSpace(form.Title))
         {
-            message =
-                "Baustelle und Mitarbeiter müssen zur selben Firma gehören.";
+            formError = "Der Titel ist erforderlich.";
 
             return;
         }
+
+
+        form.CompanyId = companyId;
+
+
+        var siteExists = await Db.Baustellen
+            .AnyAsync(x => x.Id == form.BaustelleId && x.CompanyId == companyId && x.IsActive);
+
+
+        if (!siteExists)
+        {
+            formError = "Die ausgewählte Baustelle wurde nicht gefunden.";
+
+            return;
+        }
+
+
+        if (form.EmployeeId.HasValue)
+        {
+            var employeeExists = await Db.Employees
+                .AnyAsync(x => x.Id == form.EmployeeId.Value && x.CompanyId == companyId && x.IsActive);
+
+
+            if (!employeeExists)
+            {
+                formError = "Der ausgewählte Mitarbeiter wurde nicht gefunden.";
+
+                return;
+            }
+        }
+
+
+        form.Title = form.Title.Trim();
+
+        form.Description = string.IsNullOrWhiteSpace(form.Description) ? null : form.Description.Trim();
 
 
         if (form.Id == Guid.Empty)
         {
             form.Id = Guid.NewGuid();
 
+            form.CreatedAt = DateTime.UtcNow;
+
+
             Db.WorkTasks.Add(form);
         }
         else
         {
-            Db.WorkTasks.Update(form);
+            var existing = await Db.WorkTasks
+                .FirstOrDefaultAsync(x => x.Id == form.Id && x.CompanyId == companyId);
+
+
+            if (existing is null)
+            {
+                formError = "Aufgabe wurde nicht gefunden.";
+
+                return;
+            }
+
+
+            existing.BaustelleId = form.BaustelleId;
+
+            existing.EmployeeId = form.EmployeeId;
+
+            existing.Title = form.Title;
+
+            existing.Description = form.Description;
+
+            existing.Status = form.Status;
+
+            existing.DueDate = form.DueDate;
         }
 
 
         await Db.SaveChangesAsync();
 
+
         editing = false;
 
-        await Load();
+
+        message = "Aufgabe wurde gespeichert.";
+
+        messageType = "success";
+
+
+        await LoadTasks();
     }
 
+
+    // =========================================================
+    // DELETE
+    // =========================================================
+
+    private async Task Delete(WorkTaskModel task)
+    {
+        if (!isAdmin)
+        {
+            return;
+        }
+
+
+        var existing = await Db.WorkTasks
+            .FirstOrDefaultAsync(x => x.Id == task.Id && x.CompanyId == companyId);
+
+
+        if (existing is null)
+        {
+            return;
+        }
+
+
+        Db.WorkTasks.Remove(existing);
+
+
+        await Db.SaveChangesAsync();
+
+
+        message = "Aufgabe wurde gelöscht.";
+
+        messageType = "success";
+
+
+        await LoadTasks();
+    }
+
+
+    // =========================================================
+    // STATUS MODAL
+    // =========================================================
+
+    private void OpenStatus(WorkTaskModel task)
+    {
+        if (isAdmin)
+        {
+            return;
+        }
+
+
+        if (currentEmployee is null || task.EmployeeId != currentEmployee.Id)
+        {
+            return;
+        }
+
+
+        statusTask = task;
+
+        selectedStatus = task.Status;
+
+        changingStatus = true;
+    }
+
+
+    private void CloseStatus()
+    {
+        changingStatus = false;
+
+        statusTask = null;
+    }
+
+
+    // =========================================================
+    // SAVE STATUS
+    // =========================================================
+
+    private async Task SaveStatus()
+    {
+        if (isAdmin)
+        {
+            return;
+        }
+
+
+        if (statusTask is null || currentEmployee is null)
+        {
+            return;
+        }
+
+
+        var task = await Db.WorkTasks
+            .FirstOrDefaultAsync(x =>
+                x.Id == statusTask.Id &&
+                x.CompanyId == companyId &&
+                x.EmployeeId == currentEmployee.Id);
+
+
+        if (task is null)
+        {
+            message = "Aufgabe wurde nicht gefunden.";
+
+            messageType = "danger";
+
+
+            CloseStatus();
+
+            return;
+        }
+
+
+        task.Status = selectedStatus;
+
+
+        await Db.SaveChangesAsync();
+
+
+        changingStatus = false;
+
+        statusTask = null;
+
+
+        message = "Status wurde geändert.";
+
+        messageType = "success";
+
+
+        await LoadTasks();
+    }
+
+
+    // =========================================================
+    // CANCEL
+    // =========================================================
 
     private void Cancel()
     {
         editing = false;
+
+        formError = null;
+
+        showSiteDropdown = false;
+
+        showEmployeeDropdown = false;
+    }
+
+
+    // =========================================================
+    // MESSAGE
+    // =========================================================
+
+    private void ClearMessage()
+    {
         message = null;
     }
 
 
-    private async Task Delete(WorkTaskModel x)
+    // =========================================================
+    // PAGINATION
+    // =========================================================
+
+    private void GoToPage(int page)
     {
-        var task = await Db.WorkTasks
-            .FirstOrDefaultAsync(t => t.Id == x.Id);
-
-        if (task is null)
+        if (page < 1 || page > TotalPages)
+        {
             return;
+        }
 
-        Db.WorkTasks.Remove(task);
 
-        await Db.SaveChangesAsync();
-
-        await Load();
+        CurrentPage = page;
     }
 
+
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1)
+        {
+            CurrentPage--;
+        }
+    }
+
+
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages)
+        {
+            CurrentPage++;
+        }
+    }
+
+
+    // =========================================================
+    // HELPERS
+    // =========================================================
 
     private static string StatusText(WorkTaskStatus status)
     {
@@ -454,14 +1579,44 @@
     }
 
 
-    private static string StatusClass(WorkTaskStatus status)
+    private static string StatusBadgeClass(WorkTaskStatus status)
     {
         return status switch
         {
-            WorkTaskStatus.Open => "secondary",
-            WorkTaskStatus.InProgress => "primary",
-            WorkTaskStatus.Completed => "success",
-            _ => "dark"
+            WorkTaskStatus.Open => "task-status task-status-open",
+            WorkTaskStatus.InProgress => "task-status task-status-progress",
+            WorkTaskStatus.Completed => "task-status task-status-completed",
+            _ => "task-status task-status-cancelled"
         };
     }
+
+
+    private static string DueDateClass(DateTime date)
+    {
+        if (date.Date < DateTime.Today)
+        {
+            return "task-due task-due-overdue";
+        }
+
+
+        if (date.Date == DateTime.Today)
+        {
+            return "task-due task-due-today";
+        }
+
+
+        return "task-due";
+    }
+
+
+    private static string EmployeeInitials(EmployeeModel employee)
+    {
+        var first = employee.FirstName?.FirstOrDefault() ?? 'M';
+
+        var last = employee.LastName?.FirstOrDefault() ?? 'A';
+
+
+        return $"{first}{last}".ToUpperInvariant();
+    }
+
 }

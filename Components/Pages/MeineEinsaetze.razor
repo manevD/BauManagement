@@ -1,0 +1,187 @@
+﻿@page "/meine-einsaetze"
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+
+@using BauManagement.Data
+@using BauManagement.Models
+
+@using WorkAssignmentModel = BauManagement.Models.WorkAssignment
+@using EmployeeModel = BauManagement.Models.Employee
+
+@inject ApplicationDbContext Db
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@inject ICurrentCompanyContext CurrentCompany
+
+<PageTitle>Meine Einsätze</PageTitle>
+
+<div class="my-assignments-page">
+
+    <!-- HEADER -->
+    <div class="page-header">
+        <div>
+            <h2>Meine Einsätze</h2>
+            <div class="subtitle">Übersicht Ihrer zugewiesenen Arbeitszeiten</div>
+        </div>
+
+        <!-- DATUMS-FILTER -->
+        <div class="date-filter">
+            <button class="btn-nav" @onclick="PreviousDay">‹</button>
+            <input type="date" class="date-input" value="@selectedDate.ToString("yyyy-MM-dd")" @onchange="ChangeDate" />
+            <button class="btn-nav" @onclick="NextDay">›</button>
+            <button class="btn-today" @onclick="GoToday">Heute</button>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(errorMessage))
+    {
+        <div class="alert alert-danger">@errorMessage</div>
+    }
+
+    <!-- CARDS LISTE -->
+    <div class="assignments-list">
+        @if (assignments == null)
+        {
+            <div class="loading-state">Lade Einsätze...</div>
+        }
+        else if (!assignments.Any())
+        {
+            <div class="empty-card">
+                <div class="empty-icon">📅</div>
+                <h4>Keine Einsätze eingetragen</h4>
+                <p>Für den @selectedDate.ToString("dd.MM.yyyy") wurden keine Einsätze gefunden.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var item in assignments)
+            {
+                <div class="assignment-card">
+                    <div class="card-header-bar">
+                        <span class="baustelle-tag">
+                            <i class="bi bi-geo-alt-fill"></i> @(item.Baustelle?.Name ?? "Unbekannte Baustelle")
+                        </span>
+                        <span class="duration-badge">@GetDurationText(item.Start, item.End)</span>
+                    </div>
+
+                    <div class="card-body-content">
+                        <div class="time-range">
+                            <div class="time-block">
+                                <small>Beginn</small>
+                                <strong>@item.Start.ToString("HH:mm") Uhr</strong>
+                            </div>
+                            <div class="time-arrow">➔</div>
+                            <div class="time-block">
+                                <small>Ende</small>
+                                <strong>@item.End.ToString("HH:mm") Uhr</strong>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(item.Notes))
+                        {
+                            <div class="card-notes">
+                                <strong>Notizen:</strong>
+                                <p>@item.Notes</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private Guid companyId;
+    private EmployeeModel? currentEmployee;
+    private DateTime selectedDate = DateTime.Today;
+    private List<WorkAssignmentModel>? assignments;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var company = await CurrentCompany.GetCompanyIdAsync();
+            if (!company.HasValue)
+            {
+                errorMessage = "Keine Firma gefunden.";
+                return;
+            }
+            companyId = company.Value;
+
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authState.User);
+            if (user is null)
+            {
+                errorMessage = "Benutzer wurde nicht gefunden.";
+                return;
+            }
+
+            currentEmployee = await Db.Employees
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.CompanyId == companyId && x.ApplicationUserId == user.Id && x.IsActive);
+
+            if (currentEmployee is null)
+            {
+                errorMessage = "Für dein Benutzerkonto wurde kein Mitarbeiter-Datensatz gefunden.";
+                return;
+            }
+
+            await LoadAssignments();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    private async Task LoadAssignments()
+    {
+        if (currentEmployee == null) return;
+
+        var dayStart = selectedDate.Date;
+        var dayEnd = dayStart.AddDays(1);
+
+        assignments = await Db.WorkAssignments
+            .Include(x => x.Baustelle)
+            .Where(x => x.CompanyId == companyId 
+                     && x.EmployeeId == currentEmployee.Id 
+                     && x.Start < dayEnd 
+                     && x.End > dayStart)
+            .OrderBy(x => x.Start) // Sortierung chronologisch
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    private async Task PreviousDay() { selectedDate = selectedDate.AddDays(-1); await LoadAssignments(); }
+    private async Task NextDay() { selectedDate = selectedDate.AddDays(1); await LoadAssignments(); }
+    private async Task GoToday() { selectedDate = DateTime.Today; await LoadAssignments(); }
+
+    private async Task ChangeDate(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out var date))
+        {
+            selectedDate = date;
+            await LoadAssignments();
+        }
+    }
+
+    private string GetDurationText(DateTime start, DateTime end)
+    {
+        var duration = end - start;
+        if (duration.TotalMinutes < 0) duration = duration.Add(TimeSpan.FromDays(1));
+
+        var hours = (int)duration.TotalHours;
+        var minutes = duration.Minutes;
+
+        if (hours == 0) return $"{minutes} Min.";
+        if (minutes == 0) return $"{hours} Std.";
+        return $"{hours} Std. {minutes} Min.";
+    }
+}
