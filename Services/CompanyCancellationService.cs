@@ -14,8 +14,7 @@ public sealed class CompanyCancellationService(ApplicationDbContext db)
         if (company is null)
             return;
 
-        company.SubscriptionStatus =
-            SubscriptionStatus.Cancelled;
+        company.SubscriptionStatus = SubscriptionStatus.Cancelled;
 
         company.IsSubscriptionActive = false;
 

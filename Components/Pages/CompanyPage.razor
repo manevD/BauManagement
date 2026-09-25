@@ -143,7 +143,7 @@ else
                         </div>
 
 
-                        <button class="btn btn-primary mt-4 px-4"
+                        <button class="btn btn-primary px-4"
                                 type="submit">
 
                             Änderungen speichern
@@ -406,70 +406,81 @@ else
 
                 <div class="card-body p-4">
 
-                    <h2 class="h6">
+                    <h2 class="h6 mb-3">
                         Kündigung
                     </h2>
 
-
-                    <p class="small text-muted">
-                        Wenn du dein Abonnement kündigst, wird dein
-                        MyBauManagement-Konto beendet.
+                    <p class="small text-muted mb-3">
+                        Wenn du dein Abonnement kündigst, wird dein Zugang zu
+                        MyBauManagement deaktiviert. Deine Firmendaten, Mitarbeiter,
+                        Baustellen und bisherigen Daten bleiben gespeichert.
                     </p>
-
 
                     @if (!confirmCancellation)
                     {
                         <button class="btn btn-outline-danger btn-sm"
                                 @onclick="StartCancellation">
 
-                            Kündigung starten
+                            Abonnement kündigen
 
                         </button>
                     }
                     else
                     {
-                        <p class="small fw-semibold text-danger">
+                        <div class="cancellation-confirm">
 
-                            Diese Aktion kann nicht rückgängig gemacht
-                            werden.
+                            <div class="cancellation-confirm-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
 
-                        </p>
+                            <div>
+                                <strong>
+                                    Abonnement wirklich kündigen?
+                                </strong>
 
+                                <p class="mb-0">
+                                    Dein Zugang wird deaktiviert. Du kannst dein Konto
+                                    später jederzeit durch die Auswahl eines neuen
+                                    Pakets wieder aktivieren.
+                                </p>
+                            </div>
 
-                        <button class="btn btn-danger btn-sm me-2"
-                                @onclick="CancelCompany"
-                                disabled="@cancellationRunning">
+                        </div>
 
-                            @if (cancellationRunning)
-                            {
-                                <span>
-                                    Kündigung läuft...
-                                </span>
-                            }
-                            else
-                            {
-                                <span>
-                                    Endgültig löschen
-                                </span>
-                            }
+                        <div class="d-flex gap-2 flex-wrap mt-3">
 
-                        </button>
+                            <button class="btn btn-danger btn-sm"
+                                    @onclick="CancelCompany"
+                                    disabled="@cancellationRunning">
 
+                                @if (cancellationRunning)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    <span>Wird gekündigt...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-circle me-2"></i>
+                                    <span>Abonnement kündigen</span>
+                                }
 
-                        <button class="btn btn-link btn-sm"
-                                @onclick="CancelCancellation">
+                            </button>
 
-                            Abbrechen
+                            <button class="btn btn-link btn-sm"
+                                    @onclick="CancelCancellation"
+                                    disabled="@cancellationRunning">
 
-                        </button>
+                                Abbrechen
+
+                            </button>
+
+                        </div>
                     }
 
                 </div>
 
             </div>
-
         </div>
-
     </div>
 }
 

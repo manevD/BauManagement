@@ -7,7 +7,7 @@
 
 @using WorkAssignmentModel = BauManagement.Models.WorkAssignment
 @using EmployeeModel = BauManagement.Models.Employee
-
+@inject ICurrentCompanyContext CurrentCompany
 @inject ApplicationDbContext Db
 @inject IJSRuntime JS
 
@@ -188,12 +188,18 @@
 
     private async Task Load()
     {
+        var id = await CurrentCompany.GetCompanyIdAsync();
+
+        if (!id.HasValue)
+        {
+            return;
+        }
         errorMessage = null;
         try
         {
             employees = await Db.Employees
                 .AsNoTracking()
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive && x.CompanyId == id)
                 .OrderBy(x => x.FirstName)
                 .ThenBy(x => x.LastName)
                 .ToListAsync();

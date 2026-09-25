@@ -14,7 +14,6 @@
 
     .tasks-page .employee-header .btn-primary,
     .tasks-page .btn-primary {
-        background: #111 !important;
         border: 1px solid #ff7a00 !important;
         color: #ff7a00 !important;
         border-radius: 9px;
@@ -31,14 +30,12 @@
 
 /* EXACT DARK SEARCH STYLE */
 .tasks-page .search-box {
-    background: #111 !important;
     border: 1px solid #333 !important;
     border-radius: 10px;
     overflow: hidden;
 }
 
     .tasks-page .search-box .input-group-text {
-        background: #111 !important;
         border: 0 !important;
         color: #ff7a00 !important;
         padding-left: 14px;
@@ -46,7 +43,6 @@
     }
 
     .tasks-page .search-box .form-control {
-        background: #111 !important;
         border: 0 !important;
         color: #fff !important;
         height: 44px;
@@ -92,7 +88,6 @@
 
     .tasks-page .task-inline-form .form-control:focus,
     .tasks-page .task-inline-form .form-select:focus {
-        background: #111 !important;
         border-color: #ff7a00 !important;
         color: #fff !important;
         box-shadow: 0 0 0 2px rgba(255,122,0,.12) !important;
@@ -105,7 +100,6 @@
 }
 
     .tasks-page .live-search-wrapper .form-control {
-        background: #111 !important;
         border: 1px solid #333 !important;
         color: #fff !important;
         height: 44px;
@@ -119,7 +113,6 @@
         }
 
         .tasks-page .live-search-wrapper .form-control:focus {
-            background: #111 !important;
             border-color: #ff7a00 !important;
             color: #fff !important;
             box-shadow: 0 0 0 2px rgba(255,122,0,.12) !important;
@@ -132,7 +125,6 @@
     left: 0;
     right: 0;
     z-index: 1050;
-    background: #111 !important;
     border: 1px solid #333 !important;
     border-radius: 10px;
     overflow: hidden;
@@ -147,7 +139,6 @@
     align-items: center;
     gap: 12px;
     padding: 11px 14px;
-    background: #111 !important;
     border: 0 !important;
     border-bottom: 1px solid #242424 !important;
     color: #fff !important;
@@ -198,7 +189,6 @@
 
 .tasks-page .live-search-empty {
     padding: 16px;
-    background: #111 !important;
     color: #777 !important;
     font-size: .875rem;
     text-align: center;
@@ -242,7 +232,6 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    background: #111 !important;
     border: 1px solid #333 !important;
     border-radius: 7px;
     color: #999 !important;
@@ -265,7 +254,6 @@
     gap: 1rem;
     padding: 1rem 1.25rem;
     border-top: 1px solid #2a2a2a;
-    background: #111 !important;
 }
 
     .tasks-page .pagination-container .text-muted {

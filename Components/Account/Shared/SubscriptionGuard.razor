@@ -18,59 +18,45 @@
 else if (isBlocked && !IsSubscriptionPage)
 {
     <div class="subscription-blocked">
+
         <div class="subscription-blocked-card">
 
             <div class="subscription-blocked-icon">
                 <i class="bi bi-lock-fill"></i>
             </div>
 
-            <h2>Ihr Abonnement ist nicht aktiv</h2>
+            <h2>
+                @GetTitle()
+            </h2>
 
-            @if (isCancelled)
-            {
-                <p>
-                    Ihr Abonnement wurde gekündigt.
-                    Ihre Daten sind weiterhin gespeichert.
-                </p>
-            }
-            else if (isExpired)
-            {
-                <p>
-                    Ihr Abonnement ist abgelaufen.
-                    Ihre Daten sind weiterhin gespeichert.
-                </p>
-            }
-            else if (isPastDue)
-            {
-                <p>
-                    Bei Ihrem Abonnement ist ein Zahlungsproblem aufgetreten.
-                    Bitte wählen Sie ein Paket oder aktualisieren Sie Ihre Zahlungsdaten.
-                </p>
-            }
-            else
-            {
-                <p>
-                    Ihr Abonnement ist derzeit nicht aktiv.
-                </p>
-            }
+            <p>
+                @GetMessage()
+            </p>
 
             <div class="subscription-blocked-actions">
 
                 <button class="btn btn-subscription"
                         @onclick="OpenSubscription">
+
                     <i class="bi bi-credit-card me-2"></i>
+
                     Paket auswählen
+
                 </button>
 
                 <button class="btn btn-logout"
                         @onclick="Logout">
+
                     <i class="bi bi-box-arrow-right me-2"></i>
+
                     Abmelden
+
                 </button>
 
             </div>
 
         </div>
+
     </div>
 }
 else
@@ -84,11 +70,11 @@ else
     public RenderFragment? ChildContent { get; set; }
 
     private bool isLoading = true;
+
     private bool isBlocked;
 
-    private bool isCancelled;
-    private bool isExpired;
-    private bool isPastDue;
+    private SubscriptionBlockReason blockReason =
+        SubscriptionBlockReason.None;
 
     private bool IsSubscriptionPage =>
         NavigationManager.Uri.Contains(
@@ -111,82 +97,157 @@ else
         await InvokeAsync(StateHasChanged);
     }
 
-   private async Task CheckSubscriptionAsync()
-{
-    try
+    private async Task CheckSubscriptionAsync()
     {
-        isLoading = true;
-
-        var authState =
-            await AuthenticationStateProvider
-                .GetAuthenticationStateAsync();
-
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated != true)
-        {
-            isBlocked = false;
-            return;
-        }
-
-        Guid? companyId;
-
         try
         {
-            companyId =
-                await CurrentCompany.GetCompanyIdAsync();
+            isLoading = true;
+
+            var authState =
+                await AuthenticationStateProvider
+                    .GetAuthenticationStateAsync();
+
+            var user = authState.User;
+
+            /*
+             * Nicht eingeloggte Benutzer werden vom
+             * normalen Authentication-System behandelt.
+             */
+            if (user.Identity?.IsAuthenticated != true)
+            {
+                isBlocked = false;
+                blockReason =
+                    SubscriptionBlockReason.None;
+
+                return;
+            }
+
+            Guid? companyId;
+
+            try
+            {
+                companyId =
+                    await CurrentCompany.GetCompanyIdAsync();
+            }
+            catch
+            {
+                /*
+                 * Sicherheitsprinzip:
+                 * Wenn CompanyId nicht ermittelt werden kann,
+                 * gibt es keinen Zugriff.
+                 */
+                isBlocked = true;
+
+                blockReason =
+                    SubscriptionBlockReason.CompanyNotFound;
+
+                return;
+            }
+
+            if (!companyId.HasValue)
+            {
+                isBlocked = true;
+
+                blockReason =
+                    SubscriptionBlockReason.CompanyNotFound;
+
+                return;
+            }
+
+            /*
+             * EINZIGE Subscription-Prüfung.
+             */
+            var result =
+                await SubscriptionService
+                    .CanUseApplicationAsync(companyId.Value);
+
+            isBlocked = !result.IsAllowed;
+
+            blockReason = result.Reason;
         }
         catch
         {
-            isBlocked = false;
-            return;
-        }
+            /*
+             * FAIL CLOSED
+             *
+             * Wenn die Subscription nicht geprüft werden kann,
+             * wird der Zugriff verweigert.
+             */
+            isBlocked = true;
 
-        if (!companyId.HasValue)
+            blockReason =
+                SubscriptionBlockReason.Unknown;
+        }
+        finally
         {
-            isBlocked = false;
-            return;
+            isLoading = false;
         }
+    }
 
-        var company =
-            await SubscriptionService
-                .GetCompanyAsync(companyId.Value);
-
-        if (company is null)
+    private string GetTitle()
+    {
+        return blockReason switch
         {
-            isBlocked = false;
-            return;
-        }
+            SubscriptionBlockReason.Cancelled =>
+                "Ihr Abonnement wurde gekündigt",
 
-        isCancelled =
-            company.SubscriptionStatus ==
-            SubscriptionStatus.Cancelled;
+            SubscriptionBlockReason.Expired =>
+                "Ihr Abonnement ist abgelaufen",
 
-        isExpired =
-            company.SubscriptionStatus ==
-            SubscriptionStatus.Expired;
+            SubscriptionBlockReason.TrialExpired =>
+                "Ihre Testphase ist abgelaufen",
 
-        isPastDue =
-            company.SubscriptionStatus ==
-            SubscriptionStatus.PastDue;
+            SubscriptionBlockReason.PastDue =>
+                "Zahlungsproblem mit Ihrem Abonnement",
 
-        isBlocked =
-            !await SubscriptionService
-                .CanUseApplicationAsync(companyId.Value);
+            SubscriptionBlockReason.SubscriptionInactive =>
+                "Ihr Abonnement ist nicht aktiv",
+
+            SubscriptionBlockReason.SubscriptionExpired =>
+                "Ihr Abonnement ist abgelaufen",
+
+            SubscriptionBlockReason.CompanyNotFound =>
+                "Kein aktives Firmenkonto gefunden",
+
+            _ =>
+                "Ihr Abonnement ist nicht aktiv"
+        };
     }
-    catch
+
+    private string GetMessage()
     {
-        isBlocked = false;
+        return blockReason switch
+        {
+            SubscriptionBlockReason.Cancelled =>
+                "Ihr Abonnement wurde gekündigt. Ihre Daten bleiben erhalten. Sie können jederzeit ein neues Paket auswählen.",
+
+            SubscriptionBlockReason.Expired =>
+                "Ihr Abonnement ist abgelaufen. Ihre Daten bleiben erhalten. Wählen Sie ein neues Paket, um MyBauManagement wieder zu verwenden.",
+
+            SubscriptionBlockReason.TrialExpired =>
+                "Ihre kostenlose Testphase ist abgelaufen. Wählen Sie ein Paket, um MyBauManagement weiter zu verwenden.",
+
+            SubscriptionBlockReason.PastDue =>
+                "Bei Ihrem Abonnement ist ein Zahlungsproblem aufgetreten. Bitte wählen Sie ein Paket oder aktualisieren Sie Ihre Zahlungsdaten.",
+
+            SubscriptionBlockReason.SubscriptionInactive =>
+                "Ihr Abonnement ist derzeit nicht aktiv.",
+
+            SubscriptionBlockReason.SubscriptionExpired =>
+                "Ihr Abonnement ist abgelaufen. Wählen Sie ein neues Paket, um fortzufahren.",
+
+            SubscriptionBlockReason.CompanyNotFound =>
+                "Für Ihr Benutzerkonto konnte kein gültiges Firmenkonto gefunden werden.",
+
+            _ =>
+                "Der Zugriff auf die Anwendung ist derzeit nicht möglich."
+        };
     }
-    finally
-    {
-        isLoading = false;
-    }
-}
 
     private void OpenSubscription()
     {
-        NavigationManager.NavigateTo("/subscription");
+        NavigationManager.NavigateTo(
+            "/subscription");
     }
 
     private void Logout()
@@ -198,6 +259,7 @@ else
 
     public void Dispose()
     {
-        NavigationManager.LocationChanged -= OnLocationChanged;
+        NavigationManager.LocationChanged -=
+            OnLocationChanged;
     }
 }

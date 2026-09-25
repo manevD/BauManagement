@@ -1,1 +1,504 @@
-.page-hero{display:flex;justify-content:space-between;align-items:center}.page-hero h1{font-weight:750;letter-spacing:-.04em;margin:.25rem 0}.company-monogram{display:grid;place-items:center;width:4rem;height:4rem;border-radius:1.1rem;background:linear-gradient(135deg,#1265aa,#184268);color:#fff;font-size:1.5rem;font-weight:800}.modern-card{border:0;border-radius:1rem;box-shadow:0 .45rem 1.8rem rgba(24,55,83,.08)}.danger-card{border:1px solid #f2c8cb;border-radius:1rem}.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.12em}
+/* ============================================================
+   COMPANY PAGE
+   MyBauManagement – Dark / Orange Premium Style
+   ============================================================ */
+
+.page-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 30px;
+    border: 1px solid #292929;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0,0,0,.22);
+}
+
+    .page-hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #ff7a00, #ff9d3d, transparent 75%);
+    }
+
+    .page-hero h3 {
+        margin: 0 0 6px;
+        font-size: 1.65rem;
+        font-weight: 750;
+        letter-spacing: -.025em;
+    }
+
+    .page-hero .text-muted {
+        color: #8d8d8d !important;
+    }
+
+.company-monogram {
+    position: relative;
+    z-index: 1;
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #ff7a00, #e86600);
+    color: #fff;
+    font-size: 1.55rem;
+    font-weight: 800;
+    box-shadow: 0 10px 28px rgba(255,122,0,.22), inset 0 1px 0 rgba(255,255,255,.18);
+}
+
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.modern-card,
+.danger-card {
+    border: 1px solid #292929 !important;
+    border-radius: 16px !important;
+    color: #fff;
+    box-shadow: 0 12px 35px rgba(0,0,0,.18);
+    overflow: hidden;
+}
+
+.modern-card {
+    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+
+    .modern-card:hover {
+        border-color: #363636 !important;
+        box-shadow: 0 18px 45px rgba(0,0,0,.25);
+    }
+
+    .modern-card .card-body,
+    .danger-card .card-body {
+        background: transparent;
+    }
+
+    .modern-card h2,
+    .danger-card h2 {
+        color: #fff;
+        font-weight: 700;
+    }
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #ff7a00 !important;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+    .eyebrow::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #ff7a00;
+        box-shadow: 0 0 10px rgba(255,122,0,.65);
+    }
+
+
+/* ============================================================
+   LABELS / INPUTS
+   ============================================================ */
+
+.form-label {
+    margin-bottom: 7px;
+    color: #c8c8c8;
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+.form-control,
+.form-select {
+    min-height: 46px;
+    padding: 10px 13px;
+    background: #0d0d0d !important;
+    border: 1px solid #303030 !important;
+    border-radius: 10px !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+    .form-control:hover,
+    .form-select:hover {
+        border-color: #444 !important;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background: #111 !important;
+        border-color: #ff7a00 !important;
+        box-shadow: 0 0 0 3px rgba(255,122,0,.11) !important;
+        color: #fff !important;
+    }
+
+    .form-control::placeholder {
+        color: #666 !important;
+    }
+
+.form-select {
+    cursor: pointer;
+}
+
+    .form-select option {
+        background: #111;
+        color: #fff;
+    }
+
+
+/* ============================================================
+   PRIMARY BUTTON
+   ============================================================ */
+
+.btn-primary {
+    min-height: 43px;
+    background: linear-gradient(135deg, #ff7a00, #e96f00) !important;
+    border: 1px solid #ff7a00 !important;
+    border-radius: 9px !important;
+    color: #fff !important;
+    font-weight: 650;
+    box-shadow: 0 7px 20px rgba(255,122,0,.16);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(255,122,0,.25);
+    }
+
+    .btn-primary:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+
+/* ============================================================
+   PLAN CHANGE BUTTON
+   ============================================================ */
+
+.btn-outline-primary {
+    min-height: 44px;
+    background: rgba(255,122,0,.06) !important;
+    border: 1px solid rgba(255,122,0,.65) !important;
+    border-radius: 10px !important;
+    color: #ff8b20 !important;
+    font-weight: 650;
+    transition: all .18s ease;
+}
+
+    .btn-outline-primary:hover:not(:disabled) {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+        box-shadow: 0 8px 22px rgba(255,122,0,.20);
+    }
+
+    .btn-outline-primary:disabled {
+        background: #151515 !important;
+        border-color: #303030 !important;
+        color: #666 !important;
+        opacity: .75;
+    }
+
+
+/* ============================================================
+   SUBSCRIPTION STATUS
+   ============================================================ */
+
+.subscription-status {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+    .subscription-status::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+    }
+
+.subscription-status-icon {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.subscription-status strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #fff;
+    font-size: .9rem;
+}
+
+.subscription-status .text-muted {
+    color: #8d8d8d !important;
+}
+
+
+/* TRIAL */
+
+.subscription-status.trial {
+    background: rgba(255,122,0,.065);
+    border: 1px solid rgba(255,122,0,.20);
+}
+
+    .subscription-status.trial::before {
+        background: #ff7a00;
+    }
+
+    .subscription-status.trial .subscription-status-icon {
+        background: rgba(255,122,0,.13);
+        color: #ff8b20;
+    }
+
+
+/* ACTIVE */
+
+.subscription-status.active {
+    background: rgba(34,197,94,.055);
+    border: 1px solid rgba(34,197,94,.18);
+}
+
+    .subscription-status.active::before {
+        background: #22c55e;
+    }
+
+    .subscription-status.active .subscription-status-icon {
+        background: rgba(34,197,94,.11);
+        color: #4ade80;
+    }
+
+
+/* DANGER */
+
+.subscription-status.danger {
+    background: rgba(239,68,68,.055);
+    border: 1px solid rgba(239,68,68,.18);
+}
+
+    .subscription-status.danger::before {
+        background: #ef4444;
+    }
+
+    .subscription-status.danger .subscription-status-icon {
+        background: rgba(239,68,68,.11);
+        color: #f87171;
+    }
+
+
+/* ============================================================
+   DIVIDERS
+   ============================================================ */
+
+.modern-card hr {
+    border-color: #292929;
+    opacity: 1;
+}
+
+
+/* ============================================================
+   DANGER ZONE
+   ============================================================ */
+
+.danger-card {
+    position: relative;
+    border-color: rgba(239,68,68,.20) !important;
+}
+
+    .danger-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3px;
+        height: 100%;
+        background: #ef4444;
+    }
+
+    .danger-card h2 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .danger-card h2::before {
+            content: "\F33A";
+            font-family: "bootstrap-icons";
+            color: #ef4444;
+        }
+
+    .danger-card .text-muted {
+        color: #888 !important;
+        line-height: 1.55;
+    }
+
+.btn-outline-danger {
+    background: transparent !important;
+    border: 1px solid rgba(239,68,68,.55) !important;
+    border-radius: 8px !important;
+    color: #f87171 !important;
+    font-weight: 600;
+}
+
+    .btn-outline-danger:hover {
+        background: rgba(239,68,68,.10) !important;
+        border-color: #ef4444 !important;
+        color: #ff8a8a !important;
+    }
+
+.btn-danger {
+    background: #dc2626 !important;
+    border-color: #dc2626 !important;
+    border-radius: 8px !important;
+    font-weight: 600;
+}
+
+    .btn-danger:hover:not(:disabled) {
+        background: #ef4444 !important;
+        border-color: #ef4444 !important;
+    }
+
+.btn-link {
+    color: #999 !important;
+    text-decoration: none !important;
+}
+
+    .btn-link:hover {
+        color: #fff !important;
+    }
+
+
+/* ============================================================
+   ALERTS
+   ============================================================ */
+
+.alert {
+    border-radius: 11px !important;
+    border-width: 1px !important;
+    font-size: .9rem;
+}
+
+.alert-success {
+    background: rgba(34,197,94,.08) !important;
+    border-color: rgba(34,197,94,.25) !important;
+    color: #86efac !important;
+}
+
+.alert-warning {
+    background: rgba(245,158,11,.08) !important;
+    border-color: rgba(245,158,11,.25) !important;
+    color: #fcd34d !important;
+}
+
+.alert-danger {
+    background: rgba(239,68,68,.08) !important;
+    border-color: rgba(239,68,68,.25) !important;
+    color: #fca5a5 !important;
+}
+
+
+/* ============================================================
+   GENERAL
+   ============================================================ */
+
+.text-muted {
+    color: #858585 !important;
+}
+
+.small {
+    line-height: 1.5;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 767.98px) {
+
+    .page-hero {
+        padding: 22px 20px;
+        border-radius: 14px;
+    }
+
+        .page-hero h3 {
+            font-size: 1.35rem;
+        }
+
+    .company-monogram {
+        width: 50px;
+        height: 50px;
+        flex-basis: 50px;
+        border-radius: 13px;
+        font-size: 1.2rem;
+    }
+
+    .modern-card,
+    .danger-card {
+        border-radius: 14px !important;
+    }
+
+        .modern-card .card-body {
+            padding: 22px !important;
+        }
+}
+
+.cancellation-confirm {
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    padding: 14px;
+    background: rgba(239,68,68,.055);
+    border: 1px solid rgba(239,68,68,.18);
+    border-radius: 11px;
+}
+
+.cancellation-confirm-icon {
+    width: 38px;
+    height: 38px;
+    flex: 0 0 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239,68,68,.11);
+    border-radius: 9px;
+    color: #f87171;
+}
+
+.cancellation-confirm strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #fff;
+    font-size: .88rem;
+}
+
+.cancellation-confirm p {
+    color: #8d8d8d;
+    font-size: .8rem;
+    line-height: 1.5;
+}

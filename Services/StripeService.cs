@@ -207,7 +207,7 @@ public class StripeService
             GetPriceId(newPlan);
 
         var subscriptionService =
-            new SubscriptionService();
+            new Stripe.SubscriptionService();
 
         var subscription =
             await subscriptionService.GetAsync(
@@ -262,7 +262,7 @@ public class StripeService
         }
 
         var subscriptionService =
-            new SubscriptionService();
+            new Stripe.SubscriptionService();
 
         await subscriptionService.CancelAsync(
             company.StripeSubscriptionId);
