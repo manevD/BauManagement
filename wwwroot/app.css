@@ -127,3 +127,135 @@ h1:focus {
         opacity: .7;
         cursor: not-allowed;
     }
+
+.app-install-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #111 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #ff7a00 !important;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
+}
+
+    .app-install-button:hover {
+        background: #ff7a00 !important;
+        border-color: #ff7a00 !important;
+        color: #fff !important;
+    }
+
+    .app-install-button .nav-icon {
+        color: inherit !important;
+    }
+
+.subscription-loading {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    color: #999;
+    background: #0a0a0a;
+}
+
+.subscription-loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #333;
+    border-top-color: #ff7a00;
+    border-radius: 50%;
+    animation: subscription-spin .8s linear infinite;
+}
+
+@keyframes subscription-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.subscription-blocked {
+    min-height: calc(100vh - 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    background: #0a0a0a;
+}
+
+.subscription-blocked-card {
+    width: 100%;
+    max-width: 560px;
+    padding: 40px;
+    text-align: center;
+    background: #111;
+    border: 1px solid #2d2d2d;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+
+.subscription-blocked-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255,122,0,.12);
+    border: 1px solid rgba(255,122,0,.35);
+    color: #ff7a00;
+    font-size: 28px;
+}
+
+.subscription-blocked-card h2 {
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.subscription-blocked-card p {
+    color: #999;
+    line-height: 1.6;
+    margin-bottom: 28px;
+}
+
+.subscription-blocked-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-subscription {
+    background: #ff7a00 !important;
+    border: 1px solid #ff7a00 !important;
+    color: #fff !important;
+    padding: 11px 20px;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+    .btn-subscription:hover {
+        background: #e96f00 !important;
+        border-color: #e96f00 !important;
+    }
+
+.btn-logout {
+    background: #181818 !important;
+    border: 1px solid #333 !important;
+    color: #ccc !important;
+    padding: 11px 20px;
+    border-radius: 9px;
+    font-weight: 600;
+}
+
+    .btn-logout:hover {
+        background: #222 !important;
+        border-color: #555 !important;
+        color: #fff !important;
+    }

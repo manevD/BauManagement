@@ -1,30 +1,811 @@
 @page "/company"
 @attribute [Authorize]
 @rendermode InteractiveServer
+
+@using BauManagement.Data
+@using BauManagement.Models
+@using BauManagement.Services
+@using Microsoft.EntityFrameworkCore
+
 @inject ApplicationDbContext Db
 @inject ICurrentCompanyContext CurrentCompany
 @inject CompanyCancellationService CancellationService
+@inject StripeService StripeService
 @inject NavigationManager Navigation
 
 <PageTitle>Mein Unternehmen</PageTitle>
 
 @if (company is null)
 {
-    <div class="alert alert-warning">Für dieses Konto wurde keine Firma gefunden.</div>
+    <div class="alert alert-warning">
+        Für dieses Konto wurde keine Firma gefunden.
+    </div>
 }
 else
 {
-    <div class="page-hero mb-4"><div><h3>Mein Unternehmen</h3><p class="text-muted mb-0">Stammdaten und Paket deiner Firma verwalten.</p></div><div class="company-monogram">@company.Name[..1].ToUpper()</div></div>
-    @if (!string.IsNullOrEmpty(message)) { <div class="alert alert-@messageType">@message</div> }
-    <div class="row g-4"><div class="col-xl-8"><div class="card modern-card"><div class="card-body p-4 p-lg-5"><h2 class="h4 mb-4">Firmendaten</h2><EditForm Model="company" OnValidSubmit="Save"><div class="row g-3"><div class="col-12"><label class="form-label">Firmenname</label><InputText class="form-control" @bind-Value="company.Name" /></div><div class="col-md-7"><label class="form-label">Adresse</label><InputText class="form-control" @bind-Value="company.Address" /></div><div class="col-md-2"><label class="form-label">PLZ</label><InputText class="form-control" @bind-Value="company.PostalCode" /></div><div class="col-md-3"><label class="form-label">Ort</label><InputText class="form-control" @bind-Value="company.City" /></div><div class="col-md-6"><label class="form-label">Telefon</label><InputText class="form-control" @bind-Value="company.Phone" /></div><div class="col-md-6"><label class="form-label">E-Mail</label><InputText class="form-control" @bind-Value="company.Email" /></div></div><button class="btn btn-primary mt-4 px-4" type="submit">Änderungen speichern</button></EditForm></div></div></div>
-    <div class="col-xl-4"><div class="card modern-card"><div class="card-body p-4"><span class="eyebrow text-primary">AKTIVER PLAN</span><h2 class="h3 mt-2">@PlanTitle(company.SubscriptionPlan)</h2><p class="text-muted">@PlanLimit(company.SubscriptionPlan) Mitarbeiter</p><EditForm Model="company" OnValidSubmit="Save"><label class="form-label">Paket wechseln</label><InputSelect class="form-select" @bind-Value="company.SubscriptionPlan">@foreach (var plan in Enum.GetValues<SubscriptionPlan>()) { <option value="@plan">@PlanTitle(plan) – @PlanLimit(plan)</option> }</InputSelect><button class="btn btn-outline-primary w-100 mt-3" type="submit">Paket speichern</button></EditForm></div></div><div class="card danger-card mt-4"><div class="card-body p-4"><h2 class="h6">Kündigung</h2><p class="small text-muted">Die Kündigung löscht deine Firma und alle Baustellen, Mitarbeiter, Einsätze und Aufgaben endgültig.</p>@if (!confirmCancellation) { <button class="btn btn-outline-danger btn-sm" @onclick="() => confirmCancellation = true">Kündigung starten</button> } else { <p class="small fw-semibold text-danger">Diese Aktion kann nicht rückgängig gemacht werden.</p><button class="btn btn-danger btn-sm me-2" @onclick="CancelCompany">Endgültig löschen</button><button class="btn btn-link btn-sm" @onclick="() => confirmCancellation = false">Abbrechen</button> }</div></div></div></div>
+    <div class="page-hero mb-4">
+
+        <div>
+            <h3>Mein Unternehmen</h3>
+
+            <p class="text-muted mb-0">
+                Stammdaten und Paket deiner Firma verwalten.
+            </p>
+        </div>
+
+        <div class="company-monogram">
+            @company.Name[..1].ToUpper()
+        </div>
+
+    </div>
+
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert alert-@messageType">
+            @message
+        </div>
+    }
+
+
+    <div class="row g-4">
+
+        <!-- ===================================================== -->
+        <!-- FIRMENDATEN -->
+        <!-- ===================================================== -->
+
+        <div class="col-xl-8">
+
+            <div class="card modern-card">
+
+                <div class="card-body p-4 p-lg-5">
+
+                    <h2 class="h4 mb-4">
+                        Firmendaten
+                    </h2>
+
+                    <EditForm Model="company"
+                              OnValidSubmit="SaveCompany">
+
+                        <div class="row g-3">
+
+                            <div class="col-12">
+
+                                <label class="form-label">
+                                    Firmenname
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="company.Name" />
+
+                            </div>
+
+
+                            <div class="col-md-7">
+
+                                <label class="form-label">
+                                    Adresse
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="company.Address" />
+
+                            </div>
+
+
+                            <div class="col-md-2">
+
+                                <label class="form-label">
+                                    PLZ
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="company.PostalCode" />
+
+                            </div>
+
+
+                            <div class="col-md-3">
+
+                                <label class="form-label">
+                                    Ort
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="company.City" />
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Telefon
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="company.Phone" />
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    E-Mail
+                                </label>
+
+                                <InputText class="form-control"
+                                           @bind-Value="company.Email" />
+
+                            </div>
+
+                        </div>
+
+
+                        <button class="btn btn-primary mt-4 px-4"
+                                type="submit">
+
+                            Änderungen speichern
+
+                        </button>
+
+                    </EditForm>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ===================================================== -->
+        <!-- SUBSCRIPTION -->
+        <!-- ===================================================== -->
+
+        <div class="col-xl-4">
+
+            <div class="card modern-card">
+
+                <div class="card-body p-4">
+
+                    <span class="eyebrow text-primary">
+                        AKTIVER PLAN
+                    </span>
+
+
+                    <h2 class="h3 mt-2">
+                        @PlanTitle(company.SubscriptionPlan)
+                    </h2>
+
+
+                    <p class="text-muted mb-3">
+                        @PlanLimit(company.SubscriptionPlan) Mitarbeiter
+                    </p>
+
+
+                    <!-- ================================================= -->
+                    <!-- TRIAL -->
+                    <!-- ================================================= -->
+
+                    @if (company.SubscriptionStatus ==
+                        SubscriptionStatus.Trial)
+                    {
+                        <div class="subscription-status trial">
+
+                            <div class="subscription-status-icon">
+                                <i class="bi bi-clock"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Kostenloser Testzeitraum
+                                </strong>
+
+                                <div class="small text-muted">
+                                    @TrialText
+                                </div>
+
+                                @if (company.TrialEndDate >
+                                    DateTime.UtcNow)
+                                {
+                                    <div class="small text-muted mt-1">
+                                        Ende:
+                                        @company.TrialEndDate
+                                            .ToLocalTime()
+                                            .ToString("dd.MM.yyyy HH:mm")
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <!-- ================================================= -->
+                    <!-- ACTIVE -->
+                    <!-- ================================================= -->
+
+                    @if (company.SubscriptionStatus ==
+                        SubscriptionStatus.Active)
+                    {
+                        <div class="subscription-status active">
+
+                            <div class="subscription-status-icon">
+                                <i class="bi bi-check-lg"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Abonnement aktiv
+                                </strong>
+
+                                @if (company.CurrentPeriodEnd.HasValue)
+                                {
+                                    <div class="small text-muted">
+                                        Nächste Abrechnung:
+                                        @company.CurrentPeriodEnd
+                                            .Value
+                                            .ToLocalTime()
+                                            .ToString("dd.MM.yyyy")
+                                    </div>
+                                }
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <!-- ================================================= -->
+                    <!-- PAST DUE -->
+                    <!-- ================================================= -->
+
+                    @if (company.SubscriptionStatus ==
+                        SubscriptionStatus.PastDue)
+                    {
+                        <div class="subscription-status danger">
+
+                            <div class="subscription-status-icon">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Zahlung erforderlich
+                                </strong>
+
+                                <div class="small text-muted">
+                                    Die letzte Zahlung konnte nicht
+                                    verarbeitet werden.
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <!-- ================================================= -->
+                    <!-- CANCELLED -->
+                    <!-- ================================================= -->
+
+                    @if (company.SubscriptionStatus ==
+                        SubscriptionStatus.Cancelled)
+                    {
+                        <div class="subscription-status danger">
+
+                            <div class="subscription-status-icon">
+                                <i class="bi bi-x-lg"></i>
+                            </div>
+
+                            <div>
+
+                                <strong>
+                                    Abonnement gekündigt
+                                </strong>
+
+                                <div class="small text-muted">
+                                    Das Abonnement ist nicht mehr aktiv.
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+
+                    <hr class="my-4" />
+
+
+                    <!-- ================================================= -->
+                    <!-- PLAN WECHSELN -->
+                    <!-- ================================================= -->
+
+                    <label class="form-label">
+                        Paket wechseln
+                    </label>
+
+
+                    <InputSelect class="form-select"
+                                 @bind-Value="selectedPlan">
+
+                        @foreach (var plan in
+                            Enum.GetValues<SubscriptionPlan>())
+                        {
+                            <option value="@plan">
+
+                                @PlanTitle(plan)
+                                –
+                                @PlanLimit(plan)
+                                Mitarbeiter
+
+                            </option>
+                        }
+
+                    </InputSelect>
+
+
+                    <button class="btn btn-outline-primary w-100 mt-3"
+                            @onclick="ChangePlan"
+                            disabled="@planChanging">
+
+                        @if (planChanging)
+                        {
+                            <span>
+                                Wird geändert...
+                            </span>
+                        }
+                        else
+                        {
+                            <span>
+                                Paket ändern
+                            </span>
+                        }
+
+                    </button>
+
+
+                    @if (company.SubscriptionStatus ==
+                        SubscriptionStatus.Trial)
+                    {
+                        <div class="small text-muted mt-3">
+
+                            Während der Testphase wird keine Zahlung
+                            ausgelöst. Das gewählte Paket wird nach
+                            Ablauf der Testphase berechnet.
+
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="small text-muted mt-3">
+
+                            Bei einer Änderung wird die
+                            Preisänderung von Stripe automatisch
+                            entsprechend der laufenden
+                            Abrechnungsperiode berechnet.
+
+                        </div>
+                    }
+
+                </div>
+
+            </div>
+
+
+            <!-- ===================================================== -->
+            <!-- KÜNDIGUNG -->
+            <!-- ===================================================== -->
+
+            <div class="card danger-card mt-4">
+
+                <div class="card-body p-4">
+
+                    <h2 class="h6">
+                        Kündigung
+                    </h2>
+
+
+                    <p class="small text-muted">
+                        Wenn du dein Abonnement kündigst, wird dein
+                        MyBauManagement-Konto beendet.
+                    </p>
+
+
+                    @if (!confirmCancellation)
+                    {
+                        <button class="btn btn-outline-danger btn-sm"
+                                @onclick="StartCancellation">
+
+                            Kündigung starten
+
+                        </button>
+                    }
+                    else
+                    {
+                        <p class="small fw-semibold text-danger">
+
+                            Diese Aktion kann nicht rückgängig gemacht
+                            werden.
+
+                        </p>
+
+
+                        <button class="btn btn-danger btn-sm me-2"
+                                @onclick="CancelCompany"
+                                disabled="@cancellationRunning">
+
+                            @if (cancellationRunning)
+                            {
+                                <span>
+                                    Kündigung läuft...
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    Endgültig löschen
+                                </span>
+                            }
+
+                        </button>
+
+
+                        <button class="btn btn-link btn-sm"
+                                @onclick="CancelCancellation">
+
+                            Abbrechen
+
+                        </button>
+                    }
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 }
 
+
 @code {
-    private Models.Company? company; private Guid companyId; private bool confirmCancellation; private string? message; private string messageType = "success";
-    protected override async Task OnInitializedAsync() { var id = await CurrentCompany.GetCompanyIdAsync(); if (id.HasValue) { companyId = id.Value; company = await Db.Companies.SingleOrDefaultAsync(x => x.Id == companyId); } }
-    private async Task Save() { if (company is null || string.IsNullOrWhiteSpace(company.Name)) { message = "Der Firmenname ist erforderlich."; messageType = "warning"; return; } await Db.SaveChangesAsync(); message = "Deine Änderungen wurden gespeichert."; messageType = "success"; }
-    private async Task CancelCompany() { if (company is null) return; await CancellationService.CancelAsync(companyId); Navigation.NavigateTo("/Account/Logout", true); }
-    private static string PlanTitle(SubscriptionPlan p) => p switch { SubscriptionPlan.S => "S – Starter", SubscriptionPlan.M => "M – Team", SubscriptionPlan.L => "L – Business", _ => "XL – Profi" };
-    private static string PlanLimit(SubscriptionPlan p) => p switch { SubscriptionPlan.S => "Bis 5", SubscriptionPlan.M => "Bis 10", SubscriptionPlan.L => "Bis 20", _ => "Über 20" };
+
+    private Models.Company? company;
+
+    private Guid companyId;
+
+    private bool confirmCancellation;
+
+    private bool planChanging;
+
+    private bool cancellationRunning;
+
+    private string? message;
+
+    private string messageType = "success";
+
+    private SubscriptionPlan selectedPlan;
+
+
+    // ============================================================
+    // LOAD
+    // ============================================================
+
+    protected override async Task OnInitializedAsync()
+    {
+        var id =
+            await CurrentCompany.GetCompanyIdAsync();
+
+        if (!id.HasValue)
+            return;
+
+        companyId = id.Value;
+
+        company =
+            await Db.Companies
+                .SingleOrDefaultAsync(
+                    x => x.Id == companyId);
+
+        if (company is not null)
+        {
+            selectedPlan =
+                company.SubscriptionPlan;
+        }
+    }
+
+
+    // ============================================================
+    // SAVE COMPANY
+    // ============================================================
+
+    private async Task SaveCompany()
+    {
+        if (company is null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(
+                company.Name))
+        {
+            message =
+                "Der Firmenname ist erforderlich.";
+
+            messageType = "warning";
+
+            return;
+        }
+
+        await Db.SaveChangesAsync();
+
+        message =
+            "Deine Änderungen wurden gespeichert.";
+
+        messageType = "success";
+    }
+
+
+    // ============================================================
+    // CHANGE PLAN
+    // ============================================================
+
+    private async Task ChangePlan()
+    {
+        if (company is null)
+            return;
+
+        if (selectedPlan ==
+            company.SubscriptionPlan)
+        {
+            message =
+                "Du verwendest bereits dieses Paket.";
+
+            messageType = "warning";
+
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                company.StripeSubscriptionId))
+        {
+            message =
+                "Für dieses Konto wurde kein Stripe-Abonnement gefunden.";
+
+            messageType = "danger";
+
+            return;
+        }
+
+        planChanging = true;
+
+        message = null;
+
+        try
+        {
+            var oldPlan =
+                company.SubscriptionPlan;
+
+
+            /*
+             * Stripe zuerst ändern.
+             */
+            await StripeService.ChangeSubscriptionPlanAsync(
+                company,
+                selectedPlan);
+
+
+            /*
+             * Lokale Daten ebenfalls setzen.
+             *
+             * Der Webhook aktualisiert diese Werte
+             * anschließend nochmals.
+             */
+            company.SubscriptionPlan =
+                selectedPlan;
+
+            company.StripePriceId =
+                StripeService.GetPriceId(
+                    selectedPlan);
+
+
+            await Db.SaveChangesAsync();
+
+
+            message =
+                $"Dein Paket wurde von " +
+                $"{PlanTitle(oldPlan)} auf " +
+                $"{PlanTitle(selectedPlan)} geändert.";
+
+            messageType = "success";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            message =
+                "Das Paket konnte nicht geändert werden. " +
+                "Bitte versuche es erneut.";
+
+            messageType = "danger";
+        }
+        finally
+        {
+            planChanging = false;
+        }
+    }
+
+
+    // ============================================================
+    // START CANCELLATION
+    // ============================================================
+
+    private void StartCancellation()
+    {
+        confirmCancellation = true;
+    }
+
+
+    // ============================================================
+    // CANCEL CANCELLATION
+    // ============================================================
+
+    private void CancelCancellation()
+    {
+        confirmCancellation = false;
+    }
+
+
+    // ============================================================
+    // CANCEL COMPANY
+    // ============================================================
+
+    private async Task CancelCompany()
+    {
+        if (company is null)
+            return;
+
+        cancellationRunning = true;
+
+        try
+        {
+            /*
+             * 1. Stripe Subscription kündigen
+             */
+            await StripeService.CancelSubscriptionAsync(
+                company);
+
+
+            /*
+             * 2. Lokale Firma löschen
+             */
+            await CancellationService.CancelAsync(
+                companyId);
+
+
+            /*
+             * 3. Logout
+             */
+            Navigation.NavigateTo(
+                "/Account/Logout",
+                true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            message =
+                "Die Kündigung konnte nicht durchgeführt werden.";
+
+            messageType = "danger";
+
+            cancellationRunning = false;
+        }
+    }
+
+
+    // ============================================================
+    // TRIAL TEXT
+    // ============================================================
+
+    private string TrialText
+    {
+        get
+        {
+            if (company is null)
+                return "";
+
+            var remaining =
+                company.TrialEndDate -
+                DateTime.UtcNow;
+
+
+            if (remaining.TotalSeconds <= 0)
+            {
+                return "Der Testzeitraum ist abgelaufen.";
+            }
+
+
+            var days =
+                remaining.Days;
+
+            var hours =
+                remaining.Hours;
+
+
+            if (days > 0)
+            {
+                return
+                    $"Noch {days} Tage und " +
+                    $"{hours} Stunden kostenlos.";
+            }
+
+
+            if (hours > 0)
+            {
+                return
+                    $"Noch {hours} Stunden kostenlos.";
+            }
+
+
+            return "Der Testzeitraum endet heute.";
+        }
+    }
+
+
+    // ============================================================
+    // PLAN TITLE
+    // ============================================================
+
+    private static string PlanTitle(
+        SubscriptionPlan plan)
+    {
+        return plan switch
+        {
+            SubscriptionPlan.S =>
+                "S – Starter",
+
+            SubscriptionPlan.M =>
+                "M – Team",
+
+            SubscriptionPlan.L =>
+                "L – Business",
+
+            SubscriptionPlan.XL =>
+                "XL – Profi",
+
+            _ =>
+                plan.ToString()
+        };
+    }
+
+
+    // ============================================================
+    // PLAN LIMIT
+    // ============================================================
+
+    private static string PlanLimit(
+        SubscriptionPlan plan)
+    {
+        return plan switch
+        {
+            SubscriptionPlan.S =>
+                "Bis 5",
+
+            SubscriptionPlan.M =>
+                "Bis 10",
+
+            SubscriptionPlan.L =>
+                "Bis 20",
+
+            SubscriptionPlan.XL =>
+                "Über 20",
+
+            _ =>
+                ""
+        };
+    }
 }

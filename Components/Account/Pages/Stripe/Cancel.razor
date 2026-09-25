@@ -1,0 +1,51 @@
+﻿@page "/stripe/cancel"
+
+@inject NavigationManager NavigationManager
+
+<PageTitle>Zahlung abgebrochen – MyBauManagement</PageTitle>
+
+<div class="stripe-result-page">
+
+    <div class="stripe-result-card">
+
+        <div class="stripe-result-icon cancel">
+            <i class="bi bi-x-lg"></i>
+        </div>
+
+        <h1>Zahlung nicht abgeschlossen</h1>
+
+        <p class="stripe-result-text">
+            Der Stripe-Zahlungsvorgang wurde abgebrochen.
+            Deine Registrierung wurde noch nicht abgeschlossen.
+        </p>
+
+        <div class="stripe-cancel-box">
+
+            <i class="bi bi-info-circle"></i>
+
+            <span>
+                Du kannst jederzeit zurückgehen und die Registrierung
+                erneut durchführen.
+            </span>
+
+        </div>
+
+        <button class="stripe-result-button"
+                @onclick="GoToRegister">
+            <span>Zur Registrierung</span>
+            <span>→</span>
+        </button>
+
+    </div>
+
+</div>
+
+@code {
+
+    private void GoToRegister()
+    {
+        NavigationManager.NavigateTo(
+            "/Account/Register",
+            forceLoad: true);
+    }
+}

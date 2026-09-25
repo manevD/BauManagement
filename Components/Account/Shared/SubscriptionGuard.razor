@@ -1,0 +1,203 @@
+﻿@using BauManagement.Models
+@using BauManagement.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@implements IDisposable
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ICurrentCompanyContext CurrentCompany
+@inject SubscriptionService SubscriptionService
+@inject NavigationManager NavigationManager
+
+@if (isLoading)
+{
+    <div class="subscription-loading">
+        <div class="subscription-loading-spinner"></div>
+        <div>Bitte laden...</div>
+    </div>
+}
+else if (isBlocked && !IsSubscriptionPage)
+{
+    <div class="subscription-blocked">
+        <div class="subscription-blocked-card">
+
+            <div class="subscription-blocked-icon">
+                <i class="bi bi-lock-fill"></i>
+            </div>
+
+            <h2>Ihr Abonnement ist nicht aktiv</h2>
+
+            @if (isCancelled)
+            {
+                <p>
+                    Ihr Abonnement wurde gekündigt.
+                    Ihre Daten sind weiterhin gespeichert.
+                </p>
+            }
+            else if (isExpired)
+            {
+                <p>
+                    Ihr Abonnement ist abgelaufen.
+                    Ihre Daten sind weiterhin gespeichert.
+                </p>
+            }
+            else if (isPastDue)
+            {
+                <p>
+                    Bei Ihrem Abonnement ist ein Zahlungsproblem aufgetreten.
+                    Bitte wählen Sie ein Paket oder aktualisieren Sie Ihre Zahlungsdaten.
+                </p>
+            }
+            else
+            {
+                <p>
+                    Ihr Abonnement ist derzeit nicht aktiv.
+                </p>
+            }
+
+            <div class="subscription-blocked-actions">
+
+                <button class="btn btn-subscription"
+                        @onclick="OpenSubscription">
+                    <i class="bi bi-credit-card me-2"></i>
+                    Paket auswählen
+                </button>
+
+                <button class="btn btn-logout"
+                        @onclick="Logout">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Abmelden
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool isLoading = true;
+    private bool isBlocked;
+
+    private bool isCancelled;
+    private bool isExpired;
+    private bool isPastDue;
+
+    private bool IsSubscriptionPage =>
+        NavigationManager.Uri.Contains(
+            "/subscription",
+            StringComparison.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+        await CheckSubscriptionAsync();
+    }
+
+    private async void OnLocationChanged(
+        object? sender,
+        LocationChangedEventArgs e)
+    {
+        await CheckSubscriptionAsync();
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+   private async Task CheckSubscriptionAsync()
+{
+    try
+    {
+        isLoading = true;
+
+        var authState =
+            await AuthenticationStateProvider
+                .GetAuthenticationStateAsync();
+
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            isBlocked = false;
+            return;
+        }
+
+        Guid? companyId;
+
+        try
+        {
+            companyId =
+                await CurrentCompany.GetCompanyIdAsync();
+        }
+        catch
+        {
+            isBlocked = false;
+            return;
+        }
+
+        if (!companyId.HasValue)
+        {
+            isBlocked = false;
+            return;
+        }
+
+        var company =
+            await SubscriptionService
+                .GetCompanyAsync(companyId.Value);
+
+        if (company is null)
+        {
+            isBlocked = false;
+            return;
+        }
+
+        isCancelled =
+            company.SubscriptionStatus ==
+            SubscriptionStatus.Cancelled;
+
+        isExpired =
+            company.SubscriptionStatus ==
+            SubscriptionStatus.Expired;
+
+        isPastDue =
+            company.SubscriptionStatus ==
+            SubscriptionStatus.PastDue;
+
+        isBlocked =
+            !await SubscriptionService
+                .CanUseApplicationAsync(companyId.Value);
+    }
+    catch
+    {
+        isBlocked = false;
+    }
+    finally
+    {
+        isLoading = false;
+    }
+}
+
+    private void OpenSubscription()
+    {
+        NavigationManager.NavigateTo("/subscription");
+    }
+
+    private void Logout()
+    {
+        NavigationManager.NavigateTo(
+            "/Account/Logout",
+            forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

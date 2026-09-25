@@ -1,27 +1,231 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
     <base href="/" />
+
     <ResourcePreloader />
-    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
-    <link rel="stylesheet" href="@Assets["app.css"]" />
-<link rel="stylesheet" href="css/bootstrap-icons.css" />
-<link rel="stylesheet" href="@Assets["BauManagement.styles.css"]" />
+
+    <!-- =========================================================
+         SEO
+         ========================================================= -->
+
+    <title>MyBauManagement – Baustellenmanagement &amp; Mitarbeiterverwaltung</title>
+
+    <meta name="description"
+          content="MyBauManagement ist eine moderne Software für Baustellenmanagement, Mitarbeiterverwaltung, Einsatzplanung, Aufgabenverwaltung, Zeiterfassung und Urlaubsverwaltung für Bauunternehmen und Handwerksbetriebe." />
+
+    <meta name="robots"
+          content="index, follow" />
+
+    <meta name="author"
+          content="Webolar" />
+
+    <meta name="keywords"
+          content="Baustellenmanagement, Baustellenplanung, Mitarbeiterverwaltung, Einsatzplanung, Mitarbeitereinsatzplanung, Disposition, Zeiterfassung, Aufgabenverwaltung, Urlaubsverwaltung, Bau Software, Handwerker Software, Bauunternehmen Software" />
+
+    <!-- Canonical -->
+    <link rel="canonical"
+          href="https://mybaumanagement.de/" />
+
+
+    <!-- =========================================================
+         OPEN GRAPH
+         ========================================================= -->
+
+    <meta property="og:type"
+          content="website" />
+
+    <meta property="og:site_name"
+          content="MyBauManagement" />
+
+    <meta property="og:title"
+          content="MyBauManagement – Baustellenmanagement &amp; Mitarbeiterverwaltung" />
+
+    <meta property="og:description"
+          content="Baustellen planen, Mitarbeiter verwalten, Einsätze koordinieren, Aufgaben organisieren und Arbeitszeiten erfassen – mit MyBauManagement." />
+
+    <meta property="og:url"
+          content="https://mybaumanagement.de/" />
+
+    <meta property="og:image"
+          content="https://mybaumanagement.de/icons/icon-512x512.png" />
+
+    <meta property="og:image:width"
+          content="512" />
+
+    <meta property="og:image:height"
+          content="512" />
+
+    <meta property="og:locale"
+          content="de_DE" />
+
+
+    <!-- =========================================================
+         TWITTER / X
+         ========================================================= -->
+
+    <meta name="twitter:card"
+          content="summary_large_image" />
+
+    <meta name="twitter:title"
+          content="MyBauManagement – Baustellenmanagement &amp; Mitarbeiterverwaltung" />
+
+    <meta name="twitter:description"
+          content="Moderne Software für Baustellenplanung, Mitarbeiterverwaltung, Einsatzplanung, Aufgaben, Zeiterfassung und Urlaub." />
+
+    <meta name="twitter:image"
+          content="https://mybaumanagement.de/icons/icon-512x512.png" />
+
+
+    <!-- =========================================================
+         BOOTSTRAP
+         ========================================================= -->
+
+    <link rel="stylesheet"
+          href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
+
+
+    <!-- =========================================================
+         APPLICATION CSS
+         ========================================================= -->
+
+    <link rel="stylesheet"
+          href="@Assets["app.css"]" />
+
+
+    <!-- =========================================================
+         BOOTSTRAP ICONS
+         ========================================================= -->
+
+    <link rel="stylesheet"
+          href="css/bootstrap-icons.css" />
+
+
+    <!-- =========================================================
+         BLAZOR SCOPED CSS
+         ========================================================= -->
+
+    <link rel="stylesheet"
+          href="@Assets["BauManagement.styles.css"]" />
+
+
+    <!-- =========================================================
+         PWA
+         ========================================================= -->
+
+    <link rel="manifest"
+          href="/manifest.json" />
+
+    <!-- Browser favicon -->
+
+    <link rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/icons/favicon-16x16.png" />
+
+    <link rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/icons/favicon-32x32.png" />
+
+    <link rel="icon"
+          type="image/png"
+          sizes="192x192"
+          href="/icons/icon-192x192.png" />
+
+    <link rel="icon"
+          type="image/png"
+          sizes="512x512"
+          href="/icons/icon-512x512.png" />
+
+    <!-- Apple -->
+
+    <link rel="apple-touch-icon"
+          sizes="180x180"
+          href="/icons/icon-180x180.png" />
+
+
+    <!-- Theme -->
+
+    <meta name="theme-color"
+          content="#ff7a00" />
+
+    <meta name="mobile-web-app-capable"
+          content="yes" />
+
+    <meta name="apple-mobile-web-app-capable"
+          content="yes" />
+
+    <meta name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent" />
+
+    <meta name="apple-mobile-web-app-title"
+          content="MyBauManagement" />
+
+
+    <!-- =========================================================
+         BLAZOR
+         ========================================================= -->
+
     <ImportMap />
-    <link rel="icon" type="image/png" href="favicon.png" />
+
     <HeadOutlet />
+
 </head>
 
+
 <body>
+
+    <!-- =========================================================
+         APPLICATION
+         ========================================================= -->
+
     <Routes />
+
     <ReconnectModal />
+
+
+    <!-- =========================================================
+         BLAZOR
+         ========================================================= -->
+
     <script src="@Assets["_framework/blazor.web.js"]"></script>
+
+
+    <!-- =========================================================
+         CUSTOM JAVASCRIPT
+         ========================================================= -->
+
     <script src="/js/chef-calendar.js"></script>
+
     <script src="/js/arbeitszeiten.js"></script>
-    <script src="@Assets["Components/Account/Shared/PasskeySubmit.razor.js"]" type="module"></script>
+
+    <script src="/js/pwa-install.js"></script>
+
+
+    <!-- PWA INSTALL -->
+
+    <script>
+        window.addEventListener("load", function () {
+            if (window.pwaInstall) {
+                window.pwaInstall.init();
+            }
+        });
+    </script>
+
+
+    <!-- Passkey -->
+
+    <script src="@Assets["Components/Account/Shared/PasskeySubmit.razor.js"]"
+            type="module">
+    </script>
+
 </body>
 
 </html>

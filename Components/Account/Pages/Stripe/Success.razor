@@ -1,0 +1,90 @@
+﻿@page "/stripe/success"
+@rendermode InteractiveServer
+
+@using BauManagement.Data
+@using BauManagement.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext Db
+@inject NavigationManager NavigationManager
+
+<PageTitle>Zahlung erfolgreich – MyBauManagement</PageTitle>
+
+<div class="stripe-result-page">
+
+    <div class="stripe-result-card">
+
+        <div class="stripe-result-icon success">
+            <i class="bi bi-check-lg"></i>
+        </div>
+
+        <h1>Willkommen bei MyBauManagement!</h1>
+
+        <p class="stripe-result-text">
+            Deine Registrierung war erfolgreich.
+            Dein 7-tägiger kostenloser Testzeitraum wurde gestartet.
+        </p>
+
+        <div class="stripe-trial-box">
+
+            <div class="stripe-trial-row">
+                <span>Plan</span>
+                <strong>@PlanName</strong>
+            </div>
+
+            <div class="stripe-trial-row">
+                <span>Testzeitraum</span>
+                <strong>7 Tage kostenlos</strong>
+            </div>
+
+        </div>
+
+        <a class="stripe-result-button"
+           href="/Account/Login">
+            <span>Jetzt anmelden</span>
+            <span>→</span>
+        </a>
+
+        <div class="stripe-result-note">
+            <i class="bi bi-shield-check"></i>
+            <span>
+                Deine Zahlungsdaten werden sicher über Stripe verarbeitet.
+            </span>
+        </div>
+
+    </div>
+
+</div>
+
+@code {
+
+    [SupplyParameterFromQuery(Name = "companyId")]
+    private string? CompanyId { get; set; }
+
+    [SupplyParameterFromQuery(Name = "session_id")]
+    private string? SessionId { get; set; }
+
+    private string PlanName = "MyBauManagement";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Guid.TryParse(CompanyId, out var companyId))
+        {
+            var company = await Db.Companies
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == companyId);
+
+            if (company is not null)
+            {
+                PlanName = company.SubscriptionPlan switch
+                {
+                    SubscriptionPlan.S => "S – Starter",
+                    SubscriptionPlan.M => "M – Team",
+                    SubscriptionPlan.L => "L – Business",
+                    SubscriptionPlan.XL => "XL – Profi",
+                    _ => company.SubscriptionPlan.ToString()
+                };
+            }
+        }
+    }
+}

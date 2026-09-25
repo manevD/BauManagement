@@ -15,40 +15,113 @@
 
 <PageTitle>Anmelden – BauManagement</PageTitle>
 
-<div class="container py-4 py-lg-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6 col-xl-5">
+<div class="login-page">
 
-            <a href="/" class="text-decoration-none fw-bold text-primary">
-                ← BauManagement
+    <!-- Background -->
+    <div class="login-background">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="grid-lines"></div>
+
+        <div class="construction-shape shape-left">
+            <div class="crane-tower"></div>
+            <div class="crane-arm"></div>
+        </div>
+
+        <div class="construction-shape shape-right">
+            <div class="building building-1"></div>
+            <div class="building building-2"></div>
+            <div class="building building-3"></div>
+        </div>
+    </div>
+
+
+    <div class="login-container">
+
+        <!-- Back -->
+        <div class="login-top">
+
+            <a href="/" class="brand-back">
+                <span class="back-arrow">←</span>
+
+                <span class="brand-name">
+                    <span class="brand-orange">Bau</span>Management
+                </span>
             </a>
 
-            <div class="mt-3 mb-4">
-                <h1>Willkommen zurück</h1>
-                <p class="text-muted mb-0">
+        </div>
+
+
+        <!-- Login Card -->
+        <div class="login-card">
+
+            <!-- Logo -->
+            <div class="login-logo">
+
+                <div class="logo-inner">
+                    <span class="logo-icon">🏗️</span>
+                </div>
+
+            </div>
+
+
+            <!-- Header -->
+            <div class="login-header">
+
+                <h1>
+                    Willkommen
+                    <span>zurück</span>
+                </h1>
+
+                <p>
                     Melden Sie sich an und planen Sie Ihren Arbeitstag.
                 </p>
+
             </div>
+
 
             <section>
 
-                <StatusMessage Message="@errorMessage" />
+                <!-- Error -->
+                @if (!string.IsNullOrWhiteSpace(errorMessage))
+                {
+                    <div class="login-error" role="alert">
+
+                        <div class="error-icon">
+                            !
+                        </div>
+
+                        <div>
+                            @errorMessage
+                        </div>
+
+                    </div>
+                }
+
 
                 <EditForm EditContext="editContext"
                           method="post"
                           OnSubmit="LoginUser"
-                          FormName="login"
-                          class="card shadow-sm border-0">
+                          FormName="login">
 
-                    <div class="card-body p-4 p-lg-5">
+                    <DataAnnotationsValidator />
 
-                        <DataAnnotationsValidator />
+                    <ValidationSummary class="validation-summary"
+                                       role="alert" />
 
-                        <ValidationSummary class="text-danger"
-                                           role="alert" />
 
-                        <!-- E-Mail -->
-                        <div class="form-floating mb-3">
+                    <!-- E-Mail -->
+                    <div class="login-field">
+
+                        <div class="field-icon">
+                            <i class="bi bi-envelope"></i>
+                        </div>
+
+                        <div class="field-content">
+
+                            <label for="Input.Email">
+                                E-Mail-Adresse
+                            </label>
 
                             <InputText @bind-Value="Input.Email"
                                        id="Input.Email"
@@ -57,18 +130,26 @@
                                        aria-required="true"
                                        placeholder="name@example.de" />
 
-                            <label for="Input.Email">
-                                E-Mail-Adresse
-                            </label>
-
-                            <ValidationMessage For="() => Input.Email"
-                                               class="text-danger" />
-
                         </div>
 
+                    </div>
 
-                        <!-- Passwort -->
-                        <div class="form-floating mb-3">
+                    <ValidationMessage For="() => Input.Email"
+                                       class="field-validation" />
+
+
+                    <!-- Passwort -->
+                    <div class="login-field">
+
+                        <div class="field-icon">
+                            <i class="bi bi-lock"></i>
+                        </div>
+
+                        <div class="field-content">
+
+                            <label for="Input.Password">
+                                Passwort
+                            </label>
 
                             <InputText type="password"
                                        @bind-Value="Input.Password"
@@ -78,70 +159,98 @@
                                        aria-required="true"
                                        placeholder="Passwort" />
 
-                            <label for="Input.Password">
-                                Passwort
-                            </label>
-
-                            <ValidationMessage For="() => Input.Password"
-                                               class="text-danger" />
-
                         </div>
 
+                    </div>
 
-                        <!-- Angemeldet bleiben -->
-                        <div class="checkbox mb-3">
+                    <ValidationMessage For="() => Input.Password"
+                                       class="field-validation" />
 
-                            <label class="form-label">
 
-                                <InputCheckbox @bind-Value="Input.RememberMe"
-                                               class="darker-border-checkbox form-check-input" />
+                    <!-- Remember -->
+                    <div class="remember-row">
 
+                        <label class="remember-label">
+
+                            <InputCheckbox @bind-Value="Input.RememberMe"
+                                           class="remember-checkbox" />
+
+                            <span>
                                 Angemeldet bleiben
+                            </span>
 
-                            </label>
+                        </label>
 
-                        </div>
-
-
-                        <!-- Login Button -->
-                        <div>
-
-                            <button type="submit"
-                                    class="w-100 btn btn-lg btn-primary">
-
-                                Anmelden
-
-                            </button>
-
-                        </div>
+                    </div>
 
 
-                        <hr />
+                    <!-- Login Button -->
+                    <button type="submit"
+                            class="login-button">
+
+                        <span>Anmelden</span>
+
+                        <span class="button-arrow">
+                            →
+                        </span>
+
+                    </button>
 
 
-                        <!-- Links -->
-                        <div>
+                    <!-- Divider -->
+                    <div class="login-divider">
 
-                            <p>
-                                <a href="Account/ForgotPassword">
-                                    Passwort vergessen?
-                                </a>
-                            </p>
+                        <span></span>
 
-                            <p>
-                                <a href="@(NavigationManager.GetUriWithQueryParameters(
-                                    "Account/Register",
-                                    new Dictionary<string, object?>
-                                    {
-                                        ["ReturnUrl"] = ReturnUrl
-                                    }))">
+                        <small>oder</small>
 
-                                    Neue Firma registrieren
+                        <span></span>
 
-                                </a>
-                            </p>
+                    </div>
 
-                        </div>
+
+                    <!-- Links -->
+                    <div class="login-links">
+
+                        <a href="Account/ForgotPassword"
+                           class="login-link">
+
+                            <span class="link-icon">
+                                <i class="bi bi-key"></i>
+                            </span>
+
+                            <span>
+                                Passwort vergessen?
+                            </span>
+
+                            <span class="link-arrow">
+                                →
+                            </span>
+
+                        </a>
+
+
+                        <a href="@(NavigationManager.GetUriWithQueryParameters(
+                            "Account/Register",
+                            new Dictionary<string, object?>
+                            {
+                                ["ReturnUrl"] = ReturnUrl
+                            }))"
+                           class="login-link">
+
+                            <span class="link-icon">
+                                <i class="bi bi-building"></i>
+                            </span>
+
+                            <span>
+                                Neue Firma registrieren
+                            </span>
+
+                            <span class="link-arrow">
+                                →
+                            </span>
+
+                        </a>
 
                     </div>
 
@@ -150,7 +259,17 @@
             </section>
 
         </div>
+
+
+        <!-- Footer -->
+        <div class="login-footer">
+            <span>MyBauManagement</span>
+            <span>•</span>
+            <span>Webolar</span>
+        </div>
+
     </div>
+
 </div>
 
 
@@ -181,8 +300,6 @@
 
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
-            // Vorhandenes externes Cookie löschen,
-            // damit der Anmeldevorgang sauber gestartet wird.
             await HttpContext.SignOutAsync(
                 IdentityConstants.ExternalScheme);
         }
@@ -217,13 +334,12 @@
         else
         {
             /*
-             * Normale Anmeldung mit E-Mail und Passwort
+             * Normale Anmeldung
              */
             if (!editContext.Validate())
             {
                 return;
             }
-
 
             result = await SignInManager.PasswordSignInAsync(
                 Input.Email,
@@ -246,7 +362,7 @@
 
 
         /*
-         * Zwei-Faktor-Authentifizierung erforderlich
+         * Zwei-Faktor-Authentifizierung
          */
         else if (result.RequiresTwoFactor)
         {
@@ -286,13 +402,18 @@
 
     private sealed class InputModel
     {
-        [Required(ErrorMessage = "Bitte geben Sie Ihre E-Mail-Adresse ein.")]
+        [Required(
+            ErrorMessage =
+                "Bitte geben Sie Ihre E-Mail-Adresse ein.")]
         [EmailAddress(
-            ErrorMessage = "Bitte geben Sie eine gültige E-Mail-Adresse ein.")]
+            ErrorMessage =
+                "Bitte geben Sie eine gültige E-Mail-Adresse ein.")]
         public string Email { get; set; } = "";
 
 
-        [Required(ErrorMessage = "Bitte geben Sie Ihr Passwort ein.")]
+        [Required(
+            ErrorMessage =
+                "Bitte geben Sie Ihr Passwort ein.")]
         [DataType(DataType.Password)]
         public string Password { get; set; } = "";
 

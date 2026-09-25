@@ -5,19 +5,27 @@ using BauManagement.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
+using BauManagement.Configuration;
+using Stripe;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddControllers();
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<ICurrentCompanyContext, CurrentCompanyContext>();
 builder.Services.AddScoped<CompanyCancellationService>();
+builder.Services.AddScoped<BauManagement.Services.SubscriptionService>();
 
+builder.Services.Configure<StripeOptions>(
+    builder.Configuration.GetSection("Stripe"));
+StripeConfiguration.ApiKey =
+    builder.Configuration["Stripe:SecretKey"];
+builder.Services.AddScoped<StripeService>();
 builder.Services.AddAuthentication(options =>
     {
         options.DefaultScheme = IdentityConstants.ApplicationScheme;
@@ -43,7 +51,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
@@ -67,6 +74,7 @@ app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

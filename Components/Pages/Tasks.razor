@@ -104,30 +104,268 @@
                     ⌕
                 </span>
 
-
                 <input class="form-control"
                        value="@search"
                        @oninput="OnSearch"
                        placeholder="@(isAdmin ? "Aufgaben live suchen – Aufgabe, Mitarbeiter, Baustelle oder Beschreibung" : "Meine Aufgaben live suchen – Aufgabe, Baustelle oder Beschreibung")"
                        autocomplete="off" />
 
-
-                @if (!string.IsNullOrWhiteSpace(search))
-                {
-                    <button type="button"
-                            class="btn btn-light"
-                            @onclick="ClearSearch">
-
-                        ✕
-
-                    </button>
-                }
-
             </div>
 
         </div>
 
     </div>
+
+
+<!-- =============================================================
+     ADMIN CREATE / EDIT FORM
+     ============================================================= -->
+
+@if (editing && isAdmin)
+{
+    <div class="card modern-card mb-4 task-inline-form">
+        <div class="card-body p-4 p-lg-5">
+
+            <div class="d-flex justify-content-between align-items-start mb-4">
+                <div>
+                    <h2 class="h4 mb-1">
+                        @(form.Id == Guid.Empty
+                            ? "Neue Aufgabe anlegen"
+                            : "Aufgabe bearbeiten")
+                    </h2>
+                    <p class="text-muted small mb-0">
+                        Baustelle, Mitarbeiter und Aufgabendetails festlegen.
+                    </p>
+                </div>
+
+                <button type="button"
+                        class="btn-close"
+                        @onclick="Cancel">
+                </button>
+            </div>
+
+            <EditForm Model="form" OnValidSubmit="Save">
+                <DataAnnotationsValidator />
+
+                <div class="row g-4">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Baustelle *</label>
+
+                        <div class="live-search-wrapper">
+                            <input class="form-control"
+                                   value="@siteSearchText"
+                                   @oninput="OnSiteSearchInput"
+                                   @focus="() => showSiteDropdown = true"
+                                   placeholder="Baustelle suchen..."
+                                   autocomplete="off" />
+
+                            @if (showSiteDropdown)
+                            {
+                                <div class="live-search-results">
+                                    @if (FilteredSites.Any())
+                                    {
+                                        @foreach (var site in FilteredSites.Take(8))
+                                        {
+                                            <button type="button"
+                                                    class="live-search-result"
+                                                    @onclick="() => SelectSite(site)">
+                                                <div class="live-search-avatar site-avatar">
+                                                    @Initials(site)
+                                                </div>
+                                                <div class="live-search-content">
+                                                    <div class="live-search-title">
+                                                        @site.Name
+                                                    </div>
+                                                    @if (!string.IsNullOrWhiteSpace(site.City))
+                                                    {
+                                                        <div class="live-search-subtitle">
+                                                            @site.City
+                                                        </div>
+                                                    }
+                                                    else if (!string.IsNullOrWhiteSpace(site.Address))
+                                                    {
+                                                        <div class="live-search-subtitle">
+                                                            @site.Address
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="live-search-empty">
+                                            Keine Baustelle gefunden.
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        @if (form.BaustelleId != Guid.Empty)
+                        {
+                            <div class="selected-info">
+                                <span class="selected-check">✓</span>
+                                <span>@SelectedSiteName</span>
+                                <button type="button"
+                                        class="selected-remove"
+                                        @onclick="ClearSite"
+                                        title="Auswahl entfernen">
+                                    ×
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Mitarbeiter</label>
+
+                        <div class="live-search-wrapper">
+                            <input class="form-control"
+                                   value="@employeeSearchText"
+                                   @oninput="OnEmployeeSearchInput"
+                                   @focus="() => showEmployeeDropdown = true"
+                                   placeholder="Mitarbeiter suchen..."
+                                   autocomplete="off" />
+
+                            @if (showEmployeeDropdown)
+                            {
+                                <div class="live-search-results">
+                                    <button type="button"
+                                            class="live-search-result"
+                                            @onclick="SelectNoEmployee">
+                                        <div class="live-search-avatar">
+                                            –
+                                        </div>
+                                        <div class="live-search-content">
+                                            <div class="live-search-title">
+                                                Nicht zugewiesen
+                                            </div>
+                                            <div class="live-search-subtitle">
+                                                Keine Zuordnung
+                                            </div>
+                                        </div>
+                                    </button>
+
+                                    @if (FilteredEmployees.Any())
+                                    {
+                                        @foreach (var employee in FilteredEmployees.Take(8))
+                                        {
+                                            <button type="button"
+                                                    class="live-search-result"
+                                                    @onclick="() => SelectEmployee(employee)">
+                                                <div class="live-search-avatar">
+                                                    @Initials(employee)
+                                                </div>
+                                                <div class="live-search-content">
+                                                    <div class="live-search-title">
+                                                        @employee.FirstName @employee.LastName
+                                                    </div>
+                                                    @if (!string.IsNullOrWhiteSpace(employee.Position))
+                                                    {
+                                                        <div class="live-search-subtitle">
+                                                            @employee.Position
+                                                        </div>
+                                                    }
+                                                    else if (!string.IsNullOrWhiteSpace(employee.Phone))
+                                                    {
+                                                        <div class="live-search-subtitle">
+                                                            @employee.Phone
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </button>
+                                        }
+                                    }
+                                    else if (!string.IsNullOrWhiteSpace(employeeSearchText))
+                                    {
+                                        <div class="live-search-empty">
+                                            Kein Mitarbeiter gefunden.
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </div>
+
+                        @if (form.EmployeeId.HasValue)
+                        {
+                            <div class="selected-info">
+                                <span class="selected-check">✓</span>
+                                <span>@SelectedEmployeeName</span>
+                                <button type="button"
+                                        class="selected-remove"
+                                        @onclick="ClearEmployee"
+                                        title="Auswahl entfernen">
+                                    ×
+                                </button>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="col-md-8">
+                        <label class="form-label">Titel *</label>
+                        <InputText class="form-control"
+                                   @bind-Value="form.Title"
+                                   placeholder="Aufgabe eingeben..." />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Fällig am</label>
+                        <InputDate class="form-control"
+                                   @bind-Value="form.DueDate" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        <InputSelect class="form-select"
+                                     @bind-Value="form.Status">
+                            @foreach (var statusValue in Enum.GetValues<WorkTaskStatus>())
+                            {
+                                <option value="@statusValue">
+                                    @StatusText(statusValue)
+                                </option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Beschreibung</label>
+                        <InputTextArea class="form-control"
+                                       rows="4"
+                                       @bind-Value="form.Description"
+                                       placeholder="Beschreibung der Aufgabe..." />
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(formError))
+                    {
+                        <div class="col-12">
+                            <div class="alert alert-warning mb-0">
+                                @formError
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary px-4">
+                        @(form.Id == Guid.Empty
+                            ? "Aufgabe speichern"
+                            : "Änderungen speichern")
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-light"
+                            @onclick="Cancel">
+                        Abbrechen
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+
 
 
     @if (isAdmin)
@@ -481,251 +719,6 @@
     }
 
 </div>
-
-
-<!-- =============================================================
-     ADMIN CREATE / EDIT MODAL
-     ============================================================= -->
-
-@if (editing && isAdmin)
-{
-    <div class="task-modal-backdrop"
-         @onclick="Cancel">
-
-        <div class="task-modal"
-             @onclick:stopPropagation="true">
-
-            <div class="task-modal-header">
-
-                <div>
-
-                    <span class="eyebrow text-primary">
-                        AUFGABE
-                    </span>
-
-                    <h2>
-
-                        @(form.Id == Guid.Empty
-                            ? "Neue Aufgabe"
-                            : "Aufgabe bearbeiten")
-
-                    </h2>
-
-                </div>
-
-
-                <button class="btn-close"
-                        type="button"
-                        @onclick="Cancel">
-                </button>
-
-            </div>
-
-
-            <EditForm Model="form"
-                      OnValidSubmit="Save">
-
-                <DataAnnotationsValidator />
-
-
-                <div class="task-modal-body">
-
-                    <div class="row g-3">
-
-                        <!-- LIVE SEARCH ZA BAUSTELLE -->
-                        <div class="col-md-6 position-relative">
-
-                            <label class="form-label">
-                                Baustelle *
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   value="@siteSearchText"
-                                   @oninput="OnSiteSearchInput"
-                                   @focus="() => showSiteDropdown = true"
-                                   placeholder="Baustelle suchen..."
-                                   autocomplete="off" />
-
-                            @if (showSiteDropdown)
-                            {
-                                <div class="dropdown-menu show w-100 shadow-sm mt-1 position-absolute" style="max-height: 200px; overflow-y: auto; z-index: 1060;">
-                                    @if (FilteredSites.Any())
-                                    {
-                                        @foreach (var site in FilteredSites)
-                                        {
-                                            <button type="button"
-                                                    class="dropdown-item @(form.BaustelleId == site.Id ? "active" : "")"
-                                                    @onclick="() => SelectSite(site)">
-                                                @site.Name @(!string.IsNullOrWhiteSpace(site.City) ? $"({site.City})" : "")
-                                            </button>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <div class="dropdown-item text-muted disabled">Keine Baustelle gefunden</div>
-                                    }
-                                </div>
-                            }
-
-                        </div>
-
-
-                        <!-- LIVE SEARCH ZA MITARBEITER -->
-                        <div class="col-md-6 position-relative">
-
-                            <label class="form-label">
-                                Mitarbeiter
-                            </label>
-
-                            <input type="text"
-                                   class="form-control"
-                                   value="@employeeSearchText"
-                                   @oninput="OnEmployeeSearchInput"
-                                   @focus="() => showEmployeeDropdown = true"
-                                   placeholder="Mitarbeiter suchen..."
-                                   autocomplete="off" />
-
-                            @if (showEmployeeDropdown)
-                            {
-                                <div class="dropdown-menu show w-100 shadow-sm mt-1 position-absolute" style="max-height: 200px; overflow-y: auto; z-index: 1060;">
-                                    <button type="button"
-                                            class="dropdown-item @(!form.EmployeeId.HasValue ? "active" : "")"
-                                            @onclick="SelectNoEmployee">
-                                        <em>Nicht zugewiesen</em>
-                                    </button>
-
-                                    @if (FilteredEmployees.Any())
-                                    {
-                                        @foreach (var employee in FilteredEmployees)
-                                        {
-                                            <button type="button"
-                                                    class="dropdown-item @(form.EmployeeId == employee.Id ? "active" : "")"
-                                                    @onclick="() => SelectEmployee(employee)">
-                                                @employee.FirstName @employee.LastName
-                                            </button>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <div class="dropdown-item text-muted disabled">Kein Mitarbeiter gefunden</div>
-                                    }
-                                </div>
-                            }
-
-                        </div>
-
-
-                        <div class="col-md-8">
-
-                            <label class="form-label">
-                                Titel *
-                            </label>
-
-
-                            <InputText class="form-control"
-                                       @bind-Value="form.Title"
-                                       placeholder="Aufgabe eingeben..." />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Fällig am
-                            </label>
-
-
-                            <InputDate class="form-control"
-                                       @bind-Value="form.DueDate" />
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label class="form-label">
-                                Status
-                            </label>
-
-
-                            <InputSelect class="form-select"
-                                         @bind-Value="form.Status">
-
-                                @foreach (var status in Enum.GetValues<WorkTaskStatus>())
-                                {
-                                    <option value="@status">
-
-                                        @StatusText(status)
-
-                                    </option>
-                                }
-
-                            </InputSelect>
-
-                        </div>
-
-
-                        <div class="col-12">
-
-                            <label class="form-label">
-                                Beschreibung
-                            </label>
-
-
-                            <InputTextArea class="form-control"
-                                           rows="4"
-                                           @bind-Value="form.Description"
-                                           placeholder="Beschreibung der Aufgabe..." />
-
-                        </div>
-
-
-                        @if (!string.IsNullOrWhiteSpace(formError))
-                        {
-                            <div class="col-12">
-
-                                <div class="alert alert-warning mb-0">
-
-                                    @formError
-
-                                </div>
-
-                            </div>
-                        }
-
-                    </div>
-
-                </div>
-
-
-                <div class="task-modal-footer">
-
-                    <button type="button"
-                            class="btn btn-light"
-                            @onclick="Cancel">
-
-                        Abbrechen
-
-                    </button>
-
-
-                    <button type="submit"
-                            class="btn btn-primary">
-
-                        @(form.Id == Guid.Empty ? "Aufgabe erstellen" : "Änderungen speichern")
-
-                    </button>
-
-                </div>
-
-            </EditForm>
-
-        </div>
-
-    </div>
-}
 
 
 <!-- =============================================================
@@ -1170,6 +1163,50 @@
         form.EmployeeId = null;
         employeeSearchText = "";
         showEmployeeDropdown = false;
+    }
+
+
+    // =========================================================
+    // SELECTED VALUES
+    // =========================================================
+
+    private string SelectedEmployeeName =>
+        employees.FirstOrDefault(x => x.Id == form.EmployeeId) is { } employee
+            ? $"{employee.FirstName} {employee.LastName}"
+            : "";
+
+    private string SelectedSiteName =>
+        sites.FirstOrDefault(x => x.Id == form.BaustelleId)?.Name ?? "";
+
+    private static string Initials(EmployeeModel employee)
+        => EmployeeInitials(employee);
+
+    private static string Initials(BaustelleModel site)
+    {
+        var name = site.Name?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(name))
+            return "B";
+
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (parts.Length == 1)
+            return parts[0][0].ToString().ToUpperInvariant();
+
+        return $"{parts[0][0]}{parts[^1][0]}".ToUpperInvariant();
+    }
+
+    private void ClearEmployee()
+    {
+        form.EmployeeId = null;
+        employeeSearchText = "";
+        showEmployeeDropdown = false;
+    }
+
+    private void ClearSite()
+    {
+        form.BaustelleId = Guid.Empty;
+        siteSearchText = "";
+        showSiteDropdown = false;
     }
 
 

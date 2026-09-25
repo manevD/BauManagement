@@ -1,6 +1,5 @@
 ﻿namespace BauManagement.Models
 {
-
     public class Company
     {
         public Guid Id { get; set; } = Guid.NewGuid();
@@ -17,9 +16,14 @@
 
         public string? Email { get; set; }
 
-        public SubscriptionPlan SubscriptionPlan { get; set; } = SubscriptionPlan.S;
+        // Selected subscription plan
+        public SubscriptionPlan SubscriptionPlan { get; set; }
+            = SubscriptionPlan.S;
 
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
+            = DateTime.UtcNow;
+
+        // Trial
         public DateTime TrialStartDate { get; set; }
 
         public DateTime TrialEndDate { get; set; }
@@ -28,18 +32,29 @@
             DateTime.UtcNow >= TrialStartDate &&
             DateTime.UtcNow <= TrialEndDate;
 
+        // Subscription
         public bool IsSubscriptionActive { get; set; }
 
+        public SubscriptionStatus SubscriptionStatus { get; set; }
+            = SubscriptionStatus.Trial;
+
+        // Stripe
         public string? StripeCustomerId { get; set; }
 
         public string? StripeSubscriptionId { get; set; }
-        public SubscriptionStatus SubscriptionStatus { get; set; }
+
+        public string? StripePriceId { get; set; }
+
+        public DateTime? CurrentPeriodEnd { get; set; }
+        public DateTime? CancelledAt { get; set; }
+        // Relations
         public ICollection<Employee> Employees { get; set; }
             = new List<Employee>();
 
         public ICollection<Baustelle> Baustellen { get; set; }
             = new List<Baustelle>();
     }
+
     public enum SubscriptionStatus
     {
         Trial = 0,

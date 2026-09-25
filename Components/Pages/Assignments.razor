@@ -368,9 +368,10 @@
                             Beginn *
                         </label>
 
-                        <InputDate Type="InputDateType.DateTimeLocal"
-                                   class="form-control"
-                                   @bind-Value="form.Start" />
+                       <InputDate Type="InputDateType.DateTimeLocal"
+           class="form-control"
+           min="@MinStartDateTime"
+           @bind-Value="form.Start" />
 
                     </div>
 
@@ -385,9 +386,10 @@
                             Ende *
                         </label>
 
-                        <InputDate Type="InputDateType.DateTimeLocal"
-                                   class="form-control"
-                                   @bind-Value="form.End" />
+                     <InputDate Type="InputDateType.DateTimeLocal"
+           class="form-control"
+           min="@MinEndDateTime"
+           @bind-Value="form.End" />
 
                     </div>
 
@@ -806,7 +808,17 @@
 
     private int CurrentPage = 1;
 
+    // =========================================================
+// DATE LIMITS
+// =========================================================
 
+private string MinStartDateTime =>
+    DateTime.Today.ToString("yyyy-MM-dd") + "T00:00";
+
+private string MinEndDateTime =>
+    form.Start < DateTime.Today
+        ? DateTime.Today.ToString("yyyy-MM-dd") + "T00:00"
+        : form.Start.ToString("yyyy-MM-ddTHH:mm");
     // =========================================================
     // FILTERED EMPLOYEES
     // =========================================================
@@ -1376,264 +1388,304 @@
     // SAVE
     // =========================================================
 
-    private async Task Save()
+   // =========================================================
+// SAVE
+// =========================================================
+
+private async Task Save()
+{
+    message = null;
+
+
+    // =========================================================
+    // CURRENT COMPANY
+    // =========================================================
+
+    var id =
+        await CurrentCompany.GetCompanyIdAsync();
+
+
+    if (!id.HasValue)
     {
         message =
-            null;
-
-
-        // CURRENT COMPANY
-
-        var id =
-            await CurrentCompany.GetCompanyIdAsync();
-
-
-        if (!id.HasValue)
-        {
-            message =
-                "Keine Firma gefunden.";
-
-            messageType =
-                "danger";
-
-            return;
-        }
-
-
-        companyId =
-            id.Value;
-
-
-        // VERIFY COMPANY
-
-        var companyExists =
-            await Db.Companies
-                .AnyAsync(x =>
-                    x.Id == companyId);
-
-
-        if (!companyExists)
-        {
-            message =
-                "Die aktuelle Firma wurde nicht gefunden.";
-
-            messageType =
-                "danger";
-
-            return;
-        }
-
-
-        // VALIDATION
-
-        if (form.EmployeeId == Guid.Empty)
-        {
-            message =
-                "Bitte einen Mitarbeiter auswählen.";
-
-            messageType =
-                "warning";
-
-            return;
-        }
-
-
-        if (form.BaustelleId == Guid.Empty)
-        {
-            message =
-                "Bitte eine Baustelle auswählen.";
-
-            messageType =
-                "warning";
-
-            return;
-        }
-
-
-        if (form.End <= form.Start)
-        {
-            message =
-                "Das Ende muss nach dem Beginn liegen.";
-
-            messageType =
-                "warning";
-
-            return;
-        }
-
-
-        // VERIFY EMPLOYEE
-
-        var employeeExists =
-            await Db.Employees
-
-                .AnyAsync(x =>
-                    x.Id == form.EmployeeId &&
-                    x.CompanyId == companyId &&
-                    x.IsActive);
-
-
-        if (!employeeExists)
-        {
-            message =
-                "Der Mitarbeiter gehört nicht zu deiner Firma.";
-
-            messageType =
-                "danger";
-
-            return;
-        }
-
-
-        // VERIFY SITE
-
-        var siteExists =
-            await Db.Baustellen
-
-                .AnyAsync(x =>
-                    x.Id == form.BaustelleId &&
-                    x.CompanyId == companyId &&
-                    x.IsActive);
-
-
-        if (!siteExists)
-        {
-            message =
-                "Die Baustelle gehört nicht zu deiner Firma.";
-
-            messageType =
-                "danger";
-
-            return;
-        }
-
-
-        // =====================================================
-        // NEW
-        // =====================================================
-
-        if (form.Id == Guid.Empty)
-        {
-            var newAssignment =
-                new WorkAssignment
-                {
-                    Id =
-                        Guid.NewGuid(),
-
-                    CompanyId =
-                        companyId,
-
-                    EmployeeId =
-                        form.EmployeeId,
-
-                    BaustelleId =
-                        form.BaustelleId,
-
-                    Start =
-                        form.Start,
-
-                    End =
-                        form.End,
-
-                    Notes =
-                        string.IsNullOrWhiteSpace(
-                            form.Notes)
-                            ? null
-                            : form.Notes.Trim(),
-
-                    CreatedAt =
-                        DateTime.UtcNow
-                };
-
-
-            Db.WorkAssignments.Add(
-                newAssignment);
-        }
-        else
-        {
-            // =================================================
-            // UPDATE
-            // =================================================
-
-            var assignmentFromDb =
-                await Db.WorkAssignments
-
-                    .FirstOrDefaultAsync(x =>
-                        x.Id == form.Id &&
-                        x.CompanyId == companyId);
-
-
-            if (assignmentFromDb is null)
-            {
-                message =
-                    "Einsatz wurde nicht gefunden.";
-
-                messageType =
-                    "danger";
-
-                return;
-            }
-
-
-            assignmentFromDb.CompanyId =
-                companyId;
-
-            assignmentFromDb.EmployeeId =
-                form.EmployeeId;
-
-            assignmentFromDb.BaustelleId =
-                form.BaustelleId;
-
-            assignmentFromDb.Start =
-                form.Start;
-
-            assignmentFromDb.End =
-                form.End;
-
-            assignmentFromDb.Notes =
-                string.IsNullOrWhiteSpace(
-                    form.Notes)
-                    ? null
-                    : form.Notes.Trim();
-        }
-
-
-        // SAVE
-
-        await Db.SaveChangesAsync();
-
-
-        editing =
-            false;
-
-
-        employeeSearch =
-            "";
-
-        siteSearch =
-            "";
-
-
-        showEmployeeSearch =
-            false;
-
-        showSiteSearch =
-            false;
-
-
-        form =
-            CreateNew();
-
-
-        message =
-            "Einsatz wurde erfolgreich gespeichert.";
+            "Keine Firma gefunden.";
 
         messageType =
-            "success";
+            "danger";
 
-
-        await LoadAssignments();
+        return;
     }
+
+
+    companyId =
+        id.Value;
+
+
+    // =========================================================
+    // VERIFY COMPANY
+    // =========================================================
+
+    var companyExists =
+        await Db.Companies
+            .AnyAsync(x =>
+                x.Id == companyId);
+
+
+    if (!companyExists)
+    {
+        message =
+            "Die aktuelle Firma wurde nicht gefunden.";
+
+        messageType =
+            "danger";
+
+        return;
+    }
+
+
+    // =========================================================
+    // VALIDATION
+    // =========================================================
+
+    // Mitarbeiter prüfen
+    if (form.EmployeeId == Guid.Empty)
+    {
+        message =
+            "Bitte einen Mitarbeiter auswählen.";
+
+        messageType =
+            "warning";
+
+        return;
+    }
+
+
+    // Baustelle prüfen
+    if (form.BaustelleId == Guid.Empty)
+    {
+        message =
+            "Bitte eine Baustelle auswählen.";
+
+        messageType =
+            "warning";
+
+        return;
+    }
+
+
+    // =========================================================
+    // DATUM PRÜFEN
+    // =========================================================
+
+    // Beginn darf nicht vor heute liegen
+    if (form.Start.Date < DateTime.Today)
+    {
+        message =
+            "Der Beginn darf nicht vor heute liegen.";
+
+        messageType =
+            "warning";
+
+        return;
+    }
+
+
+    // Ende muss nach dem Beginn liegen
+    if (form.End <= form.Start)
+    {
+        message =
+            "Das Ende muss nach dem Beginn liegen.";
+
+        messageType =
+            "warning";
+
+        return;
+    }
+
+
+    // =========================================================
+    // VERIFY EMPLOYEE
+    // =========================================================
+
+    var employeeExists =
+        await Db.Employees
+            .AnyAsync(x =>
+                x.Id == form.EmployeeId &&
+                x.CompanyId == companyId &&
+                x.IsActive);
+
+
+    if (!employeeExists)
+    {
+        message =
+            "Der Mitarbeiter gehört nicht zu deiner Firma.";
+
+        messageType =
+            "danger";
+
+        return;
+    }
+
+
+    // =========================================================
+    // VERIFY SITE
+    // =========================================================
+
+    var siteExists =
+        await Db.Baustellen
+            .AnyAsync(x =>
+                x.Id == form.BaustelleId &&
+                x.CompanyId == companyId &&
+                x.IsActive);
+
+
+    if (!siteExists)
+    {
+        message =
+            "Die Baustelle gehört nicht zu deiner Firma.";
+
+        messageType =
+            "danger";
+
+        return;
+    }
+
+
+    // =========================================================
+    // NEW
+    // =========================================================
+
+    if (form.Id == Guid.Empty)
+    {
+        var newAssignment =
+            new WorkAssignment
+            {
+                Id =
+                    Guid.NewGuid(),
+
+                CompanyId =
+                    companyId,
+
+                EmployeeId =
+                    form.EmployeeId,
+
+                BaustelleId =
+                    form.BaustelleId,
+
+                Start =
+                    form.Start,
+
+                End =
+                    form.End,
+
+                Notes =
+                    string.IsNullOrWhiteSpace(
+                        form.Notes)
+                        ? null
+                        : form.Notes.Trim(),
+
+                CreatedAt =
+                    DateTime.UtcNow
+            };
+
+
+        Db.WorkAssignments.Add(
+            newAssignment);
+    }
+    else
+    {
+        // =====================================================
+        // UPDATE
+        // =====================================================
+
+        var assignmentFromDb =
+            await Db.WorkAssignments
+                .FirstOrDefaultAsync(x =>
+                    x.Id == form.Id &&
+                    x.CompanyId == companyId);
+
+
+        if (assignmentFromDb is null)
+        {
+            message =
+                "Einsatz wurde nicht gefunden.";
+
+            messageType =
+                "danger";
+
+            return;
+        }
+
+
+        assignmentFromDb.CompanyId =
+            companyId;
+
+        assignmentFromDb.EmployeeId =
+            form.EmployeeId;
+
+        assignmentFromDb.BaustelleId =
+            form.BaustelleId;
+
+        assignmentFromDb.Start =
+            form.Start;
+
+        assignmentFromDb.End =
+            form.End;
+
+        assignmentFromDb.Notes =
+            string.IsNullOrWhiteSpace(
+                form.Notes)
+                ? null
+                : form.Notes.Trim();
+    }
+
+
+    // =========================================================
+    // SAVE
+    // =========================================================
+
+    await Db.SaveChangesAsync();
+
+
+    // =========================================================
+    // RESET
+    // =========================================================
+
+    editing =
+        false;
+
+
+    employeeSearch =
+        "";
+
+    siteSearch =
+        "";
+
+
+    showEmployeeSearch =
+        false;
+
+    showSiteSearch =
+        false;
+
+
+    form =
+        CreateNew();
+
+
+    // =========================================================
+    // SUCCESS
+    // =========================================================
+
+    message =
+        "Einsatz wurde erfolgreich gespeichert.";
+
+    messageType =
+        "success";
+
+
+    await LoadAssignments();
+}
 
 
     // =========================================================

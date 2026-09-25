@@ -1,10 +1,11 @@
 ﻿@page "/Account/Register"
 
 @using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Identity
 @using BauManagement.Data
 @using BauManagement.Models
-
+@using BauManagement.Services
+@using Microsoft.AspNetCore.Identity
+@inject StripeService StripeService
 @inject UserManager<ApplicationUser> UserManager
 @inject IUserStore<ApplicationUser> UserStore
 @inject SignInManager<ApplicationUser> SignInManager
@@ -18,105 +19,196 @@
 
 <PageTitle>Firma registrieren – BauManagement</PageTitle>
 
-<div class="register-container">
+<div class="register-page">
 
-    <div class="register-heading">
-        <h1>Deine Firma einrichten</h1>
-        <p>In wenigen Minuten zu deiner digitalen Baustellenplanung.</p>
+    <!-- Background -->
+    <div class="register-background">
+        <div class="register-glow register-glow-1"></div>
+        <div class="register-glow register-glow-2"></div>
+        <div class="register-grid"></div>
     </div>
 
-    <StatusMessage Message="@Message" />
 
-    <EditForm Model="Input"
-              method="post"
-              OnValidSubmit="RegisterUser"
-              FormName="register"
-              class="register-card">
+    <div class="register-container">
 
-        <DataAnnotationsValidator />
+        <!-- Top -->
+        <div class="register-top">
 
-        <div class="register-card-body">
+            <a href="/" class="register-brand">
+                <span class="register-brand-back">←</span>
 
-            <ValidationSummary class="text-danger validation-summary"
-                               role="alert" />
+                <span>
+                    <strong><span>Bau</span>Management</strong>
+                </span>
+            </a>
 
-            <!-- =========================================
+            <div class="register-login-top">
+                <span>Bereits registriert?</span>
+
+                <a href="Account/Login">
+                    Anmelden →
+                </a>
+            </div>
+
+        </div>
+
+
+        <!-- Header -->
+        <div class="register-heading">
+
+            <div class="register-heading-badge">
+                <span class="badge-dot"></span>
+                7 Tage kostenlos testen
+            </div>
+
+            <h1>
+                Deine Firma.
+                <span>Dein BauManagement.</span>
+            </h1>
+
+            <p>
+                Erstelle deine Firma und verwalte Baustellen,
+                Mitarbeiter, Aufgaben und Einsätze zentral an einem Ort.
+            </p>
+
+        </div>
+
+
+        <!-- Message -->
+        @if (!string.IsNullOrWhiteSpace(Message))
+        {
+            <div class="register-message">
+                <i class="bi bi-exclamation-circle"></i>
+                <span>@Message</span>
+            </div>
+        }
+
+
+        <EditForm Model="Input"
+                  method="post"
+                  OnValidSubmit="RegisterUser"
+                  FormName="register">
+
+            <DataAnnotationsValidator />
+
+
+            <!-- Validation -->
+            <div class="register-validation">
+                <ValidationSummary />
+            </div>
+
+
+            <!-- =====================================================
                  1. FIRMENDATEN
-                 ========================================= -->
+                 ===================================================== -->
 
-            <section class="register-section">
+            <section class="register-card">
 
-                <div class="section-title">
-                    <span>1</span>
+                <div class="register-section-header">
+
+                    <div class="section-number">
+                        01
+                    </div>
 
                     <div>
-                        <h3>Firmendaten</h3>
+                        <h2>Firmendaten</h2>
                         <p>Informationen zu deinem Unternehmen</p>
                     </div>
+
                 </div>
 
-                <div class="row g-3">
 
-                    <div class="col-12">
+                <div class="register-fields">
 
-                        <label class="register-label">
-                            Firmenname <span>*</span>
+                    <!-- Firmenname -->
+                    <div class="register-field full">
+
+                        <label>
+                            Firmenname
+                            <span>*</span>
                         </label>
 
-                        <InputText @bind-Value="Input.CompanyName"
-                                   class="form-control register-input"
-                                   placeholder="z. B. Müller Bau GmbH" />
+                        <div class="register-input-wrapper">
 
-                        <ValidationMessage For="() => Input.CompanyName"
-                                           class="text-danger" />
+                            <i class="bi bi-building"></i>
+
+                            <InputText @bind-Value="Input.CompanyName"
+                                       class="form-control register-input"
+                                       placeholder="z. B. Müller Bau GmbH" />
+
+                        </div>
+
+                        <ValidationMessage For="() => Input.CompanyName" />
 
                     </div>
 
-                    <div class="col-md-7">
 
-                        <label class="register-label">
-                            Adresse
-                        </label>
+                    <!-- Adresse -->
+                    <div class="register-field address">
 
-                        <InputText @bind-Value="Input.Address"
-                                   class="form-control register-input"
-                                   placeholder="Musterstraße 12" />
+                        <label>Adresse</label>
 
-                    </div>
+                        <div class="register-input-wrapper">
 
-                    <div class="col-md-2">
+                            <i class="bi bi-geo-alt"></i>
 
-                        <label class="register-label">
-                            PLZ
-                        </label>
+                            <InputText @bind-Value="Input.Address"
+                                       class="form-control register-input"
+                                       placeholder="Musterstraße 12" />
 
-                        <InputText @bind-Value="Input.PostalCode"
-                                   class="form-control register-input"
-                                   placeholder="10115" />
+                        </div>
 
                     </div>
 
-                    <div class="col-md-3">
 
-                        <label class="register-label">
-                            Ort
-                        </label>
+                    <!-- PLZ -->
+                    <div class="register-field postal">
 
-                        <InputText @bind-Value="Input.City"
-                                   class="form-control register-input"
-                                   placeholder="Berlin" />
+                        <label>PLZ</label>
+
+                        <div class="register-input-wrapper">
+                                                        <i class="bi bi-geo-alt"></i>
+
+                            <InputText @bind-Value="Input.PostalCode"
+                                       class="form-control register-input"
+                                       placeholder="10115" />
+
+                        </div>
 
                     </div>
 
-                    <div class="col-12">
 
-                        <label class="register-label">
-                            Telefon
-                        </label>
+                    <!-- Ort -->
+                    <div class="register-field city">
 
-                        <InputText @bind-Value="Input.Phone"
-                                   class="form-control register-input"
-                                   placeholder="+49 30 1234567" />
+                        <label>Ort</label>
+
+                        <div class="register-input-wrapper">
+                                                                                <i class="bi bi-geo-alt"></i>
+
+                            <InputText @bind-Value="Input.City"
+                                       class="form-control register-input"
+                                       placeholder="Berlin" />
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Telefon -->
+                    <div class="register-field full">
+
+                        <label>Telefon</label>
+
+                        <div class="register-input-wrapper">
+
+                            <i class="bi bi-telephone"></i>
+
+                            <InputText @bind-Value="Input.Phone"
+                                       class="form-control register-input"
+                                       placeholder="+49 30 1234567" />
+
+                        </div>
 
                     </div>
 
@@ -125,146 +217,190 @@
             </section>
 
 
-            <!-- =========================================
+            <!-- =====================================================
                  2. PAKET
-                 ========================================= -->
+                 ===================================================== -->
 
-            <section class="register-section">
+            <section class="register-card">
 
-                <div class="section-title">
+                <div class="register-section-header">
 
-                    <span>2</span>
+                    <div class="section-number">
+                        02
+                    </div>
 
                     <div>
-                        <h3>Paket auswählen</h3>
+                        <h2>Paket auswählen</h2>
                         <p>Wähle den passenden Tarif für dein Team</p>
                     </div>
 
                 </div>
 
 
-               <InputRadioGroup @bind-Value="Input.SubscriptionPlan">
+                <InputRadioGroup @bind-Value="Input.SubscriptionPlan">
 
-    <div class="plan-grid">
+                    <div class="plan-grid">
 
-        <!-- S -->
+                        <!-- S -->
+                        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.S ? "selected" : "")">
 
-        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.S ? "selected" : "")">
+                            <InputRadio Value="SubscriptionPlan.S"
+                                        class="plan-radio" />
 
-            <InputRadio Value="SubscriptionPlan.S"
-                        class="plan-radio" />
+                            <div class="plan-top">
 
-            <div class="plan-content">
+                                <div class="plan-name">
+                                    S
+                                    <span>Starter</span>
+                                </div>
 
-                <strong>S – Starter</strong>
+                                @if (Input.SubscriptionPlan == SubscriptionPlan.S)
+                                {
+                                    <div class="plan-check">
+                                        ✓
+                                    </div>
+                                }
 
-                <div class="plan-price">
-                    20 €
-                    <span>/ Monat</span>
-                </div>
+                            </div>
 
-                <div class="plan-employees">
-                    Bis 5 Mitarbeiter
-                </div>
+                            <div class="plan-price">
+                                20 €
+                                <span>/ Monat</span>
+                            </div>
 
-            </div>
+                            <div class="plan-employees">
+                                <i class="bi bi-people"></i>
+                                Bis 5 Mitarbeiter
+                            </div>
 
-        </label>
-
-
-        <!-- M -->
-
-        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.M ? "selected" : "")">
-
-            <InputRadio Value="SubscriptionPlan.M"
-                        class="plan-radio" />
-
-            <div class="plan-content">
-
-                <strong>M – Team</strong>
-
-                <div class="plan-price">
-                    50 €
-                    <span>/ Monat</span>
-                </div>
-
-                <div class="plan-employees">
-                    Bis 10 Mitarbeiter
-                </div>
-
-            </div>
-
-        </label>
+                        </label>
 
 
-        <!-- L -->
+                        <!-- M -->
+                        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.M ? "selected" : "")">
 
-        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.L ? "selected" : "")">
+                            <InputRadio Value="SubscriptionPlan.M"
+                                        class="plan-radio" />
 
-            <InputRadio Value="SubscriptionPlan.L"
-                        class="plan-radio" />
+                            <div class="plan-top">
 
-            <div class="plan-content">
+                                <div class="plan-name">
+                                    M
+                                    <span>Team</span>
+                                </div>
 
-                <strong>L – Business</strong>
+                                @if (Input.SubscriptionPlan == SubscriptionPlan.M)
+                                {
+                                    <div class="plan-check">
+                                        ✓
+                                    </div>
+                                }
 
-                <div class="plan-price">
-                    100 €
-                    <span>/ Monat</span>
-                </div>
+                            </div>
 
-                <div class="plan-employees">
-                    Bis 20 Mitarbeiter
-                </div>
+                            <div class="plan-price">
+                                50 €
+                                <span>/ Monat</span>
+                            </div>
 
-            </div>
+                            <div class="plan-employees">
+                                <i class="bi bi-people"></i>
+                                Bis 10 Mitarbeiter
+                            </div>
 
-        </label>
+                        </label>
 
 
-        <!-- XL -->
+                        <!-- L -->
+                        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.L ? "selected" : "")">
 
-        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.XL ? "selected" : "")">
+                            <InputRadio Value="SubscriptionPlan.L"
+                                        class="plan-radio" />
 
-            <InputRadio Value="SubscriptionPlan.XL"
-                        class="plan-radio" />
+                            <div class="plan-top">
 
-            <div class="plan-content">
+                                <div class="plan-name">
+                                    L
+                                    <span>Business</span>
+                                </div>
 
-                <strong>XL – Profi</strong>
+                                @if (Input.SubscriptionPlan == SubscriptionPlan.L)
+                                {
+                                    <div class="plan-check">
+                                        ✓
+                                    </div>
+                                }
 
-                <div class="plan-price">
-                    200 €
-                    <span>/ Monat</span>
-                </div>
+                            </div>
 
-                <div class="plan-employees">
-                    Über 20 Mitarbeiter
-                </div>
+                            <div class="plan-price">
+                                100 €
+                                <span>/ Monat</span>
+                            </div>
 
-            </div>
+                            <div class="plan-employees">
+                                <i class="bi bi-people"></i>
+                                Bis 20 Mitarbeiter
+                            </div>
 
-        </label>
+                        </label>
 
-    </div>
 
-</InputRadioGroup>
+                        <!-- XL -->
+                        <label class="plan-card @(Input.SubscriptionPlan == SubscriptionPlan.XL ? "selected" : "")">
+
+                            <InputRadio Value="SubscriptionPlan.XL"
+                                        class="plan-radio" />
+
+                            <div class="plan-top">
+
+                                <div class="plan-name">
+                                    XL
+                                    <span>Profi</span>
+                                </div>
+
+                                @if (Input.SubscriptionPlan == SubscriptionPlan.XL)
+                                {
+                                    <div class="plan-check">
+                                        ✓
+                                    </div>
+                                }
+
+                            </div>
+
+                            <div class="plan-price">
+                                200 €
+                                <span>/ Monat</span>
+                            </div>
+
+                            <div class="plan-employees">
+                                <i class="bi bi-people"></i>
+                                Über 20 Mitarbeiter
+                            </div>
+
+                        </label>
+
+                    </div>
+
+                </InputRadioGroup>
 
             </section>
 
 
-            <!-- =========================================
+            <!-- =====================================================
                  3. ZAHLUNG
-                 ========================================= -->
+                 ===================================================== -->
 
-            <section class="register-section">
+            <section class="register-card">
 
-                <div class="section-title">
+                <div class="register-section-header">
 
-                    <span>3</span>
+                    <div class="section-number">
+                        03
+                    </div>
 
                     <div>
-                        <h3>Zahlungsdaten</h3>
+                        <h2>Zahlungsdaten</h2>
                         <p>Sichere Zahlung über Stripe</p>
                     </div>
 
@@ -273,11 +409,13 @@
 
                 <div class="stripe-box">
 
-                    <div class="stripe-icon">
-                        <i class="bi bi-lock-fill"></i>
+                    <div class="stripe-lock">
+
+                        <i class="bi bi-shield-lock-fill"></i>
+
                     </div>
 
-                    <div class="stripe-info">
+                    <div class="stripe-content">
 
                         <strong>Sichere Zahlung mit Stripe</strong>
 
@@ -287,7 +425,7 @@
 
                     </div>
 
-                    <div class="stripe-logo">
+                    <div class="stripe-word">
                         stripe
                     </div>
 
@@ -308,81 +446,104 @@
             </section>
 
 
-            <!-- =========================================
+            <!-- =====================================================
                  4. ZUGANG
-                 ========================================= -->
+                 ===================================================== -->
 
-            <section class="register-section register-section-last">
+            <section class="register-card">
 
-                <div class="section-title">
+                <div class="register-section-header">
 
-                    <span>4</span>
+                    <div class="section-number">
+                        04
+                    </div>
 
                     <div>
-                        <h3>Zugang erstellen</h3>
+                        <h2>Zugang erstellen</h2>
                         <p>Deine Zugangsdaten für BauManagement</p>
                     </div>
 
                 </div>
 
 
-                <div class="row g-3">
+                <div class="register-fields">
 
-                    <div class="col-12">
+                    <!-- Email -->
+                    <div class="register-field full">
 
-                        <label class="register-label">
-                            E-Mail-Adresse <span>*</span>
+                        <label>
+                            E-Mail-Adresse
+                            <span>*</span>
                         </label>
 
-                        <InputText @bind-Value="Input.Email"
-                                   id="Input.Email"
-                                   class="form-control register-input"
-                                   autocomplete="username"
-                                   aria-required="true"
-                                   placeholder="name@example.com" />
+                        <div class="register-input-wrapper">
 
-                        <ValidationMessage For="() => Input.Email"
-                                           class="text-danger" />
+                            <i class="bi bi-envelope"></i>
+
+                            <InputText @bind-Value="Input.Email"
+                                       id="Input.Email"
+                                       class="form-control register-input"
+                                       autocomplete="username"
+                                       aria-required="true"
+                                       placeholder="name@example.com" />
+
+                        </div>
+
+                        <ValidationMessage For="() => Input.Email" />
 
                     </div>
 
 
-                    <div class="col-md-6">
+                    <!-- Password -->
+                    <div class="register-field">
 
-                        <label class="register-label">
-                            Passwort <span>*</span>
+                        <label>
+                            Passwort
+                            <span>*</span>
                         </label>
 
-                        <InputText type="password"
-                                   @bind-Value="Input.Password"
-                                   id="Input.Password"
-                                   class="form-control register-input"
-                                   autocomplete="new-password"
-                                   aria-required="true"
-                                   placeholder="Passwort" />
+                        <div class="register-input-wrapper">
 
-                        <ValidationMessage For="() => Input.Password"
-                                           class="text-danger" />
+                            <i class="bi bi-lock"></i>
+
+                            <InputText type="password"
+                                       @bind-Value="Input.Password"
+                                       id="Input.Password"
+                                       class="form-control register-input"
+                                       autocomplete="new-password"
+                                       aria-required="true"
+                                       placeholder="Passwort" />
+
+                        </div>
+
+                        <ValidationMessage For="() => Input.Password" />
 
                     </div>
 
 
-                    <div class="col-md-6">
+                    <!-- Confirm -->
+                    <div class="register-field">
 
-                        <label class="register-label">
-                            Passwort bestätigen <span>*</span>
+                        <label>
+                            Passwort bestätigen
+                            <span>*</span>
                         </label>
 
-                        <InputText type="password"
-                                   @bind-Value="Input.ConfirmPassword"
-                                   id="Input.ConfirmPassword"
-                                   class="form-control register-input"
-                                   autocomplete="new-password"
-                                   aria-required="true"
-                                   placeholder="Passwort wiederholen" />
+                        <div class="register-input-wrapper">
 
-                        <ValidationMessage For="() => Input.ConfirmPassword"
-                                           class="text-danger" />
+                            <i class="bi bi-lock-fill"></i>
+
+                            <InputText type="password"
+                                       @bind-Value="Input.ConfirmPassword"
+                                       id="Input.ConfirmPassword"
+                                       class="form-control register-input"
+                                       autocomplete="new-password"
+                                       aria-required="true"
+                                       placeholder="Passwort wiederholen" />
+
+                        </div>
+
+                        <ValidationMessage For="() => Input.ConfirmPassword" />
 
                     </div>
 
@@ -391,18 +552,46 @@
             </section>
 
 
-            <!-- =========================================
+            <!-- =====================================================
                  SUBMIT
-                 ========================================= -->
+                 ===================================================== -->
 
-            <button type="submit"
-                    class="register-submit">
+            <div class="register-submit-area">
 
-                Firma registrieren und 14 Tage kostenlos testen
+                <button type="submit"
+                        class="register-submit">
 
-            </button>
+                    <span>
+                        Firma registrieren
+                    </span>
+
+                    <span class="submit-arrow">
+                        →
+                    </span>
+
+                </button>
 
 
+                <div class="trial-info">
+
+                    <div class="trial-icon">
+                        <i class="bi bi-gift"></i>
+                    </div>
+
+                    <div>
+                        <strong>7 Tage kostenlos testen</strong>
+
+                        <span>
+                            Keine Zahlung während der Testphase.
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Legal -->
             <p class="register-legal">
 
                 Mit der Registrierung akzeptierst du unsere
@@ -413,22 +602,34 @@
             </p>
 
 
+            <!-- Login -->
             <div class="register-login">
 
                 <span>Bereits registriert?</span>
 
                 <a href="Account/Login">
-                    Jetzt anmelden
+                    Jetzt anmelden →
                 </a>
 
             </div>
 
+        </EditForm>
+
+
+        <!-- Footer -->
+        <div class="register-footer">
+
+            <span>MyBauManagement</span>
+
+            <span>•</span>
+
+            <span>Webolar</span>
+
         </div>
 
-    </EditForm>
+    </div>
 
 </div>
-
 
 @code {
 
@@ -446,114 +647,201 @@
             : $"Fehler: {string.Join(", ",
                 identityErrors.Select(error => error.Description))}";
 
-
     protected override void OnInitialized()
     {
         Input ??= new();
     }
 
-
     public async Task RegisterUser(EditContext editContext)
-    {            var now = DateTime.UtcNow;
+    {
+        identityErrors = null;
 
-        var company = new Company
+        try
         {
-            Id = Guid.NewGuid(),
+            var now = DateTime.UtcNow;
 
-            Name = Input.CompanyName.Trim(),
+            // =====================================================
+            // 1. COMPANY ERSTELLEN
+            // =====================================================
 
-            Address = string.IsNullOrWhiteSpace(Input.Address)
-                ? null
-                : Input.Address.Trim(),
+            var company = new Company
+            {
+                Id = Guid.NewGuid(),
 
-            PostalCode = string.IsNullOrWhiteSpace(Input.PostalCode)
-                ? null
-                : Input.PostalCode.Trim(),
+                Name = Input.CompanyName.Trim(),
 
-            City = string.IsNullOrWhiteSpace(Input.City)
-                ? null
-                : Input.City.Trim(),
+                Address = string.IsNullOrWhiteSpace(Input.Address)
+                    ? null
+                    : Input.Address.Trim(),
 
-            Phone = string.IsNullOrWhiteSpace(Input.Phone)
-                ? null
-                : Input.Phone.Trim(),
+                PostalCode = string.IsNullOrWhiteSpace(Input.PostalCode)
+                    ? null
+                    : Input.PostalCode.Trim(),
 
-            Email = Input.Email.Trim(),
+                City = string.IsNullOrWhiteSpace(Input.City)
+                    ? null
+                    : Input.City.Trim(),
 
-            SubscriptionPlan = Input.SubscriptionPlan,
+                Phone = string.IsNullOrWhiteSpace(Input.Phone)
+                    ? null
+                    : Input.Phone.Trim(),
 
-            TrialStartDate = now,
-            TrialEndDate = now.AddDays(7),
-            SubscriptionStatus = SubscriptionStatus.Trial
-        };
+                Email = Input.Email.Trim(),
 
+                SubscriptionPlan = Input.SubscriptionPlan,
 
-        var user = CreateUser();
+                TrialStartDate = now,
 
-        user.CompanyId = company.Id;
-        user.EmailConfirmed = true;
+                TrialEndDate = now.AddDays(7),
 
+                SubscriptionStatus = SubscriptionStatus.Trial,
 
-        await UserStore.SetUserNameAsync(
-            user,
-            Input.Email,
-            CancellationToken.None);
-
-
-        var emailStore = GetEmailStore();
-
-        await emailStore.SetEmailAsync(
-            user,
-            Input.Email,
-            CancellationToken.None);
+                IsSubscriptionActive = false
+            };
 
 
-        Db.Companies.Add(company);
+            // =====================================================
+            // 2. USER ERSTELLEN
+            // =====================================================
+
+            var user = CreateUser();
+
+            user.CompanyId = company.Id;
+
+            user.EmailConfirmed = true;
 
 
-        var result =
-            await UserManager.CreateAsync(
+            await UserStore.SetUserNameAsync(
                 user,
-                Input.Password);
+                Input.Email,
+                CancellationToken.None);
 
 
-        if (!result.Succeeded)
-        {
-            identityErrors = result.Errors;
-            return;
-        }
+            var emailStore = GetEmailStore();
 
-
-        Logger.LogInformation(
-            "User created a new account with password.");
-
-
-        var resultRole =
-            await UserManager.AddToRoleAsync(
+            await emailStore.SetEmailAsync(
                 user,
-                "Admin");
+                Input.Email,
+                CancellationToken.None);
 
 
-        if (!resultRole.Succeeded)
-        {
-            throw new Exception(
-                "Admin role could not be assigned: " +
-                string.Join(", ",
-                    resultRole.Errors.Select(e => e.Description)));
+            // =====================================================
+            // 3. COMPANY IN DATABASE
+            // =====================================================
+
+            Db.Companies.Add(company);
+
+
+            // =====================================================
+            // 4. IDENTITY USER ERSTELLEN
+            // =====================================================
+
+            var result =
+                await UserManager.CreateAsync(
+                    user,
+                    Input.Password);
+
+
+            if (!result.Succeeded)
+            {
+                identityErrors = result.Errors;
+
+                return;
+            }
+
+
+            Logger.LogInformation(
+                "User created a new account with password.");
+
+
+            // =====================================================
+            // 5. ADMIN ROLE
+            // =====================================================
+
+            var resultRole =
+                await UserManager.AddToRoleAsync(
+                    user,
+                    "Admin");
+
+
+            if (!resultRole.Succeeded)
+            {
+                identityErrors = resultRole.Errors;
+
+                return;
+            }
+
+
+            // =====================================================
+            // 6. STRIPE CUSTOMER
+            // =====================================================
+
+            var stripeCustomer =
+                await StripeService.CreateCustomerAsync(
+                    company,
+                    Input.Email);
+
+
+            company.StripeCustomerId =
+                stripeCustomer.Id;
+
+
+            // =====================================================
+            // 7. STRIPE PRICE ID SPEICHERN
+            // =====================================================
+
+            company.StripePriceId =
+                StripeService.GetPriceId(
+                    company.SubscriptionPlan);
+
+
+            // =====================================================
+            // 8. DATABASE SPEICHERN
+            // =====================================================
+
+            await Db.SaveChangesAsync();
+
+
+            // =====================================================
+            // 9. STRIPE CHECKOUT SESSION
+            // =====================================================
+
+            var checkoutSession =
+                await StripeService.CreateCheckoutSessionAsync(
+                    company,
+                    stripeCustomer.Id);
+
+
+            // =====================================================
+            // 10. ZUR STRIPE CHECKOUT SEITE
+            // =====================================================
+
+            NavigationManager.NavigateTo(
+                StripeService.GetCheckoutUrl(checkoutSession),
+                forceLoad: true);
         }
+        catch (Exception ex)
+        {
+            Logger.LogError(
+                ex,
+                "Error during registration and Stripe checkout.");
 
-
-        await Db.SaveChangesAsync();
-
-
-        await SignInManager.SignInAsync(
-            user,
-            isPersistent: false);
-
-
-        RedirectManager.RedirectTo(ReturnUrl);
+            identityErrors = new[]
+             {
+                new IdentityError
+                {
+                    Description =
+                        "Bei der Registrierung ist ein Fehler aufgetreten. " +
+                        "Bitte versuchen Sie es erneut."
+                }
+            };
+        }
     }
 
+
+    // =============================================================
+    // CREATE USER
+    // =============================================================
 
     private ApplicationUser CreateUser()
     {
@@ -571,6 +859,10 @@
     }
 
 
+    // =============================================================
+    // EMAIL STORE
+    // =============================================================
+
     private IUserEmailStore<ApplicationUser> GetEmailStore()
     {
         if (!UserManager.SupportsUserEmail)
@@ -583,46 +875,67 @@
     }
 
 
+    // =============================================================
+    // INPUT MODEL
+    // =============================================================
+
     private sealed class InputModel
     {
-        [Required(ErrorMessage = "Bitte geben Sie den Firmennamen ein.")]
+        [Required(
+            ErrorMessage =
+                "Bitte geben Sie den Firmennamen ein.")]
         [Display(Name = "Firmenname")]
         public string CompanyName { get; set; } = "";
 
+
         public string? Address { get; set; }
+
 
         public string? PostalCode { get; set; }
 
+
         public string? City { get; set; }
 
+
         public string? Phone { get; set; }
+
 
         public SubscriptionPlan SubscriptionPlan { get; set; }
             = SubscriptionPlan.S;
 
 
-        [Required(ErrorMessage = "Bitte geben Sie Ihre E-Mail-Adresse ein.")]
-        [EmailAddress(ErrorMessage = "Bitte geben Sie eine gültige E-Mail-Adresse ein.")]
+        [Required(
+            ErrorMessage =
+                "Bitte geben Sie Ihre E-Mail-Adresse ein.")]
+        [EmailAddress(
+            ErrorMessage =
+                "Bitte geben Sie eine gültige E-Mail-Adresse ein.")]
         [Display(Name = "E-Mail-Adresse")]
         public string Email { get; set; } = "";
 
 
-        [Required(ErrorMessage = "Bitte geben Sie ein Passwort ein.")]
+        [Required(
+            ErrorMessage =
+                "Bitte geben Sie ein Passwort ein.")]
         [StringLength(
             100,
-            ErrorMessage = "Das Passwort muss mindestens {2} und maximal {1} Zeichen lang sein.",
+            ErrorMessage =
+                "Das Passwort muss mindestens {2} und maximal {1} Zeichen lang sein.",
             MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Passwort")]
         public string Password { get; set; } = "";
 
 
-        [Required(ErrorMessage = "Bitte bestätigen Sie Ihr Passwort.")]
+        [Required(
+            ErrorMessage =
+                "Bitte bestätigen Sie Ihr Passwort.")]
         [DataType(DataType.Password)]
         [Display(Name = "Passwort bestätigen")]
         [Compare(
             "Password",
-            ErrorMessage = "Die Passwörter stimmen nicht überein.")]
+            ErrorMessage =
+                "Die Passwörter stimmen nicht überein.")]
         public string ConfirmPassword { get; set; } = "";
     }
 }
