@@ -761,7 +761,6 @@ textarea:focus-visible {
 }
 
     .vacation-page .btn-outline-primary:hover {
-        color: #fff !important;
         background: var(--as-orange) !important;
         border-color: var(--as-orange) !important;
     }
@@ -1328,7 +1327,6 @@ textarea:focus-visible {
 }
 
     .vacation-page .vacation-modal-footer .btn-light:hover {
-        color: #fff !important;
         background: var(--as-orange) !important;
         border-color: var(--as-orange) !important;
     }

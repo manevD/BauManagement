@@ -672,7 +672,7 @@ textarea:focus-visible {
 
 .employee-task-label {
     margin-bottom: .4rem;
-    color: var(--as-orange);
+    color: #ff7518;
     font-size: .68rem;
     font-weight: 850;
     letter-spacing: .1em;
