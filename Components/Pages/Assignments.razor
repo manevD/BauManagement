@@ -431,7 +431,7 @@
 
 
                     <button type="button"
-                            class="btn btn-light"
+                            class="btn btn-secondary"
                             @onclick="Cancel">
 
                         Abbrechen
@@ -608,7 +608,7 @@
                             <td class="text-end">
 
                                 <button type="button"
-                                        class="btn btn-sm btn-light me-1"
+                                        class="btn btn-sm btn-primary me-1"
                                         @onclick="() => Edit(assignment)">
 
                                     Bearbeiten
@@ -712,10 +712,9 @@
 
 
                     <button type="button"
-                            class="btn btn-sm btn-light"
+                            class="btn btn-sm btn-primary"
                             disabled="@(CurrentPage <= 1)"
                             @onclick="PreviousPage">
-
                         ‹
 
                     </button>
@@ -730,7 +729,7 @@
                         <button type="button"
                                 class="btn btn-sm @(CurrentPage == pageNumber
                                     ? "btn-primary"
-                                    : "btn-light")"
+                                    : "btn-secondary")"
                                 @onclick="() => GoToPage(pageNumber)">
 
                             @pageNumber
@@ -740,7 +739,7 @@
 
 
                     <button type="button"
-                            class="btn btn-sm btn-light"
+                            class="btn btn-sm btn-secondary"
                             disabled="@(CurrentPage >= TotalPages)"
                             @onclick="NextPage">
 

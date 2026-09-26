@@ -12,41 +12,40 @@
 
 <section class="landing-hero text-white">
 
-    <nav class="container d-flex align-items-center justify-content-between py-4">
+    <nav class="landing-nav container" aria-label="Hauptnavigation">
 
-        <a class="brand text-white text-decoration-none" href="/">
-            Bau<span>Management</span>
+        <a class="brand" href="/" aria-label="BauManagement Startseite">
+            <span class="brand-bau">Bau</span><span class="brand-management">Management</span>
         </a>
 
+        <div class="landing-nav-menu">
+            <a href="#funktionen">Funktionen</a>
+            <a href="#workflow">Ablauf</a>
+            <a href="#pricing">Preise</a>
+            <a href="/impressum">Impressum</a>
+            <a href="/datenschutz">Datenschutz</a>
+        </div>
+
         <AuthorizeView>
-
             <Authorized>
-
-                <a class="btn btn-warning fw-semibold px-4"
+                <a class="btn btn-warning fw-semibold px-4 nav-action"
                    href="/tasks">
                     Zum Dashboard
                 </a>
-
             </Authorized>
 
             <NotAuthorized>
-
-                <div class="d-flex gap-2">
-
-                    <a class="btn btn-outline-light px-4"
+                <div class="landing-nav-actions">
+                    <a class="btn btn-outline-light px-4 nav-login"
                        href="Account/Login">
                         Anmelden
                     </a>
-
-                    <a class="btn btn-warning fw-semibold px-4"
+                    <a class="btn btn-warning fw-semibold px-4 nav-action"
                        href="Account/Register">
                         Kostenlos starten
                     </a>
-
                 </div>
-
             </NotAuthorized>
-
         </AuthorizeView>
 
     </nav>
@@ -868,7 +867,7 @@
      WORKFLOW
 ========================================================= -->
 
-<section class="workflow-section py-5 py-lg-6">
+<section id="workflow" class="workflow-section py-5 py-lg-6">
 
     <div class="container">
 
@@ -1351,44 +1350,12 @@
         </div>
 
 
-        <div class="row g-4 mt-3">
-
-
-            <!-- ADMIN -->
-
-            <div class="col-md-4">
-
-                <div class="role-card">
-
-                    <div class="role-icon">
-
-                        <i class="bi bi-shield-lock"></i>
-
-                    </div>
-
-                    <span>
-                        ADMIN
-                    </span>
-
-                    <h3>
-                        Volle Kontrolle
-                    </h3>
-
-                    <p>
-
-                        Verwalte Unternehmen, Mitarbeiter,
-                        Baustellen, Aufgaben und Benutzerrechte.
-
-                    </p>
-
-                </div>
-
-            </div>
+        <div class="row g-4 mt-2">
 
 
             <!-- CHEF -->
 
-            <div class="col-md-4">
+            <div class="col-md-6">
 
                 <div class="role-card featured-role">
 
@@ -1421,7 +1388,7 @@
 
             <!-- MITARBEITER -->
 
-            <div class="col-md-4">
+            <div class="col-md-6">
 
                 <div class="role-card">
 
@@ -1571,7 +1538,7 @@
      PRICING
 ========================================================= -->
 
-<section class="pricing-section py-5 py-lg-6">
+<section id="pricing" class="pricing-section py-5 py-lg-6">
 
     <div class="container">
 
@@ -1619,7 +1586,7 @@
                     <div class="plan-price">
 
                         <strong>
-                            20 €
+                            35 €
                         </strong>
 
                         <span>
@@ -1669,7 +1636,7 @@
                     <div class="plan-price">
 
                         <strong>
-                            50 €
+                            70 €
                         </strong>
 
                         <span>
@@ -1723,7 +1690,7 @@
                     <div class="plan-price">
 
                         <strong>
-                            100 €
+                            140 €
                         </strong>
 
                         <span>
@@ -1913,6 +1880,14 @@
 
                 <a href="Account/Register">
                     Registrieren
+                </a>
+
+                <a href="/impressum">
+                    Impressum
+                </a>
+
+                <a href="/datenschutz">
+                    Datenschutz
                 </a>
 
             </div>

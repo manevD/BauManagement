@@ -1,540 +1,1192 @@
-﻿.vacation-page {
-    width: 100%;
+﻿/*
+   Assignments.razor.css
+   Premium black / orange / white visual system
+*/
+
+:host {
+    --as-bg: #f5f6f8;
+    --as-surface: #ffffff;
+    --as-ink: #17191c;
+    --as-muted: #737982;
+    --as-line: #e7e9ed;
+    --as-dark: #101214;
+    --as-dark-2: #1b1f23;
+    --as-orange: #ff7518;
+    --as-orange-dark: #d95505;
+    --as-orange-soft: #fff1e8;
+    --as-danger: #d83a3a;
+    --as-shadow: 0 18px 45px rgba(16, 18, 20, .07);
+    --as-shadow-hover: 0 18px 38px rgba(16, 18, 20, .13);
+    --as-radius: 18px;
+    display: block;
+    color: var(--as-ink);
 }
 
-.vacation-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    margin-bottom: 24px;
-}
-
-.vacation-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.vacation-month-title {
-    font-size: 20px;
-    font-weight: 600;
-}
-
-
-/* =========================================================
-   CALENDAR
-   ========================================================= */
-
-.vacation-calendar-wrapper {
-    overflow-x: auto;
-    width: 100%;
-}
-
-.vacation-calendar {
-    min-width: 1000px;
-}
-
-.vacation-grid {
-    display: grid;
-    grid-template-columns: 220px 1fr;
-}
-
-.vacation-grid-header {
-    border-bottom: 1px solid #e5e7eb;
-    background: #f8f9fa;
-}
-
-.vacation-employee-header {
-    padding: 14px 16px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #6b7280;
-    border-right: 1px solid #e5e7eb;
-}
-
-.vacation-days-header {
-    display: grid;
-    grid-template-columns: repeat(31, minmax(30px, 1fr));
-}
-
-.vacation-day-header {
-    min-height: 58px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-right: 1px solid #edf0f2;
-    font-size: 11px;
-}
-
-    .vacation-day-header.weekend {
-        background: rgba(0, 0, 0, 0.025);
+    /* Page foundation */
+    :host > div {
+        max-width: 1440px;
+        margin-inline: auto;
     }
 
-.day-number {
-    font-size: 13px;
-    font-weight: 600;
+.employee-header {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2rem 2.25rem;
+    margin-bottom: 1.5rem !important;
+    overflow: hidden;
+    color: #fff;
+    background: radial-gradient(circle at 90% 20%, rgba(255, 117, 24, .35), transparent 30%), linear-gradient(125deg, #0e1012 0%, #1d2227 100%);
+    border: 1px solid rgba(255, 255, 255, .06);
+    border-radius: var(--as-radius);
+    box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 
-.day-name {
-    font-size: 10px;
-    color: #8b929a;
+    .employee-header::after {
+        position: absolute;
+        right: -55px;
+        bottom: -90px;
+        width: 220px;
+        height: 220px;
+        content: "";
+        border: 38px solid rgba(255, 117, 24, .14);
+        border-radius: 50%;
+    }
+
+    .employee-header > div,
+    .employee-header > button {
+        position: relative;
+        z-index: 1;
+    }
+
+    .employee-header h3 {
+        margin: 0 0 .45rem;
+        font-size: clamp(1.65rem, 2.4vw, 2.2rem);
+        font-weight: 800;
+        letter-spacing: -.04em;
+    }
+
+    .employee-header p {
+        color: rgba(255, 255, 255, .68) !important;
+        font-size: .95rem;
+    }
+
+/* Cards */
+.modern-card {
+    overflow: visible;
+    background: var(--as-surface);
+    border: 1px solid var(--as-line) !important;
+    border-radius: var(--as-radius) !important;
+    box-shadow: var(--as-shadow);
+}
+
+    .modern-card.overflow-hidden {
+        overflow: hidden;
+    }
+
+    .modern-card .card-body {
+        background: transparent;
+    }
+
+/* Buttons */
+.btn {
+    min-height: 42px;
+    padding: .65rem 1rem;
+    border-radius: 10px;
+    font-size: .86rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+    .btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+    }
+
+    .btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+.btn-primary {
+    color: #fff !important;
+    background: var(--as-orange) !important;
+    border-color: var(--as-orange) !important;
+    box-shadow: 0 8px 18px rgba(255, 117, 24, .22);
+}
+
+    .btn-primary:hover:not(:disabled),
+    .btn-primary:focus-visible {
+        background: var(--as-orange-dark) !important;
+        border-color: var(--as-orange-dark) !important;
+        box-shadow: 0 10px 24px rgba(217, 85, 5, .28);
+    }
+
+/* Hard override for themes that redefine Bootstrap .btn-primary */
+button.btn.btn-primary,
+a.btn.btn-primary {
+    color: #fff !important;
+    background-color: #ff7518 !important;
+    background-image: none !important;
+    border-color: #ff7518 !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, .12);
+}
+
+    button.btn.btn-primary:hover:not(:disabled),
+    button.btn.btn-primary:focus-visible,
+    a.btn.btn-primary:hover,
+    a.btn.btn-primary:focus-visible {
+        color: #fff !important;
+        background-color: #d95505 !important;
+        border-color: #d95505 !important;
+    }
+
+.btn-secondary {
+    color: var(--as-ink) !important;
+    background: #f0f1f3 !important;
+    border-color: #f0f1f3 !important;
+}
+
+    .btn-secondary:hover:not(:disabled) {
+        background: #e4e6e9 !important;
+        border-color: #e4e6e9 !important;
+    }
+
+.btn-outline-danger {
+    color: var(--as-danger) !important;
+    border-color: #f0bcbc !important;
+    background: #fff !important;
+}
+
+    .btn-outline-danger:hover:not(:disabled) {
+        color: #fff !important;
+        background: var(--as-danger) !important;
+        border-color: var(--as-danger) !important;
+    }
+
+.btn-sm {
+    min-height: 34px;
+    padding: .42rem .72rem;
+    border-radius: 8px;
+    font-size: .76rem;
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: .45;
+    box-shadow: none;
+}
+
+/* Search */
+.search-box {
+    overflow: hidden;
+    border: 1px solid var(--as-line);
+    border-radius: 12px;
+    background: #fafbfc;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+
+    .search-box:focus-within {
+        background: #fff;
+        border-color: var(--as-orange);
+        box-shadow: 0 0 0 4px rgba(255, 117, 24, .12);
+    }
+
+    .search-box .input-group-text {
+        padding-inline: 1rem;
+        color: var(--as-orange);
+        background: transparent;
+        border: 0;
+        font-size: 1.35rem;
+    }
+
+    .search-box .form-control {
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+/* Forms */
+.form-label {
+    display: block;
+    margin-bottom: .5rem;
+    color: var(--as-ink);
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .045em;
     text-transform: uppercase;
 }
 
-
-/* =========================================================
-   EMPLOYEE ROW
-   ========================================================= */
-
-.employee-vacation-row {
-    min-height: 64px;
-    border-bottom: 1px solid #edf0f2;
+.form-control {
+    min-height: 46px;
+    padding: .7rem .85rem;
+    color: var(--as-ink);
+    background: #fbfbfc;
+    border: 1px solid #dfe2e6;
+    border-radius: 10px;
+    font-size: .9rem;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
 }
 
-.vacation-employee-cell {
+    .form-control::placeholder {
+        color: #a1a6ad;
+    }
+
+    .form-control:focus {
+        color: var(--as-ink);
+        background: #fff;
+        border-color: var(--as-orange);
+        box-shadow: 0 0 0 4px rgba(255, 117, 24, .12);
+    }
+
+textarea.form-control {
+    min-height: 104px;
+    resize: vertical;
+}
+
+/* Live search dropdowns */
+.live-search-wrapper {
+    position: relative;
+}
+
+.live-search-results {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + .5rem);
+    right: 0;
+    left: 0;
+    overflow: hidden;
+    padding: .4rem;
+    background: #fff;
+    border: 1px solid var(--as-line);
+    border-radius: 12px;
+    box-shadow: 0 18px 40px rgba(16, 18, 20, .16);
+}
+
+.live-search-result {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border-right: 1px solid #e5e7eb;
-    background: white;
-    position: sticky;
-    left: 0;
-    z-index: 3;
+    width: 100%;
+    gap: .75rem;
+    padding: .7rem .75rem;
+    color: var(--as-ink);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 9px;
+    transition: background .15s ease;
 }
 
-.vacation-avatar {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
-    border-radius: 50%;
-    display: flex;
+    .live-search-result:hover,
+    .live-search-result:focus-visible {
+        background: var(--as-orange-soft);
+        outline: none;
+    }
+
+.live-search-avatar,
+.employee-avatar {
+    display: inline-flex;
+    flex: 0 0 auto;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 122, 0, 0.12);
-    color: #ff7a00;
-    font-size: 12px;
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    background: var(--as-dark);
+    border-radius: 12px;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .03em;
+}
+
+    .live-search-avatar.site-avatar {
+        color: var(--as-dark);
+        background: var(--as-orange-soft);
+        border: 1px solid #ffd5bb;
+    }
+
+.live-search-content {
+    min-width: 0;
+}
+
+.live-search-title {
+    overflow: hidden;
+    font-size: .88rem;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.live-search-subtitle {
+    margin-top: .18rem;
+    color: var(--as-muted);
+    font-size: .75rem;
+}
+
+.live-search-empty {
+    padding: 1rem;
+    color: var(--as-muted);
+    font-size: .82rem;
+    text-align: center;
+}
+
+.selected-info {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin-top: .65rem;
+    padding: .55rem .7rem;
+    color: var(--as-dark);
+    background: var(--as-orange-soft);
+    border: 1px solid #ffd8c1;
+    border-radius: 9px;
+    font-size: .82rem;
     font-weight: 700;
 }
 
-.vacation-employee-cell strong {
-    font-size: 14px;
+.selected-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 21px;
+    height: 21px;
+    color: #fff;
+    background: var(--as-orange);
+    border-radius: 50%;
+    font-size: .72rem;
 }
 
-
-/* =========================================================
-   DAYS
-   ========================================================= */
-
-.vacation-days {
-    display: grid;
-    grid-template-columns: repeat(31, minmax(30px, 1fr));
-    position: relative;
+.selected-remove {
+    width: 26px;
+    height: 26px;
+    margin-left: auto;
+    color: var(--as-orange-dark);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    font-size: 1.15rem;
+    line-height: 1;
 }
 
-.vacation-day {
-    min-height: 64px;
-    border-right: 1px solid #edf0f2;
-    position: relative;
+    .selected-remove:hover {
+        background: rgba(255, 117, 24, .14);
+    }
+
+/* Alerts */
+.alert {
     display: flex;
     align-items: center;
+    gap: .75rem;
+    padding: .85rem 1rem;
+    border: 0;
+    border-left: 4px solid var(--as-orange);
+    border-radius: 10px;
+    box-shadow: 0 8px 20px rgba(16, 18, 20, .06);
 }
 
-    .vacation-day.weekend {
-        background: rgba(0, 0, 0, 0.025);
-    }
-
-    .vacation-day.today {
-        background: rgba(255, 122, 0, 0.06);
-    }
-
-
-/* =========================================================
-   VACATION BLOCK
-   ========================================================= */
-
-.vacation-block {
-    position: absolute;
-    left: 1px;
-    right: 1px;
-    top: 14px;
-    bottom: 14px;
-    border: none;
-    background: rgba(255, 122, 0, 0.82);
-    color: white;
-    padding: 0 8px;
-    overflow: hidden;
-    cursor: pointer;
-    z-index: 2;
-    transition: background-color 0.15s ease, transform 0.15s ease;
+.alert-warning {
+    color: #70400d;
+    background: #fff5df;
 }
 
-    .vacation-block:hover {
-        background: #ff7a00;
-        transform: translateY(-1px);
-    }
+.alert-danger {
+    color: #842b2b;
+    background: #fff0f0;
+    border-left-color: var(--as-danger);
+}
 
-    .vacation-block span {
-        font-size: 11px;
-        font-weight: 600;
+.alert-success {
+    color: #175a39;
+    background: #eaf8f0;
+    border-left-color: #2ca66a;
+}
+
+/* Table */
+.table-modern {
+    margin: 0;
+    --bs-table-bg: transparent;
+}
+
+    .table-modern thead th {
+        padding: 1rem 1.25rem;
+        color: #8b9199;
+        background: #fafbfc;
+        border-bottom: 1px solid var(--as-line);
+        font-size: .7rem;
+        font-weight: 850;
+        letter-spacing: .09em;
+        text-transform: uppercase;
         white-space: nowrap;
     }
 
-.vacation-start {
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
-}
-
-.vacation-end {
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-
-/* =========================================================
-   MODAL
-   ========================================================= */
-
-.vacation-modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 2000;
-}
-
-.vacation-modal {
-    width: min(620px, 100%);
-    max-height: 90vh;
-    overflow-y: auto;
-    background: white;
-    border-radius: 14px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-}
-
-.vacation-modal-header {
-    padding: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    border-bottom: 1px solid #edf0f2;
-}
-
-.vacation-modal-body {
-    padding: 24px;
-}
-
-.vacation-modal-footer {
-    padding: 16px 24px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-top: 1px solid #edf0f2;
-}
-
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 767.98px) {
-
-    .vacation-header {
-        flex-direction: column;
-        align-items: stretch;
+    .table-modern tbody td {
+        padding: 1.1rem 1.25rem;
+        color: var(--as-ink);
+        border-bottom: 1px solid #f0f1f3;
+        font-size: .87rem;
+        vertical-align: middle;
     }
 
-        .vacation-header .btn {
+    .table-modern tbody tr {
+        transition: background .18s ease;
+    }
+
+        .table-modern tbody tr:hover {
+            background: #fffaf6;
+        }
+
+        .table-modern tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+.assignment-date {
+    color: var(--as-ink);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.assignment-time {
+    margin-top: .3rem;
+    color: var(--as-orange-dark);
+    font-size: .75rem;
+    font-weight: 750;
+    white-space: nowrap;
+}
+
+.employee-avatar {
+    width: 42px;
+    height: 42px;
+    color: #fff !important;
+    background: linear-gradient(145deg, #ff8b3d, #d95505) !important;
+    background-image: linear-gradient(145deg, #ff8b3d, #d95505) !important;
+    border: 2px solid #fff;
+    box-shadow: 0 6px 13px rgba(255, 117, 24, .18);
+}
+
+.table-modern .fw-semibold {
+    font-weight: 750 !important;
+}
+
+.table-modern small {
+    display: inline-block;
+    margin-top: .22rem;
+    font-size: .74rem;
+}
+
+/* Empty state and pagination */
+.empty-state {
+    padding: 1.75rem 1rem;
+}
+
+.empty-state-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: .9rem;
+    color: var(--as-orange);
+    background: var(--as-orange-soft);
+    border-radius: 18px;
+    font-size: 1.7rem;
+}
+
+.empty-state h6 {
+    margin-bottom: .3rem;
+    font-weight: 800;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: #fafbfc;
+    border-top: 1px solid var(--as-line);
+}
+
+    .pagination-container .btn {
+        min-width: 35px;
+    }
+
+/* Bootstrap utility refinement inside this component */
+.text-muted {
+    color: var(--as-muted) !important;
+}
+
+/* Keyboard accessibility */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid rgba(255, 117, 24, .28);
+    outline-offset: 2px;
+}
+
+/* Responsive layout */
+@media (max-width: 991.98px) {
+    .employee-header {
+        padding: 1.6rem;
+    }
+
+    .table-modern thead th,
+    .table-modern tbody td {
+        padding-inline: .9rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .employee-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 1.35rem;
+    }
+
+        .employee-header .btn {
             width: 100%;
         }
 
-    .vacation-toolbar {
-        flex-wrap: wrap;
+    .modern-card .card-body {
+        padding: 1rem !important;
     }
 
-    .vacation-month-title {
-        order: -1;
-        width: 100%;
-        text-align: center;
+    .pagination-container {
+        align-items: flex-start;
+        flex-direction: column;
     }
 
-    .vacation-grid {
-        grid-template-columns: 180px 1fr;
+        .pagination-container > div:last-child {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+    .table-modern {
+        min-width: 900px;
+    }
+}
+
+@media (max-width: 479.98px) {
+    .employee-header h3 {
+        font-size: 1.5rem;
+    }
+
+    .d-flex.gap-2.mt-4 {
+        flex-direction: column;
+    }
+
+        .d-flex.gap-2.mt-4 .btn {
+            width: 100%;
+        }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
     }
 }
 
 /* =========================================================
-   MONTH / YEAR SELECT
+   MITARBEITER URLAUB PAGE
    ========================================================= */
+
+.vacation-page {
+    max-width: 1600px;
+    margin-inline: auto;
+}
+
+.vacation-header {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.25rem;
+    padding: 2rem 2.25rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    color: #fff;
+    background: radial-gradient(circle at 88% 15%, rgba(255, 117, 24, .38), transparent 30%), linear-gradient(125deg, #0e1012, #20262b);
+    border-radius: var(--as-radius);
+    box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
+}
+
+    .vacation-header::after {
+        position: absolute;
+        right: -55px;
+        bottom: -95px;
+        width: 225px;
+        height: 225px;
+        content: "";
+        border: 38px solid rgba(255, 117, 24, .14);
+        border-radius: 50%;
+    }
+
+    .vacation-header > * {
+        position: relative;
+        z-index: 1;
+    }
+
+    .vacation-header h3 {
+        margin: 0 0 .45rem;
+        font-size: clamp(1.65rem, 2.4vw, 2.2rem);
+        font-weight: 800;
+        letter-spacing: -.04em;
+    }
+
+    .vacation-header p {
+        color: rgba(255, 255, 255, .68) !important;
+    }
+
+    .vacation-header .btn-primary,
+    .vacation-page button.btn.btn-primary {
+        color: #fff !important;
+        background: #ff7518 !important;
+        background-image: none !important;
+        border-color: #ff7518 !important;
+    }
+
+        .vacation-header .btn-primary:hover,
+        .vacation-page button.btn.btn-primary:hover {
+            background: #d95505 !important;
+            border-color: #d95505 !important;
+        }
+
+.pending-vacation-button {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .55rem .75rem;
+    color: #713b00;
+    text-align: left;
+    background: #fff4dd;
+    border: 1px solid #ffd38d;
+    border-radius: 11px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, .08);
+    transition: transform .2s ease, background .2s ease;
+}
+
+    .pending-vacation-button:hover {
+        background: #ffeac1;
+        transform: translateY(-2px);
+    }
+
+    .pending-vacation-button strong,
+    .pending-vacation-button small {
+        display: block;
+    }
+
+    .pending-vacation-button strong {
+        font-size: .76rem;
+    }
+
+    .pending-vacation-button small {
+        margin-top: .12rem;
+        font-size: .68rem;
+    }
+
+.pending-vacation-icon,
+.pending-vacation-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 27px;
+    height: 27px;
+    color: #fff;
+    background: var(--as-orange);
+    border-radius: 50%;
+    font-weight: 850;
+}
+
+.pending-vacation-count {
+    width: 25px;
+    height: 25px;
+    margin-left: .15rem;
+    color: #8a4200;
+    background: #ffd28d;
+    font-size: .75rem;
+}
+
+/* Calendar navigation */
+.vacation-toolbar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+}
+
+    .vacation-toolbar > .d-flex {
+        justify-self: start;
+    }
 
 .vacation-date-selector {
     display: flex;
-    align-items: center;
-    gap: 6px;
+    gap: .55rem;
 }
 
     .vacation-date-selector .form-select {
-        width: 130px;
-        min-width: 130px;
+        min-width: 145px;
+        min-height: 42px;
     }
 
+.vacation-month-title {
+    justify-self: end;
+    color: var(--as-ink);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
 
-/* =========================================================
-   LEGEND
-   ========================================================= */
+.vacation-page .btn-light {
+    color: var(--as-ink) !important;
+    background: #f0f1f3 !important;
+    background-image: none !important;
+    border-color: #dfe2e6 !important;
+}
 
+    .vacation-page .btn-light:hover:not(:disabled) {
+        background: var(--as-orange) !important;
+        border-color: var(--as-orange) !important;
+    }
+
+.vacation-page .btn-outline-primary {
+    color: var(--as-orange-dark) !important;
+    background: #fff !important;
+    border-color: #ffc39e !important;
+}
+
+    .vacation-page .btn-outline-primary:hover {
+        background: var(--as-orange) !important;
+        border-color: var(--as-orange) !important;
+    }
+
+/* Legend */
 .vacation-legend {
     display: flex;
-    align-items: center;
-    gap: 24px;
     flex-wrap: wrap;
+    gap: 1.15rem;
+    padding-inline: .25rem;
 }
 
 .legend-item {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    white-space: nowrap;
+    gap: .45rem;
+    color: var(--as-muted);
+    font-size: .78rem;
+    font-weight: 700;
 }
 
 .legend-color {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     border-radius: 4px;
-    display: inline-block;
-    flex-shrink: 0;
 }
 
-.legend-pending {
-    background: #adb5bd;
+.legend-pending,
+.vacation-pending,
+.vacation-status-pending {
+    background: #ffb54a !important;
 }
 
-.legend-approved {
-    background: #ff7a00;
+.legend-approved,
+.vacation-approved,
+.vacation-status-approved {
+    background: #39b879 !important;
 }
 
-.legend-rejected {
-    background: #dc3545;
+.legend-rejected,
+.vacation-rejected,
+.vacation-status-rejected {
+    background: #e05a62 !important;
 }
 
-.vacation-block {
-    width: 100%;
-    height: 100%;
-    min-height: 28px;
-    border: none;
-    padding: 0 4px;
-    cursor: pointer;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    transition: 0.15s ease;
-}
-
-
-/* NICHT GENEHMIGT */
-.vacation-pending {
-    background: #adb5bd;
-    color: #212529;
-}
-
-
-/* GENEHMIGT */
-.vacation-approved {
-    background: #ff7a00;
-    color: #fff;
-}
-
-
-/* ABGELEHNT */
-.vacation-rejected {
-    background: #dc3545;
-    color: #fff;
-}
-
-
-/* Hover */
-.vacation-pending:hover {
-    background: #868e96;
-}
-
-.vacation-approved:hover {
-    background: #e66d00;
-}
-
-.vacation-rejected:hover {
-    background: #bb2d3b;
-}
-/* =========================================================
-   PENDING VACATION NOTIFICATION
-   ========================================================= */
-
-.pending-vacation-button {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 48px;
-    padding: 7px 12px;
+/* Calendar grid */
+.vacation-calendar-wrapper {
+    overflow-x: auto;
     background: #fff;
-    border: 1px solid #e2e2e2;
-    border-radius: 10px;
-    color: #212529;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-    .pending-vacation-button:hover {
-        background: #fafafa;
-        border-color: #ff7a00;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-        transform: translateY(-1px);
-    }
+.vacation-calendar {
+    min-width: 1280px;
+    background: #fff;
+}
 
+.vacation-grid {
+    display: grid;
+    grid-template-columns: 235px minmax(1045px, 1fr);
+}
 
-/* ICON */
+.vacation-grid-header {
+    position: sticky;
+    z-index: 3;
+    top: 0;
+    background: #fafbfc;
+    border-bottom: 1px solid var(--as-line);
+}
 
-.pending-vacation-icon {
-    width: 30px;
-    height: 30px;
+.vacation-employee-header,
+.vacation-employee-cell {
+    border-right: 1px solid var(--as-line);
+}
+
+.vacation-employee-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #f1f1f1;
-    color: #6c757d;
-    font-size: 15px;
-    font-weight: 700;
+    padding: .9rem 1rem;
+    color: #8b9199;
+    font-size: .7rem;
+    font-weight: 850;
+    letter-spacing: .09em;
+    text-transform: uppercase;
 }
 
+.vacation-days-header,
+.vacation-days {
+    display: grid;
+    grid-template-columns: repeat(31, minmax(34px, 1fr));
+}
 
-/* TEXT */
-
-.pending-vacation-button > span:nth-child(2) {
+.vacation-day-header {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.15;
-}
-
-.pending-vacation-button strong {
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.pending-vacation-button small {
-    margin-top: 3px;
-    color: #8a8a8a;
-    font-size: 11px;
-}
-
-
-/* COUNT */
-
-.pending-vacation-count {
-    min-width: 25px;
-    height: 25px;
-    display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: 3px;
-    border-radius: 50%;
-    background: #adb5bd;
-    color: #fff;
-    font-size: 12px;
-    font-weight: 700;
+    min-height: 58px;
+    border-right: 1px solid #f0f1f3;
 }
 
-/* =========================================================
-   VACATION MODAL - COMPACT ACTION BUTTONS
-   ========================================================= */
+    .vacation-day-header.weekend {
+        background: #f5f5f6;
+    }
+
+    .vacation-day-header.today {
+        color: var(--as-orange-dark);
+        background: var(--as-orange-soft);
+    }
+
+.day-number {
+    font-size: .82rem;
+    font-weight: 850;
+}
+
+.day-name {
+    margin-top: .18rem;
+    color: var(--as-muted);
+    font-size: .63rem;
+    text-transform: uppercase;
+}
+
+.employee-vacation-row {
+    min-height: 68px;
+    border-bottom: 1px solid #f0f1f3;
+    transition: background .18s ease;
+}
+
+    .employee-vacation-row:hover {
+        background: #fffaf6;
+    }
+
+.vacation-employee-cell {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 1rem;
+    background: #fff;
+}
+
+    .vacation-employee-cell strong {
+        display: block;
+        font-size: .82rem;
+        font-weight: 800;
+    }
+
+    .vacation-employee-cell small {
+        margin-top: .2rem;
+        font-size: .7rem;
+    }
+
+.vacation-avatar {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    color: #fff !important;
+    background: linear-gradient(145deg, #ff8b3d, #d95505) !important;
+    border: 2px solid #fff;
+    border-radius: 11px;
+    box-shadow: 0 5px 12px rgba(255, 117, 24, .2);
+    font-size: .68rem;
+    font-weight: 850;
+}
+
+.vacation-day {
+    min-height: 68px;
+    padding: .35rem .15rem;
+    background: #fff;
+    border-right: 1px solid #f0f1f3;
+}
+
+    .vacation-day.weekend {
+        background: #fafafa;
+    }
+
+    .vacation-day.today {
+        background: #fff8f2;
+    }
+
+    .vacation-day > button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 40px;
+        padding: .25rem .12rem;
+        overflow: hidden;
+        color: #fff;
+        border: 0;
+        border-radius: 8px;
+        font-size: .59rem;
+        font-weight: 850;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        transition: transform .15s ease, filter .15s ease;
+    }
+
+        .vacation-day > button:hover {
+            filter: brightness(.92);
+            transform: scale(1.04);
+        }
+
+.vacation-start,
+.vacation-end {
+    position: relative;
+}
+
+/* Pending modal and edit modal */
+.vacation-modal-backdrop {
+    position: fixed;
+    z-index: 1050;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background: rgba(10, 12, 14, .68);
+    backdrop-filter: blur(5px);
+}
+
+.vacation-modal {
+    width: min(100%, 680px);
+    max-height: min(90vh, 820px);
+    overflow: auto;
+    background: #fff;
+    border-radius: var(--as-radius);
+    box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+}
+
+.pending-modal {
+    width: min(100%, 760px);
+}
+
+.vacation-modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.3rem 1.45rem;
+    color: #fff;
+    background: linear-gradient(125deg, #111315, #272d32);
+}
+
+    .vacation-modal-header h2 {
+        color: #fff;
+    }
+
+    .vacation-modal-header .text-muted {
+        color: rgba(255, 255, 255, .62) !important;
+    }
+
+    .vacation-modal-header .eyebrow {
+        color: #ffb067 !important;
+    }
+
+.vacation-modal-body {
+    padding: 1.4rem;
+}
 
 .vacation-modal-footer {
     display: flex;
     align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .55rem;
+    padding: 1rem 1.4rem;
+    background: #fafbfc;
+    border-top: 1px solid var(--as-line);
 }
 
+.pending-list {
+    display: grid;
+    gap: .7rem;
+}
 
-    /* ALL BUTTONS SAME SIZE */
+.pending-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .85rem;
+    border: 1px solid var(--as-line);
+    border-radius: 12px;
+}
 
-    .vacation-modal-footer .btn {
-        height: 36px;
-        padding: 0 12px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        font-size: 13px;
-        font-weight: 500;
-        border-radius: 6px;
-        white-space: nowrap;
+    .pending-item:hover {
+        background: #fffaf6;
+        border-color: #ffc39e;
     }
 
+.pending-item-main {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 0;
+}
 
-    /* DELETE */
-
-    .vacation-modal-footer .btn-outline-danger {
-        color: #dc3545;
-        border-color: #dc3545;
-        background: transparent;
+    .pending-item-main strong {
+        display: block;
+        font-size: .86rem;
     }
 
+.pending-date {
+    margin-top: .2rem;
+    color: var(--as-orange-dark);
+    font-size: .75rem;
+    font-weight: 750;
+}
 
-    /* REJECT */
+.pending-item-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: .35rem;
+}
 
-    .vacation-modal-footer .btn-danger {
-        background: #dc3545;
-        border-color: #dc3545;
-        color: #fff;
+.vacation-status-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .85rem 1rem;
+    background: #fafbfc;
+    border: 1px solid var(--as-line);
+    border-left: 4px solid var(--as-orange);
+    border-radius: 10px;
+}
+
+    .vacation-status-box strong {
+        display: block;
+        margin-top: .2rem;
     }
 
-
-    /* APPROVE */
-
-    .vacation-modal-footer .btn-success {
-        background: #198754;
-        border-color: #198754;
-        color: #fff;
+    .vacation-status-box .text-muted {
+        font-size: .68rem;
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
     }
 
+.vacation-page .btn-success {
+    color: #fff !important;
+    background: #2ca66a !important;
+    border-color: #2ca66a !important;
+}
 
-    /* CANCEL */
-
-    .vacation-modal-footer .btn-light {
-        background: #f5f5f5;
-        border-color: #e2e2e2;
-        color: #212529;
+    .vacation-page .btn-success:hover {
+        background: #208653 !important;
+        border-color: #208653 !important;
     }
 
+.vacation-page .btn-danger {
+    color: #fff !important;
+    background: #d83a3a !important;
+    border-color: #d83a3a !important;
+}
 
-    /* SAVE */
-
-    .vacation-modal-footer .btn-primary {
-        background: #3267b9;
-        border-color: #3267b9;
-        color: #fff;
+    .vacation-page .btn-danger:hover {
+        background: #ad2e2e !important;
+        border-color: #ad2e2e !important;
     }
 
+.vacation-page .btn-outline-warning {
+    color: #9a5700 !important;
+    background: #fff !important;
+    border-color: #ffc56e !important;
+}
 
-    /* HOVER */
-
-    .vacation-modal-footer .btn:hover {
-        transform: none;
-        box-shadow: none;
+    .vacation-page .btn-outline-warning:hover {
+        color: #fff !important;
+        background: #e99516 !important;
+        border-color: #e99516 !important;
     }
 
-
-    /* ICONS */
-
-    .vacation-modal-footer .btn .button-icon {
-        font-size: 14px;
-        line-height: 1;
-        font-weight: 600;
+@media (max-width: 900px) {
+    .vacation-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 1.35rem;
     }
+
+        .vacation-header > .d-flex {
+            width: 100%;
+            align-items: stretch !important;
+            flex-direction: column;
+        }
+
+        .pending-vacation-button,
+        .vacation-header .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+
+    .vacation-toolbar {
+        grid-template-columns: 1fr;
+        justify-items: stretch;
+    }
+
+        .vacation-toolbar > .d-flex,
+        .vacation-month-title {
+            justify-self: stretch;
+        }
+
+    .vacation-month-title {
+        text-align: center;
+    }
+
+    .vacation-date-selector .form-select {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .pending-item {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .pending-item-actions {
+        justify-content: stretch;
+    }
+
+        .pending-item-actions .btn {
+            flex: 1;
+        }
+
+    .vacation-modal-footer {
+        flex-wrap: wrap;
+    }
+}

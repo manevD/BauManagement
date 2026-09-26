@@ -1,797 +1,612 @@
-﻿/* =========================================================
-   ZEITERFASSUNG
-   ========================================================= */
+﻿/*
+   Zeiterfassung.razor.css
+   Premium black / orange / white time tracking UI
+*/
 
 .time-page {
-    max-width: 1000px;
+    --zt-ink: #17191c;
+    --zt-muted: #737982;
+    --zt-line: #e7e9ed;
+    --zt-orange: #ff7518;
+    --zt-orange-dark: #d95505;
+    --zt-orange-soft: #fff1e8;
+    --zt-dark: #101214;
+    max-width: 980px;
     margin: 0 auto;
-    padding: 28px 0 50px;
+    color: var(--zt-ink);
 }
-
-
-/* =========================================================
-   HEADER
-   ========================================================= */
 
 .time-page-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 28px;
+    position: relative;
+    padding: 2rem 2.25rem;
+    margin-bottom: 1.25rem;
+    overflow: hidden;
+    color: #fff;
+    background: radial-gradient(circle at 90% 15%, rgba(255, 117, 24, .4), transparent 30%), linear-gradient(125deg, #0e1012, #20262b);
+    border-radius: 18px;
+    box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 
+    .time-page-header::after {
+        position: absolute;
+        right: -50px;
+        bottom: -95px;
+        width: 220px;
+        height: 220px;
+        content: "";
+        border: 38px solid rgba(255, 117, 24, .14);
+        border-radius: 50%;
+    }
+
+    .time-page-header > * {
+        position: relative;
+        z-index: 1;
+    }
+
     .time-page-header .eyebrow {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 12px;
-        font-weight: 800;
-        letter-spacing: 1.5px;
-        color: #ff7a00;
+        display: inline-block;
+        margin-bottom: .5rem;
+        color: #ff9a54 !important;
+        font-size: .68rem;
+        font-weight: 850;
+        letter-spacing: .12em;
     }
 
     .time-page-header h1 {
-        margin: 0;
-        font-size: 32px;
-        line-height: 1.15;
-        font-weight: 750;
-        color: #111827;
+        margin: 0 0 .4rem;
+        color: #fff;
+        font-size: clamp(1.8rem, 3vw, 2.5rem);
+        font-weight: 850;
+        letter-spacing: -.045em;
     }
 
     .time-page-header p {
-        margin-top: 6px;
-        font-size: 15px;
+        color: rgba(255, 255, 255, .68) !important;
     }
 
-
-/* =========================================================
-   MESSAGE
-   ========================================================= */
-
 .time-message {
-    margin-bottom: 20px;
-    border-radius: 14px;
-    border: 1px solid transparent;
-    padding: 14px 18px;
-    font-size: 14px;
+    padding: .85rem 1rem;
+    margin-bottom: 1rem;
+    border: 0;
+    border-left: 4px solid var(--zt-orange);
+    border-radius: 10px;
 }
 
+    .time-message.alert-danger {
+        color: #842b2b;
+        background: #fff0f0;
+        border-left-color: #d83a3a;
+    }
 
-/* =========================================================
-   LOADING
-   ========================================================= */
+    .time-message.alert-warning {
+        color: #70400d;
+        background: #fff5df;
+    }
+
+.time-loading-card,
+.time-empty-card {
+    display: grid;
+    justify-items: center;
+    gap: .75rem;
+    padding: 3rem 1rem;
+    text-align: center;
+}
 
 .time-loading-card {
-    min-height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    color: #6b7280;
+    color: var(--zt-muted);
 }
 
 .time-loading-spinner {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #e5e7eb;
-    border-top-color: #ff7a00;
+    width: 34px;
+    height: 34px;
+    border: 4px solid #ffd8c1;
+    border-top-color: var(--zt-orange);
     border-radius: 50%;
-    animation: time-spin .7s linear infinite;
+    animation: zt-spin .8s linear infinite;
 }
 
-@keyframes time-spin {
+@keyframes zt-spin {
     to {
         transform: rotate(360deg);
     }
 }
 
-
-/* =========================================================
-   EMPTY
-   ========================================================= */
-
-.time-empty-card {
-    padding: 50px 30px;
-    text-align: center;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-}
-
 .time-empty-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 18px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 18px;
-    background: #fff3e8;
-    color: #ff7a00;
-    font-size: 28px;
+    width: 64px;
+    height: 64px;
+    color: var(--zt-orange);
+    background: var(--zt-orange-soft);
+    border-radius: 20px;
+    font-size: 1.6rem;
 }
 
 .time-empty-card h3 {
-    margin-bottom: 8px;
-    font-size: 20px;
-    font-weight: 700;
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 850;
 }
 
 .time-empty-card p {
     margin: 0;
-    color: #6b7280;
+    color: var(--zt-muted);
+    font-size: .86rem;
 }
-
-
-/* =========================================================
-   MAIN CARD
-   ========================================================= */
 
 .time-card {
     overflow: hidden;
     background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 22px;
-    box-shadow: 0 12px 35px rgba(0, 0, 0, .06);
+    border: 1px solid var(--zt-line);
+    border-radius: 18px;
+    box-shadow: 0 18px 45px rgba(16, 18, 20, .08);
 }
-
-
-/* =========================================================
-   CARD TOP
-   ========================================================= */
 
 .time-card-top {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
-    padding: 28px 30px 20px;
-    border-bottom: 1px solid #f0f0f0;
+    gap: 1rem;
+    padding: 1.35rem 1.45rem;
+    color: #fff;
+    background: linear-gradient(125deg, #111315, #272d32);
 }
 
 .time-card-eyebrow {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1.4px;
-    color: #9ca3af;
+    color: #ff9a54;
+    font-size: .66rem;
+    font-weight: 850;
+    letter-spacing: .12em;
 }
 
 .time-card-top h2 {
-    margin: 0;
-    font-size: 22px;
-    font-weight: 750;
-    color: #111827;
+    margin: .3rem 0 0;
+    color: #fff;
+    font-size: 1.35rem;
+    font-weight: 800;
 }
-
-
-/* =========================================================
-   STATUS
-   ========================================================= */
 
 .time-status {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 13px;
+    gap: .4rem;
+    padding: .4rem .7rem;
     border-radius: 999px;
-    font-size: 13px;
-    font-weight: 650;
+    font-size: .72rem;
+    font-weight: 800;
 }
 
     .time-status.active {
-        background: #ecfdf3;
-        color: #16a34a;
+        color: #a9f0c8;
+        background: rgba(44, 166, 106, .18);
+        border: 1px solid rgba(104, 217, 148, .28);
     }
 
     .time-status.completed {
-        background: #ecfdf3;
-        color: #15803d;
+        color: #b9f3cf;
+        background: rgba(44, 166, 106, .18);
     }
 
     .time-status.waiting {
-        background: #f3f4f6;
-        color: #6b7280;
+        color: #ffd18f;
+        background: rgba(255, 181, 74, .15);
     }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: currentColor;
-}
+    .time-status .status-dot {
+        width: 8px;
+        height: 8px;
+        background: #55d889;
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(85, 216, 137, .14);
+    }
 
-
-/* =========================================================
-   START AREA
-   ========================================================= */
+    .time-status.waiting .status-dot {
+        background: #ffb54a;
+        box-shadow: 0 0 0 4px rgba(255, 181, 74, .14);
+    }
 
 .time-start-area {
-    padding: 45px 30px 35px;
+    display: grid;
+    justify-items: center;
+    padding: 2.25rem 1.45rem;
     text-align: center;
 }
 
 .time-start-icon {
-    width: 72px;
-    height: 72px;
-    margin: 0 auto 18px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 20px;
-    background: #fff3e8;
-    color: #ff7a00;
-    font-size: 31px;
+    width: 70px;
+    height: 70px;
+    margin-bottom: 1rem;
+    color: var(--zt-orange);
+    background: var(--zt-orange-soft);
+    border-radius: 22px;
+    font-size: 1.8rem;
 }
 
 .time-start-area h3 {
-    margin: 0 0 8px;
-    font-size: 21px;
-    font-weight: 700;
-    color: #111827;
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 850;
 }
 
-.time-start-area p {
-    margin: 0 auto 24px;
-    max-width: 520px;
-    color: #6b7280;
-    font-size: 14px;
+.time-start-area > p {
+    max-width: 450px;
+    margin: .45rem 0 1.25rem;
+    color: var(--zt-muted);
+    font-size: .85rem;
 }
-
-
-/* =========================================================
-   SITE SELECT
-   ========================================================= */
 
 .time-site-select {
-    max-width: 520px;
-    margin: 0 auto 20px;
+    width: min(100%, 460px);
+    margin-bottom: 1rem;
     text-align: left;
 }
 
     .time-site-select label {
         display: block;
-        margin-bottom: 7px;
-        font-size: 13px;
-        font-weight: 650;
-        color: #374151;
+        margin-bottom: .45rem;
+        color: var(--zt-ink);
+        font-size: .72rem;
+        font-weight: 850;
+        letter-spacing: .06em;
+        text-transform: uppercase;
     }
 
-    .time-site-select .form-select {
+    .time-site-select .form-select,
+    .time-page .form-select {
         min-height: 46px;
-        border: 1px solid #d1d5db;
+        color: var(--zt-ink);
+        border: 1px solid #dfe2e6;
         border-radius: 10px;
-        font-size: 14px;
         box-shadow: none;
     }
 
-        .time-site-select .form-select:focus {
-            border-color: #ff7a00;
-            box-shadow: 0 0 0 3px rgba(255, 122, 0, .12);
+        .time-site-select .form-select:focus,
+        .time-page .form-select:focus {
+            border-color: var(--zt-orange);
+            box-shadow: 0 0 0 4px rgba(255, 117, 24, .12);
         }
 
-
-/* =========================================================
-   WARNING
-   ========================================================= */
-
 .time-warning {
-    max-width: 520px;
-    margin: 0 auto 20px;
-    padding: 12px 15px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 9px;
-    border: 1px solid #fed7aa;
-    border-radius: 10px;
-    background: #fff7ed;
-    color: #c2410c;
-    font-size: 13px;
+    gap: .55rem;
+    width: min(100%, 460px);
+    padding: .75rem .85rem;
+    margin-bottom: 1rem;
+    color: #70400d;
+    text-align: left;
+    background: #fff5df;
+    border: 1px solid #ffd692;
+    border-left: 4px solid var(--zt-orange);
+    border-radius: 9px;
+    font-size: .78rem;
 }
 
+.time-main-button,
+.time-secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    cursor: pointer;
+    font-weight: 800;
+    transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
 
-/* =========================================================
-   CURRENT TIME
-   ========================================================= */
+.time-main-button {
+    width: min(100%, 460px);
+    min-height: 48px;
+    padding: .75rem 1rem;
+    color: #fff;
+    background: var(--zt-orange);
+    border: 1px solid var(--zt-orange);
+    border-radius: 11px;
+    box-shadow: 0 9px 20px rgba(255, 117, 24, .22);
+}
+
+    .time-main-button:hover:not(:disabled) {
+        background: var(--zt-orange-dark);
+        border-color: var(--zt-orange-dark);
+        transform: translateY(-2px);
+    }
+
+    .time-main-button.stop {
+        margin: 0 1.45rem 1.4rem;
+        width: calc(100% - 2.9rem);
+        background: #d83a3a;
+        border-color: #d83a3a;
+        box-shadow: 0 9px 20px rgba(216, 58, 58, .18);
+    }
+
+        .time-main-button.stop:hover:not(:disabled) {
+            background: #ad2e2e;
+            border-color: #ad2e2e;
+        }
+
+    .time-main-button:disabled,
+    .time-secondary-button:disabled {
+        cursor: not-allowed;
+        opacity: .48;
+        box-shadow: none;
+    }
 
 .current-time-area {
-    padding: 38px 30px 30px;
+    padding: 1.7rem 1.45rem 1.35rem;
     text-align: center;
 }
 
 .current-time-label {
     display: block;
-    margin-bottom: 3px;
-    color: #9ca3af;
-    font-size: 13px;
+    color: var(--zt-muted);
+    font-size: .75rem;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
 .current-time-value {
-    margin-top: 0;
-    font-size: clamp(52px, 8vw, 76px);
-    line-height: 1;
-    font-weight: 800;
-    letter-spacing: -3px;
-    color: #111;
+    margin-top: .25rem;
+    color: var(--zt-orange-dark);
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    font-weight: 850;
+    letter-spacing: -.06em;
 }
 
 .current-site {
-    margin-top: 18px;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    color: #6b7280;
-    font-size: 14px;
+    gap: .45rem;
+    margin-top: .55rem;
+    padding: .4rem .7rem;
+    color: var(--zt-orange-dark);
+    background: var(--zt-orange-soft);
+    border-radius: 999px;
+    font-size: .76rem;
+    font-weight: 750;
 }
-
-    .current-site i {
-        color: #ff7a00;
-    }
-
-
-/* =========================================================
-   WORK TIME SUMMARY
-   ========================================================= */
 
 .time-summary-box {
-    margin: 0 30px 18px;
-    padding: 16px 18px;
-    border: 1px solid #f0f0f0;
-    border-radius: 13px;
-    background: #fafafa;
-}
-
-.time-summary-left {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
+    gap: 1rem;
+    margin: 0 1.45rem 1rem;
+    padding: 1rem 1.1rem;
+    background: #fff8f2;
+    border: 1px solid #ffd7bd;
+    border-left: 4px solid var(--zt-orange);
+    border-radius: 11px;
 }
 
 .time-summary-label {
-    font-size: 14px;
-    color: #374151;
+    display: block;
+    color: var(--zt-muted);
+    font-size: .72rem;
+    font-weight: 800;
+    text-transform: uppercase;
 }
 
 .time-summary-value {
-    font-size: 15px;
-    color: #111827;
+    display: block;
+    margin-top: .25rem;
+    color: var(--zt-orange-dark);
+    font-size: 1.4rem;
 }
 
 .time-summary-description {
-    margin-top: 5px;
-    color: #9ca3af;
-    font-size: 12px;
+    color: var(--zt-muted);
+    font-size: .75rem;
+    text-align: right;
 }
-
-
-/* =========================================================
-   INFO GRID
-   ========================================================= */
 
 .time-info-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin: 0 30px;
+    gap: .75rem;
+    padding: 0 1.45rem 1.2rem;
 }
 
 .time-info-box {
-    min-height: 82px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 14px 16px;
-    border-radius: 14px;
-    background: #f7f7f8;
-    text-align: center;
+    padding: .85rem;
+    background: #fafbfc;
+    border: 1px solid var(--zt-line);
+    border-radius: 10px;
 }
 
-    .time-info-box > span:first-child {
-        margin-bottom: 7px;
-        font-size: 11px;
-        font-weight: 600;
-        color: #9ca3af;
+    .time-info-box > span {
+        display: block;
+        color: var(--zt-muted);
+        font-size: .68rem;
+        font-weight: 800;
+        text-transform: uppercase;
     }
 
     .time-info-box > strong {
-        font-size: 15px;
-        font-weight: 750;
-        color: #111827;
+        display: block;
+        margin-top: .25rem;
+        color: var(--zt-ink);
+        font-size: 1rem;
     }
-
-
-/* =========================================================
-   PAUSE INPUT
-   ========================================================= */
-
-.pause-box {
-    padding-left: 12px;
-    padding-right: 12px;
-}
 
 .pause-input-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 7px;
+    gap: .35rem;
+    margin-top: .25rem;
 }
 
 .pause-input {
-    width: 90px;
-    height: 38px;
-    padding: 6px 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 9px;
-    background: #fff;
-    text-align: center;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: none;
+    min-height: 35px;
+    padding: .4rem .55rem;
 }
-
-    .pause-input:focus {
-        border-color: #ff7a00;
-        box-shadow: 0 0 0 3px rgba(255, 122, 0, .12);
-    }
 
 .pause-unit {
-    font-size: 11px;
-    color: #9ca3af;
+    color: var(--zt-muted);
+    font-size: .73rem;
 }
 
-
-/* =========================================================
-   PAUSE SAVE AREA
-   ========================================================= */
-
 .pause-save-area {
-    margin: 16px 30px 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 15px;
-    padding: 13px 14px;
-    border: 1px solid #f0f0f0;
-    border-radius: 12px;
-    background: #fafafa;
+    gap: 1rem;
+    padding: 0 1.45rem 1.2rem;
 }
 
 .pause-help {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: #6b7280;
-    font-size: 13px;
+    gap: .45rem;
+    color: var(--zt-muted);
+    font-size: .75rem;
 }
 
     .pause-help i {
-        flex-shrink: 0;
-        color: #ff7a00;
-        font-size: 15px;
+        color: var(--zt-orange);
     }
 
-
-/* =========================================================
-   SECONDARY BUTTON - PAUSE
-   ========================================================= */
-
 .time-secondary-button {
-    flex-shrink: 0;
     min-height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 0 17px;
-    border: 1px solid #ff7a00;
-    border-radius: 9px;
+    padding: .6rem .85rem;
+    color: var(--zt-orange-dark);
     background: #fff;
-    color: #ff7a00;
-    font-size: 13px;
-    font-weight: 650;
-    cursor: pointer;
-    transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+    border: 1px solid #ffc39e;
+    border-radius: 9px;
 }
 
     .time-secondary-button:hover:not(:disabled) {
-        background: #ff7a00;
-        border-color: #ff7a00;
         color: #fff;
-        transform: translateY(-1px);
-        box-shadow: 0 5px 14px rgba(255, 122, 0, .18);
+        background: var(--zt-orange);
+        border-color: var(--zt-orange);
+        transform: translateY(-2px);
     }
-
-    .time-secondary-button:active:not(:disabled) {
-        transform: translateY(0);
-    }
-
-    .time-secondary-button:disabled {
-        opacity: .55;
-        cursor: not-allowed;
-    }
-
-
-/* =========================================================
-   MAIN BUTTON
-   ========================================================= */
-
-.time-main-button {
-    width: calc(100% - 60px);
-    min-height: 49px;
-    margin: 24px 30px 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 9px;
-    border: 0;
-    border-radius: 10px;
-    background: #ff7a00;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: 0 6px 18px rgba(255, 122, 0, .18);
-    transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
-}
-
-    .time-main-button:hover:not(:disabled) {
-        background: #ed6d00;
-        transform: translateY(-1px);
-        box-shadow: 0 8px 22px rgba(255, 122, 0, .25);
-    }
-
-    .time-main-button:active:not(:disabled) {
-        transform: translateY(0);
-    }
-
-    .time-main-button:disabled {
-        opacity: .55;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .time-main-button i {
-        font-size: 18px;
-    }
-
-
-/* =========================================================
-   START BUTTON
-   ========================================================= */
-
-.time-start-area .time-main-button {
-    max-width: 520px;
-    margin: 0 auto;
-}
-
-
-/* =========================================================
-   STOP BUTTON
-   ========================================================= */
-
-.time-main-button.stop {
-    margin-top: 20px;
-}
-
-
-/* =========================================================
-   COMPLETED
-   ========================================================= */
 
 .time-completed-box {
-    margin: 20px 30px 30px;
-    padding: 17px 18px;
     display: flex;
     align-items: center;
-    gap: 13px;
-    border: 1px solid #bbf7d0;
-    border-radius: 13px;
-    background: #f0fdf4;
+    gap: .8rem;
+    margin: 0 1.45rem 1.4rem;
+    padding: 1rem;
+    color: #17633c;
+    background: #eaf8f0;
+    border: 1px solid #bde8cc;
+    border-left: 4px solid #2ca66a;
+    border-radius: 11px;
 }
 
 .completed-icon {
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    background: #22c55e;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
     color: #fff;
-    font-size: 18px;
+    background: #2ca66a;
+    border-radius: 50%;
+}
+
+.time-completed-box strong,
+.time-completed-box span {
+    display: block;
 }
 
 .time-completed-box strong {
-    display: block;
-    margin-bottom: 2px;
-    font-size: 14px;
-    color: #166534;
+    font-size: .86rem;
 }
 
 .time-completed-box span {
-    display: block;
-    color: #4b5563;
-    font-size: 12px;
+    margin-top: .2rem;
+    color: #3b7f5c;
+    font-size: .75rem;
 }
 
-
-/* =========================================================
-   SMALL INFO NOTE
-   ========================================================= */
-
 .time-info-note {
-    margin-top: 18px;
-    padding: 14px 16px;
     display: flex;
-    align-items: center;
-    gap: 12px;
-    border: 1px solid #e5e7eb;
-    border-radius: 13px;
-    background: #fafafa;
+    align-items: flex-start;
+    gap: .7rem;
+    padding: 1rem 1.45rem;
+    background: #fafbfc;
+    border-top: 1px solid var(--zt-line);
 }
 
 .time-note-icon {
-    width: 34px;
-    height: 34px;
-    flex-shrink: 0;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
-    background: #fff3e8;
-    color: #ff7a00;
-    font-size: 15px;
+    flex: 0 0 auto;
+    width: 30px;
+    height: 30px;
+    color: var(--zt-orange);
+    background: var(--zt-orange-soft);
+    border-radius: 9px;
+}
+
+.time-info-note strong,
+.time-info-note p {
+    display: block;
 }
 
 .time-info-note strong {
-    display: block;
-    margin-bottom: 2px;
-    color: #374151;
-    font-size: 13px;
+    font-size: .78rem;
 }
 
 .time-info-note p {
-    margin: 0;
-    color: #9ca3af;
-    font-size: 12px;
+    margin: .2rem 0 0;
+    color: var(--zt-muted);
+    font-size: .74rem;
 }
 
-
-/* =========================================================
-   MODERN CARD FALLBACK
-   ========================================================= */
-
-.modern-card {
-    background: #fff;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-   ========================================================= */
-
-@media (max-width: 768px) {
-
-    .time-page {
-        padding: 20px 12px 35px;
-    }
-
+@media (max-width: 650px) {
     .time-page-header {
-        margin-bottom: 20px;
+        padding: 1.35rem;
     }
 
-        .time-page-header h1 {
-            font-size: 27px;
-        }
-
-    .time-card {
-        border-radius: 17px;
-    }
-
-    .time-card-top {
-        padding: 21px 18px 17px;
-    }
-
-        .time-card-top h2 {
-            font-size: 20px;
-        }
-
-    .time-status {
-        padding: 7px 10px;
-        font-size: 12px;
-    }
-
-    .time-start-area {
-        padding: 35px 18px 28px;
-    }
-
-    .current-time-area {
-        padding: 32px 18px 24px;
-    }
-
-    .current-time-value {
-        font-size: 58px;
-    }
-
-    .current-site {
-        max-width: 100%;
-        justify-content: center;
-        text-align: center;
-    }
-
-    .time-summary-box {
-        margin-left: 18px;
-        margin-right: 18px;
-    }
-
-    .time-info-grid {
-        grid-template-columns: 1fr;
-        margin-left: 18px;
-        margin-right: 18px;
-        gap: 8px;
-    }
-
-    .time-info-box {
-        min-height: 70px;
-    }
-
+    .time-card-top,
+    .time-summary-box,
     .pause-save-area {
-        margin-left: 18px;
-        margin-right: 18px;
-        align-items: stretch;
+        align-items: flex-start;
         flex-direction: column;
     }
 
-    .pause-help {
-        justify-content: center;
+    .time-summary-description {
+        text-align: left;
     }
 
     .time-secondary-button {
         width: 100%;
     }
 
-    .time-main-button {
-        width: calc(100% - 36px);
-        margin-left: 18px;
-        margin-right: 18px;
+    .time-info-grid {
+        grid-template-columns: 1fr;
     }
 
+    .time-main-button.stop {
+        margin-inline: 1rem;
+        width: calc(100% - 2rem);
+    }
+
+    .time-summary-box,
+    .time-info-grid,
+    .pause-save-area,
     .time-completed-box {
-        margin-left: 18px;
-        margin-right: 18px;
+        margin-left: 1rem;
+        margin-right: 1rem;
     }
 
-    .time-info-note {
-        align-items: flex-start;
+    .time-info-grid {
+        padding-inline: 0;
     }
 }
 
-
-@media (max-width: 480px) {
-
-    .time-page-header h1 {
-        font-size: 25px;
-    }
-
-    .time-page-header p {
-        font-size: 14px;
-    }
-
-    .current-time-value {
-        font-size: 50px;
-        letter-spacing: -2px;
-    }
-
-    .time-summary-left {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .pause-input {
-        width: 100px;
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important;
     }
 }
