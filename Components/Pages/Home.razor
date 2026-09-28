@@ -3,7 +3,8 @@
 
 @using Microsoft.AspNetCore.Components.Authorization
 
-<PageTitle>BauManagement – Digitale Baustellenorganisation für Bau & Handwerk</PageTitle>
+<PageTitle>BauManagement – Baustellenplanung für Bau & Handwerk</PageTitle>
+
 
 
 <!-- =========================================================
@@ -15,38 +16,50 @@
     <nav class="landing-nav container" aria-label="Hauptnavigation">
 
         <a class="brand" href="/" aria-label="BauManagement Startseite">
-            <span class="brand-bau">Bau</span><span class="brand-management">Management</span>
+            <span class="brand-bau">Bau</span><span class="brand-management" style="color:#ff9f45;">Management</span>
         </a>
 
+        <input type="checkbox" id="bm-mobile-menu" class="bm-mobile-menu-toggle" />
+
+        <label for="bm-mobile-menu" class="bm-mobile-menu-button" aria-label="Menü öffnen">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+
         <div class="landing-nav-menu">
-            <a href="#funktionen">Funktionen</a>
-            <a href="#workflow">Ablauf</a>
-            <a href="#pricing">Preise</a>
+            <a href="/funktionen">Funktionen</a>
+            <a href="/preise">Preise</a>
+            <a href="/fuer-bau-handwerk" class="nav-b2b">
+                <i class="bi bi-building"></i>
+                Für Bau- & Handwerksbetriebe
+            </a>
+
+            <a href="/datenschutz">Datenschutzerklärung</a>
             <a href="/impressum">Impressum</a>
-            <a href="/datenschutz">Datenschutz</a>
+
+            <div class="bm-mobile-actions">
+                <AuthorizeView>
+                    <NotAuthorized>
+                                          <a class="btn btn-primary nav-login" href="Account/Login">
+                            Anmelden
+                        </a>
+                           <a class="btn btn-primary fw-semibold nav-action"  href="Account/Register">
+                            Kostenlos starten
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </NotAuthorized>
+                    <Authorized>
+                        <a class="bm-mobile-register" href="/tasks">
+                            Zum Dashboard
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
         </div>
 
-        <AuthorizeView>
-            <Authorized>
-                <a class="btn btn-warning fw-semibold px-4 nav-action"
-                   href="/tasks">
-                    Zum Dashboard
-                </a>
-            </Authorized>
 
-            <NotAuthorized>
-                <div class="landing-nav-actions">
-                    <a class="btn btn-outline-light px-4 nav-login"
-                       href="Account/Login">
-                        Anmelden
-                    </a>
-                    <a class="btn btn-warning fw-semibold px-4 nav-action"
-                       href="Account/Register">
-                        Kostenlos starten
-                    </a>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
 
     </nav>
 
@@ -60,28 +73,27 @@
             <div class="col-lg-7">
 
                 <span class="hero-eyebrow">
-                    DIGITALE BAUSTELLENORGANISATION
+                    BAUSTELLENPLANUNG FÜR BAU & HANDWERK
                 </span>
 
-                <h1 class="hero-title mt-3">
+                <h3 class="hero-title mt-3">
 
-                    Deine Baustellen.
+                    Wer arbeitet heute
                     <br />
 
-                    Deine Mitarbeiter.
+                    auf welcher Baustelle?
                     <br />
 
-                    <span>Alles im Überblick.</span>
+                    <span>Mit BauManagement sehen Sie es sofort.</span>
 
-                </h1>
+                </h3>
 
 
                 <p class="hero-description mt-4">
 
-                    BauManagement bringt Baustellen, Mitarbeiter,
-                    Aufgaben, Einsätze, Arbeitszeiten und Urlaubsplanung
-                    in einer zentralen Plattform zusammen – speziell
-                    für Bau- und Handwerksunternehmen.
+                    BauManagement hilft Bau- und Handwerksbetrieben dabei, Mitarbeiter,
+                    Baustellen, Einsätze, Aufgaben und Arbeitszeiten zentral
+                    zu organisieren – einfach, übersichtlich und digital.
 
                 </p>
 
@@ -103,9 +115,9 @@
 
 
                             <a class="btn btn-hero-link btn-lg"
-                               href="#funktionen">
+                               href="/funktionen">
 
-                                Funktionen entdecken
+                                So funktioniert BauManagement
 
                                 <i class="bi bi-chevron-down ms-2"></i>
 
@@ -145,10 +157,10 @@
 
                         <div class="d-flex flex-wrap gap-3 mt-4">
 
-                            <a class="btn btn-warning btn-lg px-4 fw-semibold"
+                            <a class="btn btn-primary btn-lg px-4 fw-semibold"
                                href="Account/Register">
 
-                                Jetzt kostenlos starten
+                                Kostenlos starten
 
                                 <i class="bi bi-arrow-right ms-2"></i>
 
@@ -156,9 +168,9 @@
 
 
                             <a class="btn btn-hero-link btn-lg"
-                               href="#funktionen">
+                               href="/funktionen">
 
-                                Funktionen entdecken
+                                So funktioniert BauManagement
 
                                 <i class="bi bi-chevron-down ms-2"></i>
 
@@ -466,20 +478,20 @@
         <div class="section-heading text-center mx-auto">
 
             <span class="section-eyebrow">
-                ALLES AN EINEM ORT
+                WENIGER CHAOS. MEHR ÜBERBLICK.
             </span>
 
             <h2>
 
-                Schluss mit Zetteln, WhatsApp
+                Schluss mit Excel, Zetteln
                 <br class="d-none d-md-block" />
-                und Excel-Listen.
+                und unübersichtlichen WhatsApp-Nachrichten.
 
             </h2>
 
             <p>
 
-                Mit BauManagement organisierst du deine Baustellen,
+                Mit BauManagement organisieren Sie Ihre Baustellen,
                 Mitarbeiter, Aufgaben, Einsätze und Arbeitszeiten
                 zentral – übersichtlich, digital und jederzeit erreichbar.
 
@@ -494,555 +506,7 @@
 
 
 <!-- =========================================================
-     FEATURES
-========================================================= -->
-
-<section id="funktionen" class="features-section py-5 py-lg-6">
-
-    <div class="container">
-
-        <div class="section-heading text-center mx-auto">
-
-            <span class="section-eyebrow">
-                DEINE WICHTIGSTEN FUNKTIONEN
-            </span>
-
-            <h2>
-                Alles, was du für deine Baustellen brauchst.
-            </h2>
-
-            <p>
-
-                Eine zentrale Lösung für die tägliche Organisation
-                deines Bau- oder Handwerksbetriebs.
-
-            </p>
-
-        </div>
-
-
-        <div class="row g-4 mt-3">
-
-
-            <!-- BAUSTELLEN -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon orange">
-
-                        <i class="bi bi-buildings"></i>
-
-                    </div>
-
-                    <h3>
-                        Baustellenverwaltung
-                    </h3>
-
-                    <p>
-
-                        Verwalte alle Baustellen zentral mit Adresse,
-                        Kunde, Kontaktdaten, Zeitraum, Beschreibung
-                        und zugeordneten Mitarbeitern.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Baustellen immer griffbereit
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- MITARBEITER -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon blue">
-
-                        <i class="bi bi-people"></i>
-
-                    </div>
-
-                    <h3>
-                        Mitarbeiterverwaltung
-                    </h3>
-
-                    <p>
-
-                        Mitarbeiter anlegen, bearbeiten und verwalten.
-                        Mit Kontaktinformationen, Position,
-                        Status und eigenen Benutzerzugängen.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Dein Team zentral verwalten
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- EINSÄTZE -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon purple">
-
-                        <i class="bi bi-calendar2-week"></i>
-
-                    </div>
-
-                    <h3>
-                        Einsätze & Disposition
-                    </h3>
-
-                    <p>
-
-                        Plane Mitarbeiter für konkrete Baustellen
-                        mit Start- und Endzeit. Behalte alle Einsätze
-                        übersichtlich im Blick.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Mitarbeiter richtig einsetzen
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- CHEF KALENDER -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon green">
-
-                        <i class="bi bi-calendar3"></i>
-
-                    </div>
-
-                    <h3>
-                        Chef-Kalender
-                    </h3>
-
-                    <p>
-
-                        Sieh auf einen Blick, welcher Mitarbeiter
-                        wann auf welcher Baustelle eingeplant ist.
-                        Einsätze lassen sich direkt organisieren.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Planung auf einen Blick
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- AUFGABEN -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon orange">
-
-                        <i class="bi bi-check2-square"></i>
-
-                    </div>
-
-                    <h3>
-                        Aufgabenverwaltung
-                    </h3>
-
-                    <p>
-
-                        Erstelle Aufgaben und ordne sie den richtigen
-                        Mitarbeitern und Baustellen zu. Fortschritt
-                        und Status bleiben jederzeit sichtbar.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Aufgaben klar verteilen
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- ZEITERFASSUNG -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon orange">
-
-                        <i class="bi bi-clock-history"></i>
-
-                    </div>
-
-                    <h3>
-                        Zeiterfassung
-                    </h3>
-
-                    <p>
-
-                        Arbeitszeiten digital erfassen und den Überblick
-                        behalten. Arbeitsbeginn, Arbeitsende und
-                        erfasste Stunden zentral verwalten.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Arbeitszeit digital erfassen
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- URLAUB -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon red">
-
-                        <i class="bi bi-sun"></i>
-
-                    </div>
-
-                    <h3>
-                        Urlaubsverwaltung
-                    </h3>
-
-                    <p>
-
-                        Mitarbeiter können Urlaub digital beantragen.
-                        Admins und Chefs sehen Anträge und können
-                        diese direkt genehmigen oder ablehnen.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Urlaub einfach organisieren
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-            <!-- LIVE SEARCH -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon blue">
-
-                        <i class="bi bi-search"></i>
-
-                    </div>
-
-                    <h3>
-                        Schnelle Live-Suche
-                    </h3>
-
-                    <p>
-
-                        Mitarbeiter, Baustellen und Aufgaben schnell
-                        finden – mit Live-Suche und übersichtlichen
-                        Listen ohne komplizierte Navigation.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Informationen sofort finden
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <!-- MOBILE -->
-
-            <div class="col-md-6 col-lg-4">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon green">
-
-                        <i class="bi bi-phone"></i>
-
-                    </div>
-
-                    <h3>
-                        Desktop & Mobile
-                    </h3>
-
-                    <p>
-
-                        Die Oberfläche ist für Desktop, Tablet und
-                        Smartphone optimiert. Mitarbeiter können ihre
-                        Aufgaben auch direkt unterwegs nutzen.
-
-                    </p>
-
-                    <span class="feature-link">
-
-                        Büro und Baustelle verbinden
-
-                        <i class="bi bi-arrow-right"></i>
-
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     WORKFLOW
-========================================================= -->
-
-<section id="workflow" class="workflow-section py-5 py-lg-6">
-
-    <div class="container">
-
-        <div class="row align-items-center g-5">
-
-            <div class="col-lg-5">
-
-                <span class="section-eyebrow">
-                    SO FUNKTIONIERT ES
-                </span>
-
-                <h2 class="mt-2">
-                    Von der Planung bis zur erledigten Aufgabe.
-                </h2>
-
-                <p class="text-muted mt-3">
-
-                    BauManagement bildet deinen täglichen Ablauf
-                    digital ab – damit Büro und Baustelle immer
-                    auf demselben Stand sind.
-
-                </p>
-
-                <a href="Account/Register"
-                   class="btn btn-primary btn-lg mt-3 px-4">
-
-                    Jetzt starten
-
-                    <i class="bi bi-arrow-right ms-2"></i>
-
-                </a>
-
-            </div>
-
-
-            <div class="col-lg-7">
-
-                <div class="workflow-list">
-
-
-                    <div class="workflow-item">
-
-                        <div class="workflow-number">
-                            01
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Baustelle anlegen
-                            </h3>
-
-                            <p>
-
-                                Kunde, Adresse, Zeitraum und weitere
-                                Informationen zentral hinterlegen.
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="workflow-item">
-
-                        <div class="workflow-number">
-                            02
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Mitarbeiter planen
-                            </h3>
-
-                            <p>
-
-                                Mitarbeiter auswählen und Einsätze
-                                direkt im Kalender organisieren.
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="workflow-item">
-
-                        <div class="workflow-number">
-                            03
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Aufgaben verteilen
-                            </h3>
-
-                            <p>
-
-                                Aufgaben erstellen und gezielt an
-                                Mitarbeiter oder Baustellen zuweisen.
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="workflow-item">
-
-                        <div class="workflow-number">
-                            04
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Arbeitszeit erfassen
-                            </h3>
-
-                            <p>
-
-                                Arbeitsbeginn und Arbeitsende digital
-                                dokumentieren und Arbeitszeiten
-                                übersichtlich verwalten.
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="workflow-item">
-
-                        <div class="workflow-number">
-                            05
-                        </div>
-
-                        <div>
-
-                            <h3>
-                                Fortschritt verfolgen
-                            </h3>
-
-                            <p>
-
-                                Mitarbeiter sehen ihre Aufgaben und
-                                aktualisieren den jeweiligen Status.
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     ZEITERFASSUNG
+     DIGITALE ZEITERFASSUNG
 ========================================================= -->
 
 <section class="time-section py-5 py-lg-6">
@@ -1057,19 +521,18 @@
             <div class="col-lg-6">
 
                 <span class="section-eyebrow">
-                    ZEITERFASSUNG
+                    DIGITALE ZEITERFASSUNG
                 </span>
 
-                <h2 class="mt-2">
-                    Arbeitszeiten einfach digital erfassen.
+                <h2 style="color:black;">
+                    Arbeitszeiten einfach und digital erfassen.
                 </h2>
 
                 <p class="text-muted mt-3">
 
                     Keine Zettel und keine manuellen Listen.
-                    Mitarbeiter können ihre Arbeitszeiten direkt
-                    digital erfassen und den aktuellen Stand
-                    jederzeit einsehen.
+                    Mitarbeiter erfassen ihre Arbeitszeiten direkt digital,
+                    während Sie als Chef jederzeit den Überblick behalten.
 
                 </p>
 
@@ -1087,12 +550,12 @@
 
                         <div>
 
-                            <strong>
+                            <strong style="color:black">
                                 Arbeitsbeginn erfassen
                             </strong>
 
                             <span>
-                                Arbeitszeit direkt beim Start erfassen.
+                                Arbeitszeit direkt beim Arbeitsbeginn erfassen.
                             </span>
 
                         </div>
@@ -1110,12 +573,12 @@
 
                         <div>
 
-                            <strong>
+                            <strong style="color:black">
                                 Arbeitsende erfassen
                             </strong>
 
                             <span>
-                                Arbeitszeit beim Feierabend beenden.
+                                Arbeitszeit am Ende des Arbeitstags beenden.
                             </span>
 
                         </div>
@@ -1133,12 +596,12 @@
 
                         <div>
 
-                            <strong>
+                            <strong style="color:black">
                                 Arbeitsstunden im Überblick
                             </strong>
 
                             <span>
-                                Erfasste Zeiten übersichtlich darstellen.
+                                Erfasste Arbeitszeiten übersichtlich darstellen.
                             </span>
 
                         </div>
@@ -1156,12 +619,12 @@
 
                         <div>
 
-                            <strong>
+                            <strong style="color:black">
                                 Auswertungen
                             </strong>
 
                             <span>
-                                Arbeitszeiten später nach Mitarbeiter
+                                Arbeitszeiten nach Mitarbeiter
                                 und Zeitraum auswerten.
                             </span>
 
@@ -1300,7 +763,7 @@
 
                     <div class="time-action">
 
-                        <button class="btn btn-warning w-100">
+                        <button class="btn btn-primary w-100">
 
                             <i class="bi bi-stop-circle me-2"></i>
 
@@ -1333,11 +796,11 @@
         <div class="section-heading text-center mx-auto">
 
             <span class="section-eyebrow">
-                FÜR DEIN GESAMTES TEAM
+                FÜR CHEFS & MITARBEITER
             </span>
 
             <h2>
-                Jeder arbeitet mit dem richtigen Überblick.
+                Jeder sieht genau das, was er für seine Arbeit braucht.
             </h2>
 
             <p>
@@ -1370,14 +833,14 @@
                     </span>
 
                     <h3>
-                        Planung & Organisation
+                        Planung & Kontrolle
                     </h3>
 
                     <p>
 
-                        Behalte Mitarbeiter, Einsätze,
+                        Behalten Sie Mitarbeiter, Einsätze,
                         Baustellen, Aufgaben und Urlaubsanträge
-                        im Überblick.
+                        zentral im Überblick.
 
                     </p>
 
@@ -1403,14 +866,13 @@
                     </span>
 
                     <h3>
-                        Aufgaben im Fokus
+                        Aufgaben & Einsätze im Fokus
                     </h3>
 
                     <p>
 
-                        Mitarbeiter sehen ihre eigenen Aufgaben,
-                        Einsätze und können den Aufgabenstatus
-                        direkt aktualisieren.
+                        Mitarbeiter sehen ihre eigenen Aufgaben und Einsätze
+                        und können den Aufgabenstatus direkt aktualisieren.
 
                     </p>
 
@@ -1458,20 +920,20 @@
             <div class="col-lg-6 order-1 order-lg-2">
 
                 <span class="section-eyebrow">
-                    DESKTOP & MOBILE
+                    AUF DESKTOP, TABLET & SMARTPHONE
                 </span>
 
                 <h2 class="mt-2">
 
-                    Deine Baustelle ist nicht im Büro?
+                    Ihre Baustelle ist nicht im Büro?
                     Kein Problem.
 
                 </h2>
 
                 <p class="text-muted mt-3">
 
-                    BauManagement ist responsive aufgebaut und passt
-                    sich automatisch an Smartphone, Tablet und Desktop an.
+                    BauManagement funktioniert auf Smartphone, Tablet und Desktop –
+                    damit Ihre Mitarbeiter auch unterwegs Zugriff haben.
 
                 </p>
 
@@ -1491,7 +953,7 @@
 
                         <i class="bi bi-check-circle-fill"></i>
 
-                        Aufgabenstatus direkt ändern
+                        Aufgabenstatus direkt aktualisieren
 
                     </div>
 
@@ -1509,7 +971,7 @@
 
                         <i class="bi bi-check-circle-fill"></i>
 
-                        Übersichtliche Darstellung auf kleinen Displays
+                        Optimierte Darstellung auf allen Geräten
 
                     </div>
 
@@ -1521,248 +983,6 @@
                         Eine Plattform für Büro und Baustelle
 
                     </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =========================================================
-     PRICING
-========================================================= -->
-
-<section id="pricing" class="pricing-section py-5 py-lg-6">
-
-    <div class="container">
-
-        <div class="section-heading text-center mx-auto">
-
-            <span class="section-eyebrow">
-                FLEXIBEL MITWACHSEN
-            </span>
-
-            <h2>
-                Ein Tarif passend zu deiner Teamgröße.
-            </h2>
-
-            <p>
-
-                Wähle bei der Registrierung einfach die Größe
-                deines Teams.
-
-            </p>
-
-        </div>
-
-
-        <div class="row g-4 mt-3 justify-content-center">
-
-
-            <!-- S -->
-
-            <div class="col-sm-6 col-lg-3">
-
-                <div class="plan-card">
-
-                    <div class="plan-top">
-
-                        <span class="plan-name">
-                            S
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        Starter
-                    </h3>
-
-                    <div class="plan-price">
-
-                        <strong>
-                            35 €
-                        </strong>
-
-                        <span>
-                            / Monat
-                        </span>
-
-                    </div>
-
-                    <div class="plan-limit">
-
-                        <i class="bi bi-people"></i>
-
-                        Bis 5 Mitarbeiter
-
-                    </div>
-
-                    <a href="Account/Register"
-                       class="btn btn-outline-dark w-100 mt-4">
-
-                        Starten
-
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <!-- M -->
-
-            <div class="col-sm-6 col-lg-3">
-
-                <div class="plan-card">
-
-                    <div class="plan-top">
-
-                        <span class="plan-name">
-                            M
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        Team
-                    </h3>
-
-                    <div class="plan-price">
-
-                        <strong>
-                            70 €
-                        </strong>
-
-                        <span>
-                            / Monat
-                        </span>
-
-                    </div>
-
-                    <div class="plan-limit">
-
-                        <i class="bi bi-people"></i>
-
-                        Bis 10 Mitarbeiter
-
-                    </div>
-
-                    <a href="Account/Register"
-                       class="btn btn-outline-dark w-100 mt-4">
-
-                        Starten
-
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <!-- L -->
-
-            <div class="col-sm-6 col-lg-3">
-
-                <div class="plan-card featured-plan">
-
-                    <div class="popular-badge">
-                        FÜR WACHSENDE TEAMS
-                    </div>
-
-                    <div class="plan-top">
-
-                        <span class="plan-name">
-                            L
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        Business
-                    </h3>
-
-                    <div class="plan-price">
-
-                        <strong>
-                            140 €
-                        </strong>
-
-                        <span>
-                            / Monat
-                        </span>
-
-                    </div>
-
-                    <div class="plan-limit">
-
-                        <i class="bi bi-people"></i>
-
-                        Bis 20 Mitarbeiter
-
-                    </div>
-
-                    <a href="Account/Register"
-                       class="btn btn-primary w-100 mt-4">
-
-                        Starten
-
-                    </a>
-
-                </div>
-
-            </div>
-
-
-            <!-- XL -->
-
-            <div class="col-sm-6 col-lg-3">
-
-                <div class="plan-card">
-
-                    <div class="plan-top">
-
-                        <span class="plan-name">
-                            XL
-                        </span>
-
-                    </div>
-
-                    <h3>
-                        Profi
-                    </h3>
-
-                    <div class="plan-price">
-
-                        <strong>
-                            200 €
-                        </strong>
-
-                        <span>
-                            / Monat
-                        </span>
-
-                    </div>
-
-                    <div class="plan-limit">
-
-                        <i class="bi bi-people"></i>
-
-                        Über 20 Mitarbeiter
-
-                    </div>
-
-                    <a href="Account/Register"
-                       class="btn btn-outline-dark w-100 mt-4">
-
-                        Starten
-
-                    </a>
 
                 </div>
 
@@ -1795,29 +1015,28 @@
 
             <span class="section-eyebrow">
 
-                BEREIT FÜR DEN NÄCHSTEN SCHRITT?
+                BRINGEN SIE ORDNUNG IN IHRE BAUSTELLEN
 
             </span>
 
 
             <h2>
-                Bring Ordnung in deine Baustellen.
+                Behalten Sie Ihre Baustellen und Mitarbeiter im Griff.
             </h2>
 
 
             <p>
 
-                Verwalte Mitarbeiter, Baustellen, Aufgaben,
-                Einsätze, Arbeitszeiten und Urlaub zentral
-                mit BauManagement.
+                Planen Sie Mitarbeiter, Baustellen, Einsätze und Aufgaben zentral
+                und behalten Sie Ihre Arbeitszeiten jederzeit im Blick.
 
             </p>
 
 
             <a href="Account/Register"
-               class="btn btn-warning btn-lg px-5 fw-semibold">
+               class="btn btn-primary btn-lg px-5 fw-semibold">
 
-                Jetzt kostenlos starten
+                Kostenlos starten
 
                 <i class="bi bi-arrow-right ms-2"></i>
 
@@ -1854,14 +1073,13 @@
 
                 <strong>
 
-                    Bau<span>Management</span>
+                    Bau<span style="color:#ff9f45;">Management</span>
 
                 </strong>
 
                 <small>
 
-                    Digitale Baustellenorganisation
-                    für Bau & Handwerk
+                    Baustellenplanung für Bau & Handwerk
 
                 </small>
 
@@ -1870,7 +1088,7 @@
 
             <div class="footer-links">
 
-                <a href="#funktionen">
+                <a href="/funktionen">
                     Funktionen
                 </a>
 

@@ -1,0 +1,486 @@
+@page "/preise"
+@layout LandingLayout
+
+<PageTitle>Preise – BauManagement</PageTitle>
+
+<div class="bm-pricing-page">
+
+    <!-- =========================================
+         NAVIGATION
+         ========================================= -->
+
+    <nav class="landing-nav container" aria-label="Hauptnavigation">
+
+        <a class="brand" href="/" aria-label="BauManagement Startseite">
+            <span class="brand-bau">Bau</span><span class="brand-management">Management</span>
+        </a>
+
+        <input type="checkbox" id="bm-mobile-menu" class="bm-mobile-menu-toggle" />
+
+        <label for="bm-mobile-menu" class="bm-mobile-menu-button" aria-label="Menü öffnen">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+
+        <div class="landing-nav-menu">
+
+            <a href="/">Startseite</a>
+            <a href="/funktionen">Funktionen</a>
+            <a href="/preise" class="nav-active">Preise</a>
+
+            <a href="/fuer-bau-handwerk" class="nav-b2b">
+                <i class="bi bi-building"></i>
+                Für Bau- &amp; Handwerksbetriebe
+            </a>
+
+            <div class="bm-mobile-actions">
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <a class="bm-mobile-login" href="Account/Login">
+                            Anmelden
+                        </a>
+                        <a class="bm-mobile-register" href="Account/Register">
+                            Kostenlos starten
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </NotAuthorized>
+                    <Authorized>
+                        <a class="bm-mobile-register" href="/tasks">
+                            Zum Dashboard
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </div>
+
+       <AuthorizeView>
+            <Authorized>
+                <a class="btn btn-warning fw-semibold px-4 nav-action" href="/tasks">Zum Dashboard</a>
+            </Authorized>
+            <NotAuthorized>
+                <div class="landing-nav-actions">
+                    <a class="btn btn-primary px-4 nav-login" href="Account/Login">Anmelden</a>
+                    <a class="btn btn-primary fw-semibold px-4 nav-action" href="Account/Register">Kostenlos starten</a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+    </nav>
+
+
+    <!-- =========================================
+         PREISE HERO
+         ========================================= -->
+
+    <section class="bm-price-hero">
+
+        <div class="bm-price-eyebrow">
+            TRANSPARENTE PREISE FÜR BAU &amp; HANDWERK
+        </div>
+
+        <h1>
+            Ein Preis, der zu<br />
+            <span>Ihrem Team passt.</span>
+        </h1>
+
+        <p>
+            Wählen Sie den Tarif passend zu Ihrer Mitarbeiterzahl.
+            Alle wichtigen Funktionen für Ihre tägliche Baustellenplanung sind enthalten.
+        </p>
+
+        <div class="bm-price-note">
+            <span>✓</span>
+            <strong>Keine komplizierte Preisberechnung.</strong>
+            <span>Teamgröße wählen, registrieren und starten.</span>
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         PREISPLÄNE
+         ========================================= -->
+
+    <section class="bm-plans">
+
+        <div class="bm-plan-grid">
+
+
+            <!-- STARTER -->
+
+            <article class="bm-plan">
+
+                <div class="bm-plan-head">
+
+                    <div class="bm-plan-badge">
+                        S
+                    </div>
+
+                    <div>
+                        <div class="bm-plan-name">
+                            Starter
+                        </div>
+
+                        <div class="bm-plan-team">
+                            Für kleine Teams
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="bm-price">
+                    <span>35</span> € <small>/ Monat</small>
+                </div>
+
+                <div class="bm-plan-limit">
+                    Bis 5 Mitarbeiter
+                </div>
+
+                <ul>
+                    <li>Baustellen verwalten</li>
+                    <li>Mitarbeiter verwalten</li>
+                    <li>Einsätze planen</li>
+                    <li>Aufgaben zuweisen</li>
+                    <li>Chef-Kalender</li>
+                    <li>Zeiterfassung</li>
+                </ul>
+
+                <a href="/register" class="bm-plan-btn">
+                    Jetzt starten <span>→</span>
+                </a>
+
+            </article>
+
+
+            <!-- TEAM -->
+
+            <article class="bm-plan">
+
+                <div class="bm-plan-head">
+
+                    <div class="bm-plan-badge">
+                        M
+                    </div>
+
+                    <div>
+                        <div class="bm-plan-name">
+                            Team
+                        </div>
+
+                        <div class="bm-plan-team">
+                            Für wachsende Teams
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="bm-price">
+                    <span>70</span> € <small>/ Monat</small>
+                </div>
+
+                <div class="bm-plan-limit">
+                    Bis 10 Mitarbeiter
+                </div>
+
+                <ul>
+                    <li>Baustellen verwalten</li>
+                    <li>Mitarbeiter verwalten</li>
+                    <li>Einsätze &amp; Disposition</li>
+                    <li>Aufgabenverwaltung</li>
+                    <li>Chef-Kalender</li>
+                    <li>Zeiterfassung</li>
+                    <li>Urlaubsverwaltung</li>
+                </ul>
+
+                <a href="/register" class="bm-plan-btn">
+                    Jetzt starten <span>→</span>
+                </a>
+
+            </article>
+
+
+            <!-- BUSINESS -->
+
+            <article class="bm-plan bm-plan-featured">
+
+                <div class="bm-popular">
+                    BELIEBT
+                </div>
+
+                <div class="bm-plan-head">
+
+                    <div class="bm-plan-badge">
+                        L
+                    </div>
+
+                    <div>
+                        <div class="bm-plan-name">
+                            Business
+                        </div>
+
+                        <div class="bm-plan-team">
+                            Für größere Teams
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="bm-price">
+                    <span>140</span> € <small>/ Monat</small>
+                </div>
+
+                <div class="bm-plan-limit">
+                    Bis 20 Mitarbeiter
+                </div>
+
+                <ul>
+                    <li>Alle Funktionen</li>
+                    <li>Baustellen &amp; Kunden zentral verwalten</li>
+                    <li>Einsätze &amp; Disposition</li>
+                    <li>Chef-Kalender</li>
+                    <li>Aufgaben &amp; Fortschritt</li>
+                    <li>Digitale Zeiterfassung</li>
+                    <li>Urlaubsverwaltung</li>
+                    <li>Desktop, Tablet &amp; Smartphone</li>
+                </ul>
+
+                <a href="/register"
+                   class="bm-plan-btn bm-plan-btn-primary">
+                    Jetzt starten <span>→</span>
+                </a>
+
+            </article>
+
+
+            <!-- PROFI -->
+
+            <article class="bm-plan">
+
+                <div class="bm-plan-head">
+
+                    <div class="bm-plan-badge">
+                        XL
+                    </div>
+
+                    <div>
+                        <div class="bm-plan-name">
+                            Profi
+                        </div>
+
+                        <div class="bm-plan-team">
+                            Für Teams mit über 20 Mitarbeitern
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="bm-price">
+                    <span>200</span> € <small>/ Monat</small>
+                </div>
+
+                <div class="bm-plan-limit">
+                    Über 20 Mitarbeiter
+                </div>
+
+                <ul>
+                    <li>Alle Funktionen</li>
+                    <li>Baustellenverwaltung</li>
+                    <li>Mitarbeiterverwaltung</li>
+                    <li>Einsätze &amp; Disposition</li>
+                    <li>Chef-Kalender</li>
+                    <li>Aufgabenverwaltung</li>
+                    <li>Zeiterfassung</li>
+                    <li>Urlaubsverwaltung</li>
+                </ul>
+
+                <a href="/register" class="bm-plan-btn">
+                    Jetzt starten <span>→</span>
+                </a>
+
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         VERGLEICH
+         ========================================= -->
+
+    <section class="bm-compare">
+
+        <div class="bm-section-eyebrow">
+            WAS IST ENTHALTEN?
+        </div>
+
+        <h2>
+            Alles, was Sie für Ihre<br />
+            <span>tägliche Planung brauchen.</span>
+        </h2>
+
+
+        <div class="bm-feature-table">
+
+            <div class="bm-table-head">
+                <div>Funktion</div>
+                <div>Starter</div>
+                <div>Team</div>
+                <div>Business</div>
+                <div>Profi</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Baustellenverwaltung</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Mitarbeiterverwaltung</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Einsätze &amp; Disposition</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Chef-Kalender</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Aufgabenverwaltung</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Zeiterfassung</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Urlaubsverwaltung</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+
+            <div class="bm-table-row">
+                <div>Desktop, Tablet &amp; Smartphone</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+                <div>✓</div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         CTA
+         ========================================= -->
+
+    <section class="bm-price-cta">
+
+        <div class="bm-cta-glow"></div>
+
+        <div class="bm-cta-icon">
+            ✓
+        </div>
+
+        <div class="bm-section-eyebrow">
+            BEREIT FÜR MEHR ÜBERBLICK?
+        </div>
+
+        <h2>
+            Weniger Organisation.<br />
+            <span>Mehr Zeit für Ihre Baustellen.</span>
+        </h2>
+
+        <p>
+            Starten Sie mit dem Tarif, der zu Ihrem Team passt.
+        </p>
+
+        <a href="/register" class="bm-cta-btn">
+            Kostenlos starten <span>→</span>
+        </a>
+
+    </section>
+
+
+    <!-- =========================================
+         FOOTER
+         ========================================= -->
+
+    <footer class="bm-price-footer">
+
+        <div>
+            © @DateTime.Now.Year BauManagement
+        </div>
+
+        <div class="bm-footer-links">
+
+            <a href="/">
+                Startseite
+            </a>
+
+            <a href="/funktionen">
+                Funktionen
+            </a>
+
+            <a href="/impressum">
+                Impressum
+            </a>
+
+            <a href="/datenschutz">
+                Datenschutz
+            </a>
+
+        </div>
+
+    </footer>
+
+</div>
+
+
+<style>
+    /* Nur der aktive Preise-Link wird markiert.
+       Alle anderen Navbar-Stile kommen vom bestehenden Home-CSS. */
+
+    .bm-pricing-page .landing-nav-menu a.nav-active {
+        color: #ff9f45 !important;
+    }
+</style>

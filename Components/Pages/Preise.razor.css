@@ -1,0 +1,999 @@
+﻿/* BauManagement – Preise
+   Put this file next to Preise.razor as Preise.razor.css
+*/
+
+.bm-pricing-page {
+    --orange: #ff7a00;
+    --orange-2: #ff9a3d;
+    --bg: #07090d;
+    --card: #10151d;
+    --card-2: #141a23;
+    --border: #272e38;
+    --text: #ffffff;
+    --muted: #9da8b7;
+    --soft: #c5ced9;
+    min-height: 100vh;
+    background: radial-gradient(circle at 50% 0%,rgba(255,122,0,.11),transparent 28%), linear-gradient(180deg,#07090d 0%,#090c11 100%);
+    color: var(--text);
+    font-family: Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+/* Back navigation – same style as Login */
+.bm-price-top {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 24px 0;
+}
+
+.bm-price-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: #999;
+    text-decoration: none;
+    font-size: .9rem;
+    transition: color .2s ease;
+}
+
+    .bm-price-back:hover {
+        color: #fff;
+    }
+
+.bm-price-back-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #111;
+    border: 1px solid #292929;
+    color: #ff7a00;
+    font-size: 18px;
+    line-height: 1;
+    transition: all .2s ease;
+}
+
+.bm-price-back:hover .bm-price-back-arrow {
+    background: #ff7a00;
+    border-color: #ff7a00;
+    color: #fff;
+}
+
+.bm-price-brand {
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: -.03em;
+}
+
+.bm-price-brand-orange {
+    color: #ff7a00;
+}
+
+.bm-price-hero {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 70px 24px 55px;
+    text-align: center;
+}
+
+.bm-price-eyebrow,
+.bm-section-eyebrow {
+    display: inline-block;
+    color: var(--orange);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2.2px;
+    margin-bottom: 18px;
+}
+
+.bm-price-hero h1,
+.bm-compare h2,
+.bm-price-cta h2 {
+    margin: 0;
+    font-weight: 850;
+    letter-spacing: -2px;
+    line-height: 1.02;
+}
+
+.bm-price-hero h1 {
+    font-size: clamp(42px,5.2vw,72px);
+}
+
+    .bm-price-hero h1 span,
+    .bm-compare h2 span,
+    .bm-price-cta h2 span {
+        color: var(--orange);
+    }
+
+.bm-price-hero > p {
+    max-width: 650px;
+    margin: 24px auto 0;
+    color: #aeb8c5;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.bm-price-note {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    flex-wrap: wrap;
+    margin: 28px auto 0;
+    color: #8f9aaa;
+    font-size: 13px;
+}
+
+    .bm-price-note span:first-child {
+        display: grid;
+        place-items: center;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: rgba(255,122,0,.14);
+        color: var(--orange);
+        font-weight: 900;
+    }
+
+    .bm-price-note strong {
+        color: #e7ebf0;
+    }
+
+.bm-plans {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 25px 24px 110px;
+}
+
+.bm-plan-grid {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.bm-plan {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 555px;
+    padding: 30px 26px 25px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: radial-gradient(circle at 100% 0%,rgba(255,255,255,.035),transparent 35%), linear-gradient(145deg,#131820,#0e131a);
+    box-shadow: 0 20px 60px rgba(0,0,0,.22);
+    transition: .25s ease;
+}
+
+    .bm-plan:hover {
+        transform: translateY(-7px);
+        border-color: #414a57;
+        box-shadow: 0 28px 70px rgba(0,0,0,.38);
+    }
+
+.bm-plan-featured {
+    border-color: rgba(255,122,0,.75);
+    background: radial-gradient(circle at 50% 0%,rgba(255,122,0,.13),transparent 38%), linear-gradient(145deg,#17191b,#101419);
+    box-shadow: 0 25px 75px rgba(255,122,0,.10);
+}
+
+.bm-popular {
+    position: absolute;
+    top: 17px;
+    right: 17px;
+    padding: 7px 11px;
+    border: 1px solid rgba(255,122,0,.35);
+    border-radius: 999px;
+    background: rgba(255,122,0,.12);
+    color: #ffad69;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+}
+
+.bm-plan-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.bm-plan-badge {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 13px;
+    background: rgba(255,122,0,.11);
+    border: 1px solid rgba(255,122,0,.13);
+    color: var(--orange);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.bm-plan-name {
+    font-size: 22px;
+    font-weight: 850;
+}
+
+.bm-plan-team {
+    margin-top: 4px;
+    color: #8793a2;
+    font-size: 12px;
+}
+
+.bm-price {
+    margin-top: 30px;
+    white-space: nowrap;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+    .bm-price span {
+        font-size: 50px;
+        font-weight: 900;
+        letter-spacing: -2px;
+    }
+
+    .bm-price small {
+        color: #84909f;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+.bm-plan-limit {
+    margin-top: 6px;
+    color: #b5c0cd;
+    font-size: 13px;
+}
+
+.bm-plan ul {
+    list-style: none;
+    margin: 25px 0 25px;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+    flex: 1;
+}
+
+.bm-plan li {
+    position: relative;
+    padding-left: 24px;
+    color: #b9c3cf;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+    .bm-plan li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        top: -1px;
+        color: var(--orange);
+        font-weight: 900;
+    }
+
+.bm-plan-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 48px;
+    border: 1px solid #39414c;
+    border-radius: 11px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 800;
+    background: #151a21;
+    transition: .2s ease;
+}
+
+    .bm-plan-btn:hover {
+        border-color: var(--orange);
+        color: #fff;
+        background: rgba(255,122,0,.10);
+    }
+
+    .bm-plan-btn span {
+        color: var(--orange);
+        font-size: 18px;
+    }
+
+.bm-plan-btn-primary {
+    border-color: var(--orange);
+    color: #090b0f;
+    background: var(--orange);
+    box-shadow: 0 10px 30px rgba(255,122,0,.18);
+}
+
+    .bm-plan-btn-primary:hover {
+        background: #ff922b;
+        color: #090b0f;
+    }
+
+.bm-compare {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 105px 24px 120px;
+    text-align: center;
+}
+
+    .bm-compare h2 {
+        font-size: clamp(34px,4.5vw,56px);
+    }
+
+.bm-feature-table {
+    margin-top: 45px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    text-align: left;
+    background: #0d1218;
+}
+
+.bm-table-head,
+.bm-table-row {
+    display: grid;
+    grid-template-columns: 2fr repeat(4,1fr);
+    align-items: center;
+}
+
+.bm-table-head {
+    min-height: 58px;
+    background: #141a22;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 850;
+}
+
+    .bm-table-head div:not(:first-child),
+    .bm-table-row div:not(:first-child) {
+        text-align: center;
+    }
+
+    .bm-table-head div,
+    .bm-table-row div {
+        padding: 15px 18px;
+    }
+
+.bm-table-row {
+    min-height: 58px;
+    border-top: 1px solid #202731;
+    color: #aeb9c7;
+    font-size: 13px;
+}
+
+    .bm-table-row div:first-child {
+        color: #e9edf2;
+        font-weight: 650;
+    }
+
+    .bm-table-row div:not(:first-child) {
+        color: var(--orange);
+        font-size: 16px;
+        font-weight: 800;
+    }
+
+    .bm-table-row div:nth-child(2),
+    .bm-table-row div:nth-child(3),
+    .bm-table-row div:nth-child(4),
+    .bm-table-row div:nth-child(5) {
+        border-left: 1px solid #1c222b;
+    }
+
+.bm-price-cta {
+    position: relative;
+    max-width: 1100px;
+    margin: 0 auto 100px;
+    padding: 75px 30px;
+    overflow: hidden;
+    border: 1px solid rgba(255,122,0,.28);
+    border-radius: 28px;
+    background: radial-gradient(circle at 50% 0%,rgba(255,122,0,.18),transparent 45%), #10151c;
+    text-align: center;
+}
+
+.bm-cta-glow {
+    position: absolute;
+    width: 380px;
+    height: 180px;
+    left: 50%;
+    top: -100px;
+    transform: translateX(-50%);
+    background: rgba(255,122,0,.16);
+    filter: blur(75px);
+    pointer-events: none;
+}
+
+.bm-cta-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: rgba(255,122,0,.13);
+    border: 1px solid rgba(255,122,0,.28);
+    color: var(--orange);
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.bm-price-cta h2 {
+    position: relative;
+    font-size: clamp(34px,4.2vw,54px);
+}
+
+.bm-price-cta p {
+    position: relative;
+    margin: 20px auto 28px;
+    color: #aab4c1;
+}
+
+.bm-cta-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    padding: 0 25px;
+    border-radius: 11px;
+    background: var(--orange);
+    color: #090b0e;
+    text-decoration: none;
+    font-weight: 850;
+    box-shadow: 0 15px 40px rgba(255,122,0,.20);
+    transition: .2s ease;
+}
+
+    .bm-cta-btn:hover {
+        transform: translateY(-2px);
+        background: #ff922b;
+        color: #090b0e;
+    }
+
+    .bm-cta-btn span {
+        font-size: 20px;
+    }
+
+.bm-price-footer {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 24px 35px;
+    border-top: 1px solid #1c222a;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    color: #687382;
+    font-size: 12px;
+}
+
+.bm-footer-links {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+}
+
+    .bm-footer-links a {
+        color: #8e99a7;
+        text-decoration: none;
+    }
+
+        .bm-footer-links a:hover {
+            color: var(--orange);
+        }
+
+@media(max-width:1050px) {
+    .bm-plan-grid {
+        grid-template-columns: repeat(2,1fr);
+    }
+}
+
+
+@media(max-width:700px) {
+    .bm-price-top {
+        padding: 20px 18px 0;
+    }
+
+    .bm-price-hero {
+        padding: 75px 18px 40px;
+    }
+
+        .bm-price-hero h1 {
+            letter-spacing: -1.5px;
+        }
+
+        .bm-price-hero > p {
+            font-size: 15px;
+        }
+
+    .bm-plans {
+        padding: 10px 15px 75px;
+    }
+
+    .bm-plan-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bm-plan {
+        min-height: auto;
+    }
+
+    .bm-compare {
+        padding: 70px 15px 80px;
+    }
+
+    .bm-feature-table {
+        overflow-x: auto;
+    }
+
+    .bm-table-head,
+    .bm-table-row {
+        min-width: 720px;
+    }
+
+    .bm-price-cta {
+        margin: 0 15px 70px;
+        padding: 55px 20px;
+    }
+
+    .bm-price-footer {
+        flex-direction: column;
+        padding: 25px 18px;
+    }
+}
+/* =========================================
+   NAVIGATION
+   ========================================= */
+.landing-hero .landing-nav .brand-bau {
+    color: #fff !important;
+}
+
+.landing-hero .landing-nav .brand-management {
+    color: #ff7518 !important;
+}
+
+.bm-pricing-page .landing-nav {
+    position: relative;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    min-height: 76px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+    .bm-pricing-page .landing-nav .brand {
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+.bm-pricing-page .brand-bau {
+    color: #ffffff;
+}
+
+.bm-pricing-page .brand-management {
+    color: #ff9f45;
+}
+
+.bm-pricing-page .landing-nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+    .bm-pricing-page .landing-nav-menu a {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 10px 13px;
+        border-radius: 9px;
+        color: #aeb6c2;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 650;
+        transition: all .2s ease;
+    }
+
+        .bm-pricing-page .landing-nav-menu a:hover,
+        .bm-pricing-page .landing-nav-menu a.active {
+            color: #ffffff;
+            background: rgba(255,255,255,.055);
+        }
+
+        .bm-pricing-page .landing-nav-menu a.active {
+            color: #ff9f45;
+        }
+
+.bm-pricing-page .nav-b2b {
+    border: 1px solid rgba(255,122,0,.18);
+}
+
+.bm-pricing-page .landing-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 18px;
+}
+
+.bm-pricing-page .nav-login {
+    color: #ffffff;
+    background: transparent;
+    border: 1px solid #303741;
+}
+
+    .bm-pricing-page .nav-login:hover {
+        border-color: #ff7a00;
+        background: rgba(255,122,0,.08);
+    }
+
+.bm-pricing-page .nav-action {
+    border: 0;
+    background: #ff7a00;
+    color: #090b0e;
+}
+
+    .bm-pricing-page .nav-action:hover {
+        background: #ff922b;
+        color: #090b0e;
+    }
+
+
+/* MOBILE */
+
+@media (max-width: 991.98px) {
+
+    .bm-pricing-page .landing-nav-menu {
+        display: none;
+    }
+
+    .bm-pricing-page .landing-nav-actions {
+        margin-left: auto;
+    }
+}
+
+@media (max-width: 767px) {
+
+    .bm-pricing-page .landing-nav {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .bm-pricing-page .nav-login {
+        display: none !important;
+    }
+
+    .bm-pricing-page .nav-action {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .bm-pricing-page .nav-action {
+        font-size: 12px;
+        padding-left: 13px !important;
+        padding-right: 13px !important;
+    }
+}
+
+
+/* =========================================================
+   NAV – SAME AS FUNKTIONEN
+   ========================================================= */
+
+.bm-pricing-page .landing-nav {
+    position: relative !important;
+    z-index: 100 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    min-height: 74px !important;
+    padding: 10px 0 !important;
+    gap: 28px !important;
+    box-sizing: border-box !important;
+}
+
+    .bm-pricing-page .landing-nav .brand {
+        display: inline-flex !important;
+        align-items: center !important;
+        flex: 0 0 auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        color: #fff !important;
+        font-size: 17px !important;
+        font-weight: 800 !important;
+        letter-spacing: -.04em !important;
+        line-height: 1 !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+    }
+
+    .bm-pricing-page .landing-nav .brand-bau {
+        color: #fff !important;
+        font-weight: 800 !important;
+    }
+
+    .bm-pricing-page .landing-nav .brand-management {
+        color: #ff7518 !important;
+        font-weight: 800 !important;
+    }
+
+.bm-pricing-page .landing-nav-menu {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    margin-left: auto !important;
+    flex: 0 0 auto !important;
+}
+
+    .bm-pricing-page .landing-nav-menu > a {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-height: 40px !important;
+        padding: 10px 13px !important;
+        color: #aeb6c2 !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: 9px !important;
+        font-size: 13px !important;
+        font-weight: 650 !important;
+        line-height: 1 !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        transition: color .2s ease, background .2s ease, border-color .2s ease !important;
+    }
+
+        .bm-pricing-page .landing-nav-menu > a:hover,
+        .bm-pricing-page .landing-nav-menu > a:focus-visible {
+            color: #fff !important;
+            background: rgba(255,255,255,.055) !important;
+            border-color: rgba(255,255,255,.055) !important;
+        }
+
+        /* Preise is active */
+        .bm-pricing-page .landing-nav-menu > a.nav-active {
+            color: #ff7518 !important;
+            background: transparent !important;
+            border-color: transparent !important;
+        }
+
+            .bm-pricing-page .landing-nav-menu > a.nav-active:hover,
+            .bm-pricing-page .landing-nav-menu > a.nav-active:focus-visible {
+                color: #fff !important;
+                background: rgba(255,255,255,.055) !important;
+                border-color: rgba(255,255,255,.055) !important;
+            }
+
+        .bm-pricing-page .landing-nav-menu > a.nav-b2b {
+            gap: 7px !important;
+            padding-left: 13px !important;
+            padding-right: 13px !important;
+            border: 1px solid rgba(255,117,24,.35) !important;
+            color: #aeb6c2 !important;
+        }
+
+            .bm-pricing-page .landing-nav-menu > a.nav-b2b i {
+                color: #ff7518 !important;
+                font-size: 13px !important;
+            }
+
+            .bm-pricing-page .landing-nav-menu > a.nav-b2b:hover,
+            .bm-pricing-page .landing-nav-menu > a.nav-b2b:focus-visible {
+                color: #fff !important;
+                background: rgba(255,255,255,.055) !important;
+                border-color: #ff7518 !important;
+            }
+
+/* Desktop actions – EXACT same orange outline style as Funktionen */
+.bm-pricing-page .landing-nav-actions {
+    display: flex !important;
+    align-items: center !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    margin-left: 8px !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+
+.bm-pricing-page .landing-nav .nav-login,
+.bm-pricing-page .landing-nav .nav-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 18px !important;
+    color: #ff7518 !important;
+    background: transparent !important;
+    border: 1px solid #ff7518 !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    transition: color .2s ease, background .2s ease, transform .2s ease !important;
+}
+
+    .bm-pricing-page .landing-nav .nav-login:hover,
+    .bm-pricing-page .landing-nav .nav-action:hover {
+        color: #fff !important;
+        background: #ff7518 !important;
+        border-color: #ff7518 !important;
+        transform: translateY(-1px);
+    }
+
+/* Mobile toggle */
+.bm-pricing-page .bm-mobile-menu-toggle {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    margin: -1px !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+    opacity: 0 !important;
+}
+
+.bm-pricing-page .bm-mobile-menu-button {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .bm-pricing-page .landing-nav {
+        min-height: 68px !important;
+        padding: 14px !important;
+        flex-wrap: wrap !important;
+        gap: 0 !important;
+        overflow: visible !important;
+    }
+
+        .bm-pricing-page .landing-nav .brand {
+            font-size: 16px !important;
+        }
+
+    .bm-pricing-page .bm-mobile-menu-button {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-direction: column !important;
+        gap: 5px !important;
+        width: 40px !important;
+        height: 40px !important;
+        margin-left: auto !important;
+        padding: 9px !important;
+        cursor: pointer !important;
+        border: 1px solid rgba(255,117,24,.75) !important;
+        border-radius: 9px !important;
+        background: rgba(255,117,24,.08) !important;
+        z-index: 110 !important;
+    }
+
+        .bm-pricing-page .bm-mobile-menu-button span {
+            display: block !important;
+            width: 100% !important;
+            height: 2px !important;
+            border-radius: 99px !important;
+            background: #ff7518 !important;
+            transition: transform .2s ease, opacity .2s ease !important;
+        }
+
+    .bm-pricing-page .landing-nav-menu {
+        order: 10 !important;
+        display: none !important;
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin: 10px 0 0 !important;
+        padding: 8px !important;
+        box-sizing: border-box !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 3px !important;
+        border: 1px solid rgba(255,117,24,.3) !important;
+        border-radius: 12px !important;
+        background: #15191d !important;
+        box-shadow: 0 20px 45px rgba(0,0,0,.45) !important;
+    }
+
+    .bm-pricing-page .bm-mobile-menu-toggle:checked ~ .landing-nav-menu {
+        display: flex !important;
+    }
+
+    .bm-pricing-page .landing-nav-menu > a {
+        width: 100% !important;
+        min-height: 42px !important;
+        justify-content: flex-start !important;
+        padding: 10px 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .bm-pricing-page .landing-nav-actions {
+        display: none !important;
+    }
+
+    .bm-pricing-page .landing-nav-menu .bm-mobile-actions {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        width: 100% !important;
+        padding-top: 5px !important;
+        margin-top: 5px !important;
+        border-top: 1px solid rgba(255,255,255,.1) !important;
+    }
+
+    .bm-pricing-page .bm-mobile-actions .bm-mobile-login,
+    .bm-pricing-page .bm-mobile-actions .bm-mobile-register {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        min-height: 40px !important;
+        padding: 0 18px !important;
+        border-radius: 9px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        text-decoration: none !important;
+    }
+
+    .bm-pricing-page .bm-mobile-actions .bm-mobile-login {
+        color: #ff7518 !important;
+        border: 1px solid #ff7518 !important;
+        background: transparent !important;
+    }
+
+    .bm-pricing-page .bm-mobile-actions .bm-mobile-register {
+        color: #ff7518 !important;
+        border: 1px solid #ff7518 !important;
+        background: transparent !important;
+    }
+
+        .bm-pricing-page .bm-mobile-actions .bm-mobile-login:hover,
+        .bm-pricing-page .bm-mobile-actions .bm-mobile-register:hover {
+            color: #fff !important;
+            background: #ff7518 !important;
+        }
+
+    .bm-pricing-page .bm-mobile-menu-toggle:checked + .bm-mobile-menu-button span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    .bm-pricing-page .bm-mobile-menu-toggle:checked + .bm-mobile-menu-button span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .bm-pricing-page .bm-mobile-menu-toggle:checked + .bm-mobile-menu-button span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+@media (max-width: 520px) {
+    .bm-pricing-page .landing-nav {
+        padding: 13px 12px !important;
+    }
+
+        .bm-pricing-page .landing-nav .brand {
+            font-size: 15px !important;
+        }
+}
+
+/* FIX: mobile authentication actions must not appear in the desktop navbar */
+@media (min-width: 992px) {
+    .bm-pricing-page .landing-nav-menu .bm-mobile-actions {
+        display: none !important;
+    }
+}
