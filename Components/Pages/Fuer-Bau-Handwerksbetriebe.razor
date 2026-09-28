@@ -1,16 +1,79 @@
 @page "/fuer-bau-handwerk"
 @layout LandingLayout
 
+@using Microsoft.AspNetCore.Components.Authorization
+
 <PageTitle>Für Bau- & Handwerksbetriebe | BauManagement</PageTitle>
+
+<div class="bh-page">
+
+    <nav class="landing-nav container" aria-label="Hauptnavigation">
+
+        <a class="brand" href="/" aria-label="BauManagement Startseite">
+            <span class="brand-bau">Bau</span><span class="brand-management">Management</span>
+        </a>
+
+        <input type="checkbox" id="bh-mobile-menu" class="bm-mobile-menu-toggle" />
+
+        <label for="bh-mobile-menu" class="bm-mobile-menu-button" aria-label="Menü öffnen">
+            <span></span>
+            <span></span>
+            <span></span>
+        </label>
+
+        <div class="landing-nav-menu">
+            <a href="/">Startseite</a>
+            <a href="/funktionen">Funktionen</a>
+            <a href="/preise">Preise</a>
+
+            <a href="/fuer-bau-handwerk" class="nav-b2b nav-active">
+                <i class="bi bi-building"></i>
+                Für Bau- &amp; Handwerksbetriebe
+            </a>
+
+            <div class="bm-mobile-actions">
+                <AuthorizeView>
+                    <NotAuthorized>
+                        <a class="bm-mobile-login" href="Account/Login">
+                            Anmelden
+                        </a>
+                        <a class="bm-mobile-register" href="Account/Register">
+                            Kostenlos starten
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </NotAuthorized>
+                    <Authorized>
+                        <a class="bm-mobile-register" href="/tasks">
+                            Zum Dashboard
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </Authorized>
+                </AuthorizeView>
+            </div>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <a class="btn btn-warning fw-semibold px-4 nav-action" href="/tasks">
+                    Zum Dashboard
+                </a>
+            </Authorized>
+            <NotAuthorized>
+                <div class="landing-nav-actions">
+                    <a class="btn btn-primary px-4 nav-login" href="Account/Login">
+                        Anmelden
+                    </a>
+                    <a class="btn btn-primary fw-semibold px-4 nav-action" href="Account/Register">
+                        Kostenlos starten
+                    </a>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+    </nav>
 
 <section class="bh-hero">
     <div class="bh-container">
-        <nav class="bh-breadcrumb">
-            <a href="/">Startseite</a>
-            <span>/</span>
-            <span>Für Bau- & Handwerksbetriebe</span>
-        </nav>
-
         <div class="bh-hero-grid">
             <div class="bh-hero-content">
                 <span class="bh-eyebrow">FÜR BAU- & HANDWERKSBETRIEBE</span>
@@ -141,7 +204,7 @@
         <div class="bh-solution-grid">
             <div>
                 <span class="bh-eyebrow">DIE LÖSUNG FÜR IHREN ARBEITSALLTAG</span>
-                <h2>Alles Wichtige an einem Ort.</h2>
+                <h2 style="color:black;">Alles Wichtige an einem Ort.</h2>
                 <p>
                     BauManagement bringt Ihre tägliche Organisation in eine zentrale,
                     digitale Oberfläche. So sehen Sie schneller, was geplant ist,
@@ -307,3 +370,5 @@
         </div>
     </div>
 </section>
+
+</div>
