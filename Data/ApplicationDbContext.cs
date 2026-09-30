@@ -1,4 +1,3 @@
-using System.Reflection.Emit;
 using BauManagement.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         : base(options)
     {
     }
+
     public DbSet<EmployeeVacation> EmployeeVacations { get; set; }
+
     public DbSet<Company> Companies => Set<Company>();
 
     public DbSet<Employee> Employees => Set<Employee>();
@@ -22,15 +23,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<WorkAssignment> WorkAssignments => Set<WorkAssignment>();
 
     public DbSet<WorkTask> WorkTasks => Set<WorkTask>();
+
     public DbSet<WorkTimeEntry> WorkTimeEntries => Set<WorkTimeEntry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
-        // ==========================================
+        // =========================================================
         // COMPANY
-        // ==========================================
+        // =========================================================
 
         builder.Entity<Company>()
             .HasKey(x => x.Id);
@@ -42,9 +44,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
 
 
-        // ==========================================
+        // =========================================================
         // EMPLOYEE
-        // ==========================================
+        // =========================================================
 
         builder.Entity<Employee>()
             .HasKey(x => x.Id);
@@ -55,10 +57,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(x => x.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Employee -> ApplicationUser
+        builder.Entity<Employee>()
+            .HasOne(x => x.ApplicationUser)
+            .WithOne()
+            .HasForeignKey<Employee>(x => x.ApplicationUserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        // ==========================================
+
+        // =========================================================
         // BAUSTELLE
-        // ==========================================
+        // =========================================================
 
         builder.Entity<Baustelle>()
             .HasKey(x => x.Id);
@@ -70,9 +79,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
 
 
-        // ==========================================
+        // =========================================================
         // WORK ASSIGNMENT
-        // ==========================================
+        // =========================================================
 
         builder.Entity<WorkAssignment>()
             .HasKey(x => x.Id);
@@ -83,28 +92,24 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(x => x.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<Employee>()
-            .HasOne(x => x.ApplicationUser)
-            .WithOne()
-            .HasForeignKey<Employee>(x => x.ApplicationUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+        // Employee -> WorkAssignments
         builder.Entity<WorkAssignment>()
             .HasOne(x => x.Employee)
             .WithMany(x => x.WorkAssignments)
             .HasForeignKey(x => x.EmployeeId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // Baustelle -> WorkAssignments
         builder.Entity<WorkAssignment>()
             .HasOne(x => x.Baustelle)
             .WithMany(x => x.WorkAssignments)
             .HasForeignKey(x => x.BaustelleId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
 
-        // ==========================================
+        // =========================================================
         // WORK TASK
-        // ==========================================
+        // =========================================================
 
         builder.Entity<WorkTask>()
             .HasKey(x => x.Id);
@@ -115,46 +120,64 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(x => x.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Baustelle -> WorkTasks
         builder.Entity<WorkTask>()
             .HasOne(x => x.Baustelle)
             .WithMany(x => x.Tasks)
             .HasForeignKey(x => x.BaustelleId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // Employee -> WorkTasks
         builder.Entity<WorkTask>()
             .HasOne(x => x.Employee)
             .WithMany(x => x.Tasks)
             .HasForeignKey(x => x.EmployeeId)
             .OnDelete(DeleteBehavior.Restrict);
+
+
+        // =========================================================
+        // EMPLOYEE VACATION
+        // =========================================================
 
         builder.Entity<EmployeeVacation>(entity =>
         {
             entity.HasKey(x => x.Id);
 
+            // Company -> EmployeeVacations
             entity.HasOne(x => x.Company)
                 .WithMany()
                 .HasForeignKey(x => x.CompanyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Employee -> EmployeeVacations
             entity.HasOne(x => x.Employee)
                 .WithMany()
                 .HasForeignKey(x => x.EmployeeId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
         });
+
+
+        // =========================================================
+        // WORK TIME ENTRY
+        // =========================================================
+
         builder.Entity<WorkTimeEntry>(entity =>
         {
             entity.HasKey(x => x.Id);
 
+            // Company -> WorkTimeEntries
             entity.HasOne(x => x.Company)
                 .WithMany()
                 .HasForeignKey(x => x.CompanyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Employee -> WorkTimeEntries
             entity.HasOne(x => x.Employee)
                 .WithMany()
                 .HasForeignKey(x => x.EmployeeId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // Baustelle -> WorkTimeEntries
             entity.HasOne(x => x.Baustelle)
                 .WithMany()
                 .HasForeignKey(x => x.BaustelleId)

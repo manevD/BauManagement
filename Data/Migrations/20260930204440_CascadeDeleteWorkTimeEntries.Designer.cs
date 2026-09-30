@@ -4,6 +4,7 @@ using BauManagement.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BauManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260930204440_CascadeDeleteWorkTimeEntries")]
+    partial class CascadeDeleteWorkTimeEntries
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -637,7 +640,7 @@ namespace BauManagement.Migrations
                     b.HasOne("BauManagement.Models.Employee", "Employee")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Company");
@@ -650,7 +653,7 @@ namespace BauManagement.Migrations
                     b.HasOne("BauManagement.Models.Baustelle", "Baustelle")
                         .WithMany("WorkAssignments")
                         .HasForeignKey("BaustelleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BauManagement.Models.Company", "Company")
@@ -662,7 +665,7 @@ namespace BauManagement.Migrations
                     b.HasOne("BauManagement.Models.Employee", "Employee")
                         .WithMany("WorkAssignments")
                         .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Baustelle");
@@ -677,7 +680,7 @@ namespace BauManagement.Migrations
                     b.HasOne("BauManagement.Models.Baustelle", "Baustelle")
                         .WithMany("Tasks")
                         .HasForeignKey("BaustelleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("BauManagement.Models.Company", "Company")
