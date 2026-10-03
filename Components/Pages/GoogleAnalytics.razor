@@ -1,0 +1,31 @@
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(
+        object? sender,
+        LocationChangedEventArgs e)
+    {
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "bauAnalytics.pageView");
+        }
+        catch
+        {
+            // Ignore JS errors during prerender/disconnect.
+        }
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

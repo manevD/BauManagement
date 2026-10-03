@@ -1,5 +1,6 @@
 @page "/"
 @layout LandingLayout
+@inject IJSRuntime JS
 
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -115,7 +116,7 @@
                                           <a class="btn btn-primary nav-login" href="Account/Login">
                             Anmelden
                         </a>
-                           <a class="btn btn-primary fw-semibold nav-action"  href="Account/Register">
+                           <a class="btn btn-primary fw-semibold nav-action"  href="Account/Register"  @onclick="TrackRegistrationClick"> 
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -226,7 +227,7 @@
                         <div class="d-flex flex-wrap gap-3 mt-4">
 
                             <a class="btn btn-primary btn-lg px-4 fw-semibold"
-                               href="Account/Register">
+                               href="Account/Register"  @onclick="TrackRegistrationClick">
 
                                 Kostenlos starten
 
@@ -1287,7 +1288,7 @@
             </p>
 
 
-            <a href="Account/Register"
+            <a href="Account/Register"  @onclick="TrackRegistrationClick"
                class="btn btn-primary btn-lg px-5 fw-semibold">
                 Kostenlos starten
                 <i class="bi bi-arrow-right ms-2"></i>
@@ -1369,3 +1370,17 @@
     </div>
 
 </footer>
+
+@code {
+
+    private async Task TrackRegistrationClick()
+    {
+        await JS.InvokeVoidAsync(
+            "bauAnalytics.event",
+            "kostenlos_starten",
+            new
+            {
+                button_name = "Kostenlos starten"
+            });
+    }
+}

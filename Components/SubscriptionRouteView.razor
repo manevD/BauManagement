@@ -9,7 +9,6 @@
 @inject SubscriptionService SubscriptionService
 @inject NavigationManager NavigationManager
 
-
 @if (isLoading)
 {
     <div class="subscription-loading">
@@ -19,16 +18,31 @@
 }
 else if (isBlocked)
 {
-    <div class="subscription-loading">
-        <div class="subscription-loading-spinner"></div>
-        <div>Weiterleitung zur Unternehmensseite...</div>
+    <div class="subscription-blocked">
+
+        <div class="subscription-blocked-card">
+
+            <div class="subscription-blocked-icon">
+                <i class="bi bi-lock-fill"></i>
+            </div>
+
+            <h2>
+                Abonnement nicht aktiv
+            </h2>
+
+            <p>
+                Das Abonnement Ihres Unternehmens ist derzeit nicht aktiv.
+                Bitte wenden Sie sich an den Administrator Ihres Unternehmens.
+            </p>
+
+        </div>
+
     </div>
 }
 else
 {
-    <AuthorizeRouteView
-        RouteData="RouteData"
-        DefaultLayout="DefaultLayout">
+    <AuthorizeRouteView RouteData="RouteData"
+                        DefaultLayout="DefaultLayout">
 
         <NotAuthorized>
             <RedirectToLogin />
@@ -66,30 +80,7 @@ else
         try
         {
             // ---------------------------------------------------------
-            // Aktuellen Pfad ermitteln
-            // ---------------------------------------------------------
-
-            var currentPath =
-                NavigationManager
-                    .ToBaseRelativePath(
-                        NavigationManager.Uri)
-                    .Trim('/');
-
-
-            // ---------------------------------------------------------
-            // Company-Seite darf IMMER geöffnet werden
-            // ---------------------------------------------------------
-
-            if (currentPath.Equals(
-                    "company",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-
-            // ---------------------------------------------------------
-            // Benutzer prüfen
+            // Benutzer holen
             // ---------------------------------------------------------
 
             var authState =
@@ -102,6 +93,36 @@ else
             // Nicht eingeloggt
             if (user.Identity?.IsAuthenticated != true)
             {
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // Aktuellen Pfad ermitteln
+            // ---------------------------------------------------------
+
+            var currentPath =
+                NavigationManager
+                    .ToBaseRelativePath(
+                        NavigationManager.Uri)
+                    .Trim('/');
+
+
+            // ---------------------------------------------------------
+            // Mitarbeiter darf Company NICHT öffnen
+            // ---------------------------------------------------------
+
+            if (currentPath.Equals(
+                    "company",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                if (user.IsInRole("Mitarbeiter"))
+                {
+                    isBlocked = true;
+                    return;
+                }
+
+                // Admin / Owner darf Company öffnen
                 return;
             }
 
@@ -124,11 +145,21 @@ else
             }
 
 
-            // Keine Company gefunden
+            // ---------------------------------------------------------
+            // Keine Company
+            // ---------------------------------------------------------
+
             if (!companyId.HasValue)
             {
                 isBlocked = true;
 
+                // Mitarbeiter bleibt auf Block Page
+                if (user.IsInRole("Mitarbeiter"))
+                {
+                    return;
+                }
+
+                // Admin / Owner
                 NavigationManager.NavigateTo(
                     "/company",
                     replace: true);
@@ -148,25 +179,43 @@ else
 
 
             // ---------------------------------------------------------
-            // Subscription ist gültig
+            // Subscription aktiv
             // ---------------------------------------------------------
 
             if (result.IsAllowed)
             {
                 isBlocked = false;
-
                 return;
             }
 
 
             // ---------------------------------------------------------
-            // Subscription ist NICHT gültig
+            // Subscription NICHT aktiv
             // ---------------------------------------------------------
 
             isBlocked = true;
 
 
-            // Benutzer direkt zur Company-Seite schicken
+            // ---------------------------------------------------------
+            // MITARBEITER
+            // ---------------------------------------------------------
+            // Keine Weiterleitung.
+            // Nur Block Page.
+            // ---------------------------------------------------------
+
+            if (user.IsInRole("Mitarbeiter"))
+            {
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // ADMIN / OWNER
+            // ---------------------------------------------------------
+            // Zur Company-Seite.
+            // Dort kann ein Paket ausgewählt werden.
+            // ---------------------------------------------------------
+
             NavigationManager.NavigateTo(
                 "/company",
                 replace: true);
@@ -175,16 +224,27 @@ else
         }
         catch
         {
-            // Bei einem Fehler ebenfalls Zugriff sperren
-            // und zur Company-Seite schicken.
-
+            // Bei Fehler ebenfalls blockieren
             isBlocked = true;
 
+            var authState =
+                await AuthenticationStateProvider
+                    .GetAuthenticationStateAsync();
+
+            var user = authState.User;
+
+
+            // Mitarbeiter bleibt auf Block Page
+            if (user.IsInRole("Mitarbeiter"))
+            {
+                return;
+            }
+
+
+            // Admin / Owner
             NavigationManager.NavigateTo(
                 "/company",
                 replace: true);
-
-            return;
         }
         finally
         {

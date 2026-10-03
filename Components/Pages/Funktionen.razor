@@ -1,5 +1,6 @@
 @page "/funktionen"
 @layout LandingLayout
+@inject IJSRuntime JS
 
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -35,7 +36,7 @@
                 <AuthorizeView>
                     <NotAuthorized>
                         <a class="bm-mobile-login" href="Account/Login">Anmelden</a>
-                        <a class="bm-mobile-register" href="Account/Register">
+                        <a class="bm-mobile-register" href="Account/Register"  @onclick="TrackRegistrationClick">
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -86,7 +87,7 @@
                 </p>
 
                 <div class="bm-hero-actions">
-                    <a class="btn btn-primary btn-lg px-4" href="Account/Register">
+                    <a class="btn btn-primary btn-lg px-4" href="Account/Register"  @onclick="TrackRegistrationClick">
                         Kostenlos starten
                         <i class="bi bi-arrow-right ms-2"></i>
                     </a>
@@ -598,7 +599,7 @@
                     Arbeitszeiten und Urlaub zentral mit BauManagement.
                 </p>
 
-                <a class="btn btn-primary btn-lg px-5" href="Account/Register">
+                <a class="btn btn-primary btn-lg px-5" href="Account/Register"  @onclick="TrackRegistrationClick">
                     Kostenlos starten
                     <i class="bi bi-arrow-right ms-2"></i>
                 </a>
@@ -641,3 +642,16 @@
     </footer>
 
 </div>
+@code {
+
+    private async Task TrackRegistrationClick()
+    {
+        await JS.InvokeVoidAsync(
+            "bauAnalytics.event",
+            "kostenlos_starten",
+            new
+            {
+                button_name = "Kostenlos starten"
+            });
+    }
+}

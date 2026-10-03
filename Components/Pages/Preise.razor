@@ -1,5 +1,6 @@
 @page "/preise"
 @layout LandingLayout
+@inject IJSRuntime JS
 
 <PageTitle>Preise – BauManagement</PageTitle>
 
@@ -40,7 +41,7 @@
                         <a class="bm-mobile-login" href="Account/Login">
                             Anmelden
                         </a>
-                        <a class="bm-mobile-register" href="Account/Register">
+                        <a class="bm-mobile-register" href="Account/Register"  @onclick="TrackRegistrationClick">
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -434,7 +435,7 @@
             Starten Sie mit dem Tarif, der zu Ihrem Team passt.
         </p>
 
-        <a href="/Account/Register" class="bm-cta-btn">
+        <a href="/Account/Register" class="bm-cta-btn"  @onclick="TrackRegistrationClick">
             Kostenlos starten <span>→</span>
         </a>
 
@@ -475,7 +476,19 @@
 
 </div>
 
+@code {
 
+    private async Task TrackRegistrationClick()
+    {
+        await JS.InvokeVoidAsync(
+            "bauAnalytics.event",
+            "kostenlos_starten",
+            new
+            {
+                button_name = "Kostenlos starten"
+            });
+    }
+}
 <style>
     /* Nur der aktive Preise-Link wird markiert.
        Alle anderen Navbar-Stile kommen vom bestehenden Home-CSS. */

@@ -1,5 +1,6 @@
 @page "/fuer-bau-handwerk"
 @layout LandingLayout
+@inject IJSRuntime JS
 
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -37,7 +38,7 @@
                         <a class="bm-mobile-login" href="Account/Login">
                             Anmelden
                         </a>
-                        <a class="bm-mobile-register" href="Account/Register">
+                        <a class="bm-mobile-register" href="Account/Register"  @onclick="TrackRegistrationClick">
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -63,7 +64,7 @@
                     <a class="btn btn-primary px-4 nav-login" href="Account/Login">
                         Anmelden
                     </a>
-                    <a class="btn btn-primary fw-semibold px-4 nav-action" href="Account/Register">
+                    <a class="btn btn-primary fw-semibold px-4 nav-action" href="Account/Register"  @onclick="TrackRegistrationClick">
                         Kostenlos starten
                     </a>
                 </div>
@@ -93,7 +94,7 @@
                 </p>
 
                 <div class="bh-actions">
-                    <a href="Account/Register" class="bh-btn bh-btn-primary">
+                    <a href="Account/Register" class="bh-btn bh-btn-primary"  @onclick="TrackRegistrationClick">
                         Kostenlos starten
                         <i class="bi bi-arrow-right"></i>
                     </a>
@@ -359,7 +360,7 @@
             </p>
 
             <div class="bh-actions">
-                <a href="Account/Register" class="bh-btn bh-btn-primary">
+                <a href="Account/Register" class="bh-btn bh-btn-primary"  @onclick="TrackRegistrationClick">
                     Kostenlos starten
                     <i class="bi bi-arrow-right"></i>
                 </a>
@@ -372,3 +373,16 @@
 </section>
 
 </div>
+@code {
+
+    private async Task TrackRegistrationClick()
+    {
+        await JS.InvokeVoidAsync(
+            "bauAnalytics.event",
+            "kostenlos_starten",
+            new
+            {
+                button_name = "Kostenlos starten"
+            });
+    }
+}
