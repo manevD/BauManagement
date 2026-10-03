@@ -15,7 +15,7 @@
     <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
-              "@@type": "SoftwareApplication",
+      "@@type": "SoftwareApplication",
       "name": "myBauManagement",
       "applicationCategory": "BusinessApplication",
       "applicationSubCategory": "Construction Management Software",
@@ -28,10 +28,10 @@
     <script type="application/ld+json">
     {
       "@@context": "https://schema.org",
-              "@@type": "FAQPage",
+      "@@type": "FAQPage",
       "mainEntity": [
         {
-                  "@@type": "Question",
+          "@@type": "Question",
           "name": "Was ist myBauManagement?",
           "acceptedAnswer": {
             "@@type": "Answer",
@@ -39,23 +39,23 @@
           }
         },
         {
-                  "@@type": "Question",
+          "@@type": "Question",
           "name": "Für wen ist myBauManagement geeignet?",
           "acceptedAnswer": {
-                    "@@type": "Answer",
+            "@@type": "Answer",
             "text": "myBauManagement richtet sich an Bauunternehmen, Handwerksbetriebe und andere Unternehmen, die Mitarbeiter auf verschiedenen Baustellen einsetzen und ihre Planung digital organisieren möchten."
           }
         },
         {
-                  "@@type": "Question",
+          "@@type": "Question",
           "name": "Kann ich Mitarbeiter Baustellen zuweisen?",
           "acceptedAnswer": {
-                    "@@type": "Answer",
+            "@@type": "Answer",
             "text": "Ja. Mitarbeiter können Baustellen und Einsätzen zugeordnet werden. Die geplanten Einsätze können übersichtlich im Kalender dargestellt werden."
           }
         },
         {
-                  "@@type": "Question",
+          "@@type": "Question",
           "name": "Kann ich Aufgaben für Mitarbeiter verwalten?",
           "acceptedAnswer": {
             "@@type": "Answer",
@@ -73,20 +73,13 @@
       ]
     }
     </script>
-
-
 </HeadContent>
-
-
 
 <!-- =========================================================
      HERO
 ========================================================= -->
-
 <section class="landing-hero text-white">
-
     <nav class="landing-nav container" aria-label="Hauptnavigation">
-
         <a class="brand" href="/" aria-label="myBauManagement Startseite">
             <span class="brand-bau">Bau</span><span class="brand-management" style="color:#ff9f45;">Management</span>
         </a>
@@ -106,17 +99,14 @@
                 <i class="bi bi-building"></i>
                 Für Bau- & Handwerksbetriebe
             </a>
-
             <a href="/datenschutz">Datenschutzerklärung</a>
             <a href="/impressum">Impressum</a>
 
             <div class="bm-mobile-actions">
                 <AuthorizeView>
                     <NotAuthorized>
-                                          <a class="btn btn-primary nav-login" href="Account/Login">
-                            Anmelden
-                        </a>
-                           <a class="btn btn-primary fw-semibold nav-action"  href="Account/Register"  @onclick="TrackRegistrationClick"> 
+                        <a class="btn btn-primary nav-login" href="Account/Login">Anmelden</a>
+                        <a class="btn btn-primary fw-semibold nav-action" href="Account/Register" @onclick="TrackRegistrationClick"> 
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -130,410 +120,140 @@
                 </AuthorizeView>
             </div>
         </div>
-
-
-
     </nav>
 
-
     <div class="container py-5 py-lg-6">
-
         <div class="row align-items-center g-5">
-
             <!-- HERO TEXT -->
-
             <div class="col-lg-7">
-
-                <span class="hero-eyebrow">
-                    BAUSTELLENPLANUNG FÜR BAU & HANDWERK
-                </span>
-
+                <span class="hero-eyebrow">BAUSTELLENPLANUNG FÜR BAU & HANDWERK</span>
                 <h1 class="hero-title mt-3">
-
                     Baustellen- und Mitarbeiterplanung für Bau & Handwerk
                     <br />
-
                     <span>Wer arbeitet heute auf welcher Baustelle? Mit myBauManagement sehen Sie es sofort.</span>
-
                 </h1>
 
-
                 <p class="hero-description mt-4">
-
                     myBauManagement hilft Bau- und Handwerksbetrieben dabei, Mitarbeiter,
                     Baustellen, Einsätze, Aufgaben und Arbeitszeiten zentral
                     zu organisieren – einfach, übersichtlich und digital.
-
                 </p>
 
-
                 <AuthorizeView>
-
                     <Authorized>
-
                         <div class="d-flex flex-wrap gap-3 mt-4">
-
-                            <a class="btn btn-warning btn-lg px-4 fw-semibold"
-                               href="/tasks">
-
+                            <a class="btn btn-warning btn-lg px-4 fw-semibold" href="/tasks">
                                 Zum Dashboard
-
                                 <i class="bi bi-arrow-right ms-2"></i>
-
                             </a>
-
-
-                            <a class="btn btn-hero-link btn-lg"
-                               href="/funktionen">
-
+                            <a class="btn btn-hero-link btn-lg" href="/funktionen">
                                 So funktioniert BauManagement
-
                                 <i class="bi bi-chevron-down ms-2"></i>
-
                             </a>
-
                         </div>
-
 
                         <div class="hero-trust mt-4">
-
-                            <span>
-                                <i class="bi bi-check-circle-fill"></i>
-                                Baustellen
-                            </span>
-
-                            <span>
-                                <i class="bi bi-check-circle-fill"></i>
-                                Mitarbeiter
-                            </span>
-
-                            <span>
-                                <i class="bi bi-check-circle-fill"></i>
-                                Aufgaben
-                            </span>
-
-                            <span>
-                                <i class="bi bi-check-circle-fill"></i>
-                                Zeiterfassung
-                            </span>
-
+                            <span><i class="bi bi-check-circle-fill"></i> Baustellen</span>
+                            <span><i class="bi bi-check-circle-fill"></i> Mitarbeiter</span>
+                            <span><i class="bi bi-check-circle-fill"></i> Aufgaben</span>
+                            <span><i class="bi bi-check-circle-fill"></i> Zeiterfassung</span>
                         </div>
-
                     </Authorized>
 
-
                     <NotAuthorized>
-
                         <div class="d-flex flex-wrap gap-3 mt-4">
-
-                            <a class="btn btn-primary btn-lg px-4 fw-semibold"
-                               href="Account/Register"  @onclick="TrackRegistrationClick">
-
+                            <a class="btn btn-primary btn-lg px-4 fw-semibold" href="Account/Register" @onclick="TrackRegistrationClick">
                                 Kostenlos starten
-
                                 <i class="bi bi-arrow-right ms-2"></i>
-
                             </a>
-
-
-                            <a class="btn btn-hero-link btn-lg"
-                               href="/funktionen">
-
+                            <a class="btn btn-hero-link btn-lg" href="/funktionen">
                                 So funktioniert BauManagement
-
                                 <i class="bi bi-chevron-down ms-2"></i>
-
                             </a>
-
                         </div>
-
 
                         <div class="hero-trust mt-4">
-
-                            <span>
-                                <i class="bi bi-check-circle-fill"></i>
-                                Einfach einzurichten
-                            </span>
-
-                            <span>
-                                <i class="bi bi-check-circle-fill"></i>
-                                Für Bau & Handwerk
-                            </span>
-
+                            <span><i class="bi bi-check-circle-fill"></i> Einfach einzurichten</span>
+                            <span><i class="bi bi-check-circle-fill"></i> Für Bau & Handwerk</span>
                         </div>
-
                     </NotAuthorized>
-
                 </AuthorizeView>
-
             </div>
-
 
             <!-- HERO DASHBOARD PREVIEW -->
-
             <div class="col-lg-5">
-
                 <div class="dashboard-preview">
-
                     <div class="preview-top">
-
                         <div>
-
-                            <small>
-                                HEUTE
-                            </small>
-
-                            <strong>
-                                Baustellenübersicht
-                            </strong>
-
+                            <small>HEUTE</small>
+                            <strong>Baustellenübersicht</strong>
                         </div>
-
-
-                        <span class="live-badge">
-
-                            <span></span>
-
-                            Live
-
-                        </span>
-
+                        <span class="live-badge"><span></span>Live</span>
                     </div>
-
-
-                    <!-- STATS -->
 
                     <div class="preview-stats">
-
                         <div class="preview-stat">
-
-                            <div class="preview-stat-icon orange">
-
-                                <i class="bi bi-buildings"></i>
-
-                            </div>
-
-                            <div>
-
-                                <strong>12</strong>
-
-                                <small>
-                                    Baustellen
-                                </small>
-
-                            </div>
-
+                            <div class="preview-stat-icon orange"><i class="bi bi-buildings"></i></div>
+                            <div><strong>12</strong><small>Baustellen</small></div>
                         </div>
-
-
                         <div class="preview-stat">
-
-                            <div class="preview-stat-icon blue">
-
-                                <i class="bi bi-people"></i>
-
-                            </div>
-
-                            <div>
-
-                                <strong>24</strong>
-
-                                <small>
-                                    Mitarbeiter
-                                </small>
-
-                            </div>
-
+                            <div class="preview-stat-icon blue"><i class="bi bi-people"></i></div>
+                            <div><strong>24</strong><small>Mitarbeiter</small></div>
                         </div>
-
-
                         <div class="preview-stat">
-
-                            <div class="preview-stat-icon green">
-
-                                <i class="bi bi-check2-square"></i>
-
-                            </div>
-
-                            <div>
-
-                                <strong>18</strong>
-
-                                <small>
-                                    Aufgaben
-                                </small>
-
-                            </div>
-
+                            <div class="preview-stat-icon green"><i class="bi bi-check2-square"></i></div>
+                            <div><strong>18</strong><small>Aufgaben</small></div>
                         </div>
-
                     </div>
-
-
-                    <!-- ASSIGNMENTS -->
 
                     <div class="preview-section-title">
-
-                        <span>
-                            Heutige Einsätze
-                        </span>
-
-                        <span>
-                            08:00 – 17:00
-                        </span>
-
+                        <span>Heutige Einsätze</span>
+                        <span>08:00 – 17:00</span>
                     </div>
-
 
                     <div class="preview-assignment">
-
-                        <div class="preview-avatar">
-                            MK
-                        </div>
-
+                        <div class="preview-avatar">MK</div>
                         <div class="preview-assignment-content">
-
-                            <strong>
-                                Marko K.
-                            </strong>
-
-                            <span>
-
-                                <i class="bi bi-geo-alt"></i>
-
-                                Müller GmbH
-
-                            </span>
-
+                            <strong>Marko K.</strong>
+                            <span><i class="bi bi-geo-alt"></i> Müller GmbH</span>
                         </div>
-
-                        <div class="preview-time">
-
-                            08:00
-
-                            <small>
-                                12:00
-                            </small>
-
-                        </div>
-
+                        <div class="preview-time">08:00<small>12:00</small></div>
                     </div>
-
 
                     <div class="preview-assignment">
-
-                        <div class="preview-avatar orange">
-                            ST
-                        </div>
-
+                        <div class="preview-avatar orange">ST</div>
                         <div class="preview-assignment-content">
-
-                            <strong>
-                                Stefan T.
-                            </strong>
-
-                            <span>
-
-                                <i class="bi bi-geo-alt"></i>
-
-                                Neubau Weber
-
-                            </span>
-
+                            <strong>Stefan T.</strong>
+                            <span><i class="bi bi-geo-alt"></i> Neubau Weber</span>
                         </div>
-
-                        <div class="preview-time">
-
-                            08:00
-
-                            <small>
-                                16:00
-                            </small>
-
-                        </div>
-
+                        <div class="preview-time">08:00<small>16:00</small></div>
                     </div>
-
 
                     <div class="preview-assignment">
-
-                        <div class="preview-avatar green">
-                            DA
-                        </div>
-
+                        <div class="preview-avatar green">DA</div>
                         <div class="preview-assignment-content">
-
-                            <strong>
-                                Daniel A.
-                            </strong>
-
-                            <span>
-
-                                <i class="bi bi-geo-alt"></i>
-
-                                Sanierung Schmidt
-
-                            </span>
-
+                            <strong>Daniel A.</strong>
+                            <span><i class="bi bi-geo-alt"></i> Sanierung Schmidt</span>
                         </div>
-
-                        <div class="preview-time">
-
-                            10:00
-
-                            <small>
-                                14:00
-                            </small>
-
-                        </div>
-
+                        <div class="preview-time">10:00<small>14:00</small></div>
                     </div>
-
-
-                    <!-- TIME -->
 
                     <div class="preview-time-row">
-
-                        <div>
-
-                            <i class="bi bi-clock-history"></i>
-
-                            <span>
-                                Arbeitszeit heute
-                            </span>
-
-                        </div>
-
-                        <strong>
-                            06:42 h
-                        </strong>
-
+                        <div><i class="bi bi-clock-history"></i><span>Arbeitszeit heute</span></div>
+                        <strong>06:42 h</strong>
                     </div>
-
 
                     <div class="preview-footer">
-
-                        <i class="bi bi-calendar3"></i>
-
-                        Alle Einsätze im Chef-Kalender verwalten
-
+                        <i class="bi bi-calendar3"></i> Alle Einsätze im Chef-Kalender verwalten
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
 
-
-
-
 <!-- =========================================================
-     3D SCROLL PRODUCT EXPERIENCE
+     3D SCROLL PRODUCT EXPERIENCE (OPTIMIZED)
 ========================================================= -->
 <section class="bm-3d-stage" aria-label="myBauManagement 3D Produktansicht">
     <div class="bm-3d-sticky">
@@ -582,6 +302,7 @@
     const bars = document.querySelectorAll('.bm-3d-progress span');
     const leftWord = document.querySelector('.bm-word-left');
     const rightWord = document.querySelector('.bm-word-right');
+    
     if (!stage || !device) return;
 
     const scenes = [
@@ -590,51 +311,96 @@
         ['CHEF-KALENDER', 'Planung ohne Chaos.', 'Einsätze, Zeiten und Aufgaben werden zentral geplant und übersichtlich dargestellt.'],
         ['BAUMANAGEMENT DIGITAL', 'Mehr Überblick. Weniger Aufwand.', 'Vom Büro bis zur Baustelle: myBauManagement verbindet Ihre tägliche Organisation.']
     ];
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let pointerX = 0, pointerY = 0, targetX = 0, targetY = 0, ticking = false;
-    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    let currentScene = -1;
 
-    function updatePointer(event) {
+    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
+
+    function updatePointer(e) {
         if (reduceMotion || window.innerWidth < 992) return;
         const rect = device.getBoundingClientRect();
-        targetX = clamp((event.clientX - (rect.left + rect.width / 2)) / rect.width, -.5, .5);
-        targetY = clamp((event.clientY - (rect.top + rect.height / 2)) / rect.height, -.5, .5);
-        if (!ticking) { ticking = true; requestAnimationFrame(animatePointer); }
+        targetX = clamp((e.clientX - (rect.left + rect.width / 2)) / rect.width, -0.5, 0.5);
+        targetY = clamp((e.clientY - (rect.top + rect.height / 2)) / rect.height, -0.5, 0.5);
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(animatePointer);
+        }
     }
+
     function animatePointer() {
-        pointerX += (targetX - pointerX) * .12;
-        pointerY += (targetY - pointerY) * .12;
-        device.style.setProperty('--pointer-rx', (pointerY * -5).toFixed(2) + 'deg');
-        device.style.setProperty('--pointer-ry', (pointerX * 7).toFixed(2) + 'deg');
-        ticking = Math.abs(targetX - pointerX) > .001 || Math.abs(targetY - pointerY) > .001;
+        pointerX += (targetX - pointerX) * 0.1;
+        pointerY += (targetY - pointerY) * 0.1;
+        device.style.setProperty('--pointer-rx', (pointerY * -6).toFixed(2) + 'deg');
+        device.style.setProperty('--pointer-ry', (pointerX * 8).toFixed(2) + 'deg');
+        ticking = Math.abs(targetX - pointerX) > 0.001 || Math.abs(targetY - pointerY) > 0.001;
         if (ticking) requestAnimationFrame(animatePointer);
     }
+
     stage.addEventListener('pointermove', updatePointer, { passive: true });
     stage.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; }, { passive: true });
 
     let scrollFrame = 0;
+
     function render() {
         const rect = stage.getBoundingClientRect();
-        const max = Math.max(1, stage.offsetHeight - window.innerHeight);
-        const p = clamp(-rect.top / max, 0, 1);
+        const maxScroll = stage.offsetHeight - window.innerHeight;
+        if (maxScroll <= 0) return;
+
+        const p = clamp(-rect.top / maxScroll, 0, 1);
+        const isMobile = window.innerWidth < 992;
+
+        // Custom easing for smooth transitions
         const ease = p * p * (3 - 2 * p);
-        const x = ease * -42, y = 70 - ease * 145;
-        const rx = 12 - ease * 23, ry = -24 + ease * 48, rz = -2 + ease * 4;
-        const scale = .70 + Math.sin(p * Math.PI) * .29;
-        device.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotateX(calc(' + rx + 'deg + var(--pointer-rx, 0deg))) rotateY(calc(' + ry + 'deg + var(--pointer-ry, 0deg))) rotateZ(' + rz + 'deg) scale(' + scale + ')';
-        device.classList.toggle('deep', p > .25);
+
+        // Adjust parameters per breakpoint
+        const moveX = isMobile ? (ease * -10) : (ease * -35);
+        const moveY = isMobile ? (30 - ease * 60) : (50 - ease * 120);
+        const rx = isMobile ? (8 - ease * 12) : (12 - ease * 20);
+        const ry = isMobile ? (-10 + ease * 20) : (-22 + ease * 44);
+        const rz = isMobile ? 0 : (-2 + ease * 4);
+        const baseScale = isMobile ? 0.85 : 0.72;
+        const scale = baseScale + Math.sin(p * Math.PI) * (isMobile ? 0.12 : 0.22);
+
+        device.style.transform = `translate3d(${moveX}px, ${moveY}px, 0) rotateX(calc(${rx}deg + var(--pointer-rx, 0deg))) rotateY(calc(${ry}deg + var(--pointer-ry, 0deg))) rotateZ(${rz}deg) scale(${scale})`;
+        device.classList.toggle('deep', p > 0.25);
+
         if (leftWord && rightWord) {
-            const word = clamp(p / .42, 0, 1), wordEase = 1 - Math.pow(1 - word, 3);
-            leftWord.style.transform = 'translate3d(' + wordEase * 25 + 'vw,-95%,0) rotateY(' + (1 - wordEase) * 35 + 'deg)';
-            rightWord.style.transform = 'translate3d(' + -wordEase * 25 + 'vw,5%,0) rotateY(' + (1 - wordEase) * -35 + 'deg)';
-            leftWord.style.opacity = rightWord.style.opacity = String(.2 + wordEase * .72);
+            const word = clamp(p / 0.4, 0, 1);
+            const wordEase = 1 - Math.pow(1 - word, 3);
+            const wordDist = isMobile ? 12 : 22;
+            leftWord.style.transform = `translate3d(${wordEase * wordDist}vw, -90%, 0) rotateY(${(1 - wordEase) * 25}deg)`;
+            rightWord.style.transform = `translate3d(${-wordEase * wordDist}vw, 10%, 0) rotateY(${(1 - wordEase) * -25}deg)`;
+            leftWord.style.opacity = rightWord.style.opacity = String(0.15 + wordEase * 0.75);
         }
-        const sceneIndex = Math.min(3, Math.floor(p * 4.01));
-        eyebrow.textContent = scenes[sceneIndex][0]; title.textContent = scenes[sceneIndex][1]; copy.textContent = scenes[sceneIndex][2];
-        bars.forEach((bar, index) => bar.classList.toggle('active', index === sceneIndex));
+
+        let sceneIdx;
+
+        if (p < 0.22) {
+            sceneIdx = 0;
+        } else if (p < 0.47) {
+            sceneIdx = 1;
+        } else if (p < 0.72) {
+            sceneIdx = 2;
+        } else {
+            sceneIdx = 3;
+        }
+        if (sceneIdx !== currentScene) {
+            currentScene = sceneIdx;
+            eyebrow.textContent = scenes[sceneIdx][0];
+            title.textContent = scenes[sceneIdx][1];
+            copy.textContent = scenes[sceneIdx][2];
+            bars.forEach((bar, index) => bar.classList.toggle('active', index === sceneIdx));
+        }
+
         scrollFrame = 0;
     }
-    function requestRender() { if (!scrollFrame) scrollFrame = requestAnimationFrame(render); }
+
+    function requestRender() {
+        if (!scrollFrame) scrollFrame = requestAnimationFrame(render);
+    }
+
     window.addEventListener('scroll', requestRender, { passive: true });
     window.addEventListener('resize', requestRender, { passive: true });
     render();
@@ -644,447 +410,181 @@
 <!-- =========================================================
      INTRO
 ========================================================= -->
-
 <section class="intro-section py-5 py-lg-6">
-
     <div class="container">
-
         <div class="section-heading text-center mx-auto">
-
-            <span class="section-eyebrow">
-                WENIGER CHAOS. MEHR ÜBERBLICK.
-            </span>
-
+            <span class="section-eyebrow">WENIGER CHAOS. MEHR ÜBERBLICK.</span>
             <h2>
-
                 Schluss mit Excel, Zetteln
                 <br class="d-none d-md-block" />
                 und unübersichtlichen WhatsApp-Nachrichten.
-
             </h2>
-
             <p>
-
                 Mit myBauManagement organisieren Sie Ihre Baustellen,
                 Mitarbeiter, Aufgaben, Einsätze und Arbeitszeiten
                 zentral – übersichtlich, digital und jederzeit erreichbar.
-
             </p>
-
         </div>
-
     </div>
-
 </section>
-
-
 
 <!-- =========================================================
      DIGITALE ZEITERFASSUNG
 ========================================================= -->
-
 <section class="time-section py-5 py-lg-6">
-
     <div class="container">
-
         <div class="row align-items-center g-5">
-
-
             <!-- TEXT -->
-
             <div class="col-lg-6">
-
-                <span class="section-eyebrow">
-                    DIGITALE ZEITERFASSUNG
-                </span>
-
-                <h2 style="color:black;">
-                    Arbeitszeiten einfach und digital erfassen.
-                </h2>
-
+                <span class="section-eyebrow">DIGITALE ZEITERFASSUNG</span>
+                <h2 style="color:black;">Arbeitszeiten einfach und digital erfassen.</h2>
                 <p class="text-muted mt-3">
-
                     Keine Zettel und keine manuellen Listen.
                     Mitarbeiter erfassen ihre Arbeitszeiten direkt digital,
                     während Sie als Chef jederzeit den Überblick behalten.
-
                 </p>
 
-
                 <div class="time-features mt-4">
-
-
                     <div class="time-feature">
-
-                        <div class="time-feature-icon">
-
-                            <i class="bi bi-play-circle"></i>
-
-                        </div>
-
+                        <div class="time-feature-icon"><i class="bi bi-play-circle"></i></div>
                         <div>
-
-                            <strong style="color:black">
-                                Arbeitsbeginn erfassen
-                            </strong>
-
-                            <span>
-                                Arbeitszeit direkt beim Arbeitsbeginn erfassen.
-                            </span>
-
+                            <strong style="color:black">Arbeitsbeginn erfassen</strong>
+                            <span>Arbeitszeit direkt beim Arbeitsbeginn erfassen.</span>
                         </div>
-
                     </div>
 
-
                     <div class="time-feature">
-
-                        <div class="time-feature-icon">
-
-                            <i class="bi bi-stop-circle"></i>
-
-                        </div>
-
+                        <div class="time-feature-icon"><i class="bi bi-stop-circle"></i></div>
                         <div>
-
-                            <strong style="color:black">
-                                Arbeitsende erfassen
-                            </strong>
-
-                            <span>
-                                Arbeitszeit am Ende des Arbeitstags beenden.
-                            </span>
-
+                            <strong style="color:black">Arbeitsende erfassen</strong>
+                            <span>Arbeitszeit am Ende des Arbeitstags beenden.</span>
                         </div>
-
                     </div>
 
-
                     <div class="time-feature">
-
-                        <div class="time-feature-icon">
-
-                            <i class="bi bi-clock"></i>
-
-                        </div>
-
+                        <div class="time-feature-icon"><i class="bi bi-clock"></i></div>
                         <div>
-
-                            <strong style="color:black">
-                                Arbeitsstunden im Überblick
-                            </strong>
-
-                            <span>
-                                Erfasste Arbeitszeiten übersichtlich darstellen.
-                            </span>
-
+                            <strong style="color:black">Arbeitsstunden im Überblick</strong>
+                            <span>Erfasste Arbeitszeiten übersichtlich darstellen.</span>
                         </div>
-
                     </div>
 
-
                     <div class="time-feature">
-
-                        <div class="time-feature-icon">
-
-                            <i class="bi bi-bar-chart"></i>
-
-                        </div>
-
+                        <div class="time-feature-icon"><i class="bi bi-bar-chart"></i></div>
                         <div>
-
-                            <strong style="color:black">
-                                Auswertungen
-                            </strong>
-
-                            <span>
-                                Arbeitszeiten nach Mitarbeiter
-                                und Zeitraum auswerten.
-                            </span>
-
+                            <strong style="color:black">Auswertungen</strong>
+                            <span>Arbeitszeiten nach Mitarbeiter und Zeitraum auswerten.</span>
                         </div>
-
                     </div>
-
-
                 </div>
-
             </div>
-
 
             <!-- PREVIEW -->
-
             <div class="col-lg-6">
-
                 <div class="time-dashboard">
-
-
                     <div class="time-dashboard-header">
-
                         <div>
-
-                            <small>
-                                ARBEITSZEIT
-                            </small>
-
-                            <strong>
-                                Heute
-                            </strong>
-
+                            <small>ARBEITSZEIT</small>
+                            <strong>Heute</strong>
                         </div>
-
-
-                        <span class="time-status">
-
-                            <span></span>
-
-                            Aktiv
-
-                        </span>
-
+                        <span class="time-status"><span></span>Aktiv</span>
                     </div>
-
 
                     <div class="time-main">
-
-                        <span class="time-label">
-                            Aktuelle Arbeitszeit
-                        </span>
-
-                        <strong class="time-value">
-                            06:42
-                        </strong>
-
-                        <span class="time-location">
-
-                            <i class="bi bi-geo-alt"></i>
-
-                            Baustelle Müller GmbH
-
-                        </span>
-
+                        <span class="time-label">Aktuelle Arbeitszeit</span>
+                        <strong class="time-value">06:42</strong>
+                        <span class="time-location"><i class="bi bi-geo-alt"></i> Baustelle Müller GmbH</span>
                     </div>
-
 
                     <div class="time-progress">
-
                         <div class="time-progress-top">
-
-                            <span>
-                                Arbeitszeit heute
-                            </span>
-
-                            <strong>
-                                06:42 / 08:00
-                            </strong>
-
+                            <span>Arbeitszeit heute</span>
+                            <strong>06:42 / 08:00</strong>
                         </div>
-
-
-                        <div class="time-progress-bar">
-
-                            <span style="width:84%;"></span>
-
-                        </div>
-
+                        <div class="time-progress-bar"><span style="width:84%;"></span></div>
                     </div>
-
 
                     <div class="time-summary">
-
-
-                        <div>
-
-                            <small>
-                                Beginn
-                            </small>
-
-                            <strong>
-                                07:18
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <small>
-                                Pause
-                            </small>
-
-                            <strong>
-                                00:30
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <small>
-                                Ende
-                            </small>
-
-                            <strong>
-                                15:30
-                            </strong>
-
-                        </div>
-
-
+                        <div><small>Beginn</small><strong>07:18</strong></div>
+                        <div><small>Pause</small><strong>00:30</strong></div>
+                        <div><small>Ende</small><strong>15:30</strong></div>
                     </div>
-
 
                     <div class="time-action">
-
                         <button class="btn btn-primary w-100">
-
-                            <i class="bi bi-stop-circle me-2"></i>
-
-                            Arbeitszeit beenden
-
+                            <i class="bi bi-stop-circle me-2"></i> Arbeitszeit beenden
                         </button>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
-
-
 
 <!-- =========================================================
      ROLLEN
 ========================================================= -->
-
 <section class="roles-section py-5 py-lg-6">
-
     <div class="container">
-
         <div class="section-heading text-center mx-auto">
-
-            <span class="section-eyebrow">
-                FÜR CHEFS & MITARBEITER
-            </span>
-
-            <h2>
-                Jeder sieht genau das, was er für seine Arbeit braucht.
-            </h2>
-
+            <span class="section-eyebrow">FÜR CHEFS & MITARBEITER</span>
+            <h2>Jeder sieht genau das, was er für seine Arbeit braucht.</h2>
             <p>
-
                 Unterschiedliche Rollen sorgen dafür, dass
                 jeder Benutzer die passenden Funktionen erhält.
-
             </p>
-
         </div>
 
-
         <div class="row g-4 mt-2">
-
-
             <!-- CHEF -->
-
             <div class="col-md-6">
-
                 <div class="role-card featured-role">
-
-                    <div class="role-icon">
-
-                        <i class="bi bi-person-workspace"></i>
-
-                    </div>
-
-                    <span>
-                        CHEF
-                    </span>
-
-                    <h3>
-                        Planung & Kontrolle
-                    </h3>
-
+                    <div class="role-icon"><i class="bi bi-person-workspace"></i></div>
+                    <span>CHEF</span>
+                    <h3>Planung & Kontrolle</h3>
                     <p>
-
                         Behalten Sie Mitarbeiter, Einsätze,
                         Baustellen, Aufgaben und Urlaubsanträge
                         zentral im Überblick.
-
                     </p>
-
                 </div>
-
             </div>
-
 
             <!-- MITARBEITER -->
-
             <div class="col-md-6">
-
                 <div class="role-card">
-
-                    <div class="role-icon">
-
-                        <i class="bi bi-person"></i>
-
-                    </div>
-
-                    <span>
-                        MITARBEITER
-                    </span>
-
-                    <h3>
-                        Aufgaben & Einsätze im Fokus
-                    </h3>
-
+                    <div class="role-icon"><i class="bi bi-person"></i></div>
+                    <span>MITARBEITER</span>
+                    <h3>Aufgaben & Einsätze im Fokus</h3>
                     <p>
-
                         Mitarbeiter sehen ihre eigenen Aufgaben und Einsätze
                         und können den Aufgabenstatus direkt aktualisieren.
-
                     </p>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
-
 
 <!-- =========================================================
      SEO / FAQ
 ========================================================= -->
-
 <section class="seo-content-section py-5 py-lg-6">
     <div class="container">
         <div class="section-heading mx-auto">
             <span class="section-eyebrow">DIGITALES BAUMANAGEMENT</span>
-
             <h2>Baustellen, Mitarbeiter und Aufgaben zentral verwalten</h2>
-
             <p class="mt-3">
                 myBauManagement unterstützt Bau- und Handwerksbetriebe bei der täglichen
                 Organisation ihrer Baustellen. Mitarbeiter können Einsätzen und Baustellen
                 zugeordnet werden, Aufgaben lassen sich digital verwalten und Arbeitszeiten
                 können direkt erfasst werden.
             </p>
-
             <p>
                 Besonders praktisch ist die zentrale Einsatzplanung: Sie sehen, welcher
                 Mitarbeiter zu welcher Zeit auf welcher Baustelle eingeplant ist. Dadurch
                 behalten Chefs und Mitarbeiter den Überblick – im Büro ebenso wie unterwegs.
             </p>
-
             <p>
                 Statt Excel-Listen, Zetteln und vielen einzelnen Nachrichten bietet
                 myBauManagement eine gemeinsame digitale Plattform für Baustellenplanung,
@@ -1094,7 +594,6 @@
 
         <div class="mt-5">
             <h2 class="text-center">Häufige Fragen zu myBauManagement</h2>
-
             <div class="row g-4 mt-2">
                 <div class="col-md-6">
                     <div class="p-4 h-100 border rounded-4 bg-white">
@@ -1141,246 +640,93 @@
     </div>
 </section>
 
-
 <!-- =========================================================
      MOBILE
 ========================================================= -->
-
 <section class="mobile-section py-5 py-lg-6">
-
     <div class="container">
-
         <div class="row align-items-center g-5">
-
-
             <!-- MOBILE SCREENSHOT -->
-
             <div class="col-lg-6 order-2 order-lg-1">
-
                 <div class="mobile-image-preview bm-photo-3d">
-
                     <div class="mobile-image-glow"></div>
-
-                    <img src="images/mobile-preview.png"
-                         alt="BauManagement auf dem Smartphone"
-                         class="mobile-preview-image" />
-
+                    <img src="images/mobile-preview.png" alt="BauManagement auf dem Smartphone" class="mobile-preview-image" />
                 </div>
-
             </div>
-
 
             <!-- TEXT -->
-
             <div class="col-lg-6 order-1 order-lg-2">
-
-                <span class="section-eyebrow">
-                    AUF DESKTOP, TABLET & SMARTPHONE
-                </span>
-
-                <h2 class="mt-2">
-
-                    Ihre Baustelle ist nicht im Büro?
-                    Kein Problem.
-
-                </h2>
-
+                <span class="section-eyebrow">AUF DESKTOP, TABLET & SMARTPHONE</span>
+                <h2 class="mt-2">Ihre Baustelle ist nicht im Büro? Kein Problem.</h2>
                 <p class="text-muted mt-3">
-
                     myBauManagement funktioniert auf Smartphone, Tablet und Desktop –
                     damit Ihre Mitarbeiter auch unterwegs Zugriff haben.
-
                 </p>
 
-
                 <div class="check-list mt-4">
-
-                    <div>
-
-                        <i class="bi bi-check-circle-fill"></i>
-
-                        Aufgaben unterwegs ansehen
-
-                    </div>
-
-
-                    <div>
-
-                        <i class="bi bi-check-circle-fill"></i>
-
-                        Aufgabenstatus direkt aktualisieren
-
-                    </div>
-
-
-                    <div>
-
-                        <i class="bi bi-check-circle-fill"></i>
-
-                        Arbeitszeiten unterwegs erfassen
-
-                    </div>
-
-
-                    <div>
-
-                        <i class="bi bi-check-circle-fill"></i>
-
-                        Optimierte Darstellung auf allen Geräten
-
-                    </div>
-
-
-                    <div>
-
-                        <i class="bi bi-check-circle-fill"></i>
-
-                        Eine Plattform für Büro und Baustelle
-
-                    </div>
-
+                    <div><i class="bi bi-check-circle-fill"></i> Aufgaben unterwegs ansehen</div>
+                    <div><i class="bi bi-check-circle-fill"></i> Aufgabenstatus direkt aktualisieren</div>
+                    <div><i class="bi bi-check-circle-fill"></i> Arbeitszeiten unterwegs erfassen</div>
+                    <div><i class="bi bi-check-circle-fill"></i> Optimierte Darstellung auf allen Geräten</div>
+                    <div><i class="bi bi-check-circle-fill"></i> Eine Plattform für Büro und Baustelle</div>
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
-
-
 
 <!-- =========================================================
      FINAL CTA
 ========================================================= -->
-
 <section class="final-cta py-5 py-lg-6">
-
     <div class="container">
-
         <div class="final-cta-card text-center">
-
-            <div class="final-cta-icon">
-
-                <i class="bi bi-buildings"></i>
-
-            </div>
-
-
-            <span class="section-eyebrow">
-
-                BRINGEN SIE ORDNUNG IN IHRE BAUSTELLEN
-
-            </span>
-
-
-            <h2>
-                Behalten Sie Ihre Baustellen und Mitarbeiter im Griff.
-            </h2>
-
-
+            <div class="final-cta-icon"><i class="bi bi-buildings"></i></div>
+            <span class="section-eyebrow">BRINGEN SIE ORDNUNG IN IHRE BAUSTELLEN</span>
+            <h2>Behalten Sie Ihre Baustellen und Mitarbeiter im Griff.</h2>
             <p>
-
                 Planen Sie Mitarbeiter, Baustellen, Einsätze und Aufgaben zentral
                 und behalten Sie Ihre Arbeitszeiten jederzeit im Blick.
-
             </p>
-
-
-            <a href="Account/Register"  @onclick="TrackRegistrationClick"
-               class="btn btn-primary btn-lg px-5 fw-semibold">
+            <a href="Account/Register" @onclick="TrackRegistrationClick" class="btn btn-primary btn-lg px-5 fw-semibold">
                 Kostenlos starten
                 <i class="bi bi-arrow-right ms-2"></i>
             </a>
-            <small>
-                Zahlung wird später aktiviert
-            </small>
-
+            <small>Zahlung wird später aktiviert</small>
         </div>
-
     </div>
-
 </section>
-
-
 
 <!-- =========================================================
      FOOTER
 ========================================================= -->
-
 <footer class="landing-footer py-4">
-
     <div class="container">
-
         <div class="footer-inner">
-
-
             <div>
-
-                <strong>
-
-                    Bau<span style="color:#ff9f45;">Management</span>
-
-                </strong>
-
-                <small>
-
-                    Baustellenplanung für Bau & Handwerk
-
-                </small>
-
+                <strong>Bau<span style="color:#ff9f45;">Management</span></strong>
+                <small>Baustellenplanung für Bau & Handwerk</small>
             </div>
-
 
             <div class="footer-links">
-
-                <a href="/funktionen">
-                    Funktionen
-                </a>
-
-                <a href="Account/Login">
-                    Anmelden
-                </a>
-
-                <a href="Account/Register">
-                    Registrieren
-                </a>
-
-                <a href="/impressum">
-                    Impressum
-                </a>
-
-                <a href="/datenschutz">
-                    Datenschutz
-                </a>
-
+                <a href="/funktionen">Funktionen</a>
+                <a href="Account/Login">Anmelden</a>
+                <a href="Account/Register">Registrieren</a>
+                <a href="/impressum">Impressum</a>
+                <a href="/datenschutz">Datenschutz</a>
             </div>
 
-
-            <div class="footer-copy">
-
-                © @DateTime.Now.Year myBauManagement
-
-            </div>
-
-
+            <div class="footer-copy">© @DateTime.Now.Year myBauManagement</div>
         </div>
-
     </div>
-
 </footer>
 
 @code {
-
     private async Task TrackRegistrationClick()
     {
         await JS.InvokeVoidAsync(
             "bauAnalytics.event",
             "kostenlos_starten",
-            new
-            {
-                button_name = "Kostenlos starten"
-            });
+            new { button_name = "Kostenlos starten" });
     }
 }
