@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mybaumanagement.com/sitemap.xml

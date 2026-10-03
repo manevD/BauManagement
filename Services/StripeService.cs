@@ -1,4 +1,4 @@
-﻿using BauManagement.Configuration;
+using BauManagement.Configuration;
 using BauManagement.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
@@ -40,7 +40,6 @@ public class StripeService
         };
     }
 
-
     // ============================================================
     // CREATE CUSTOMER
     // ============================================================
@@ -72,20 +71,13 @@ public class StripeService
 
             Metadata = new Dictionary<string, string>
             {
-                {
-                    "CompanyId",
-                    company.Id.ToString()
-                },
-                {
-                    "SubscriptionPlan",
-                    company.SubscriptionPlan.ToString()
-                }
+                { "CompanyId", company.Id.ToString() },
+                { "SubscriptionPlan", company.SubscriptionPlan.ToString() }
             }
         };
 
         return await customerService.CreateAsync(options);
     }
-
 
     // ============================================================
     // CREATE CHECKOUT
@@ -93,10 +85,17 @@ public class StripeService
 
     public async Task<Session> CreateCheckoutSessionAsync(
         Company company,
-        string customerId)
+        string customerId,
+        SubscriptionPlan plan)
     {
-        var priceId =
-            GetPriceId(company.SubscriptionPlan);
+        if (string.IsNullOrWhiteSpace(customerId))
+        {
+            throw new ArgumentException(
+                "Stripe Customer ID fehlt.",
+                nameof(customerId));
+        }
+
+        var priceId = GetPriceId(plan);
 
         var baseUrl =
             _navigationManager.BaseUri.TrimEnd('/');
@@ -132,7 +131,9 @@ public class StripeService
             SubscriptionData =
                 new SessionSubscriptionDataOptions
                 {
-                    TrialPeriodDays = 7,
+                    // IMPORTANT:
+                    // No trial here. This checkout is used after
+                    // the free trial has expired.
 
                     Metadata =
                         new Dictionary<string, string>
@@ -143,7 +144,7 @@ public class StripeService
                             },
                             {
                                 "SubscriptionPlan",
-                                company.SubscriptionPlan.ToString()
+                                plan.ToString()
                             }
                         }
                 },
@@ -157,7 +158,7 @@ public class StripeService
                     },
                     {
                         "SubscriptionPlan",
-                        company.SubscriptionPlan.ToString()
+                        plan.ToString()
                     }
                 },
 
@@ -171,6 +172,16 @@ public class StripeService
         return await service.CreateAsync(options);
     }
 
+    // Compatibility overload for existing callers.
+    public Task<Session> CreateCheckoutSessionAsync(
+        Company company,
+        string customerId)
+    {
+        return CreateCheckoutSessionAsync(
+            company,
+            customerId,
+            company.SubscriptionPlan);
+    }
 
     // ============================================================
     // CHECKOUT URL
@@ -187,7 +198,6 @@ public class StripeService
         return session.Url;
     }
 
-
     // ============================================================
     // CHANGE SUBSCRIPTION PLAN
     // ============================================================
@@ -203,8 +213,7 @@ public class StripeService
                 "Für diese Firma wurde kein Stripe-Abonnement gefunden.");
         }
 
-        var newPriceId =
-            GetPriceId(newPlan);
+        var newPriceId = GetPriceId(newPlan);
 
         var subscriptionService =
             new Stripe.SubscriptionService();
@@ -235,10 +244,6 @@ public class StripeService
                         }
                     },
 
-                /*
-                 * Stripe berechnet die anteilige
-                 * Preisänderung automatisch.
-                 */
                 ProrationBehavior = "always_invoice"
             };
 
@@ -246,7 +251,6 @@ public class StripeService
             company.StripeSubscriptionId,
             options);
     }
-
 
     // ============================================================
     // CANCEL SUBSCRIPTION

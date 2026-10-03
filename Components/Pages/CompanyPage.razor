@@ -191,36 +191,92 @@ else
                     @if (company.SubscriptionStatus ==
                         SubscriptionStatus.Trial)
                     {
-                        <div class="subscription-status trial">
+                        @if (company.TrialEndDate <= DateTime.UtcNow)
+                        {
+                            <div class="subscription-status danger">
 
-                            <div class="subscription-status-icon">
-                                <i class="bi bi-clock"></i>
-                            </div>
-
-                            <div>
-
-                                <strong class="eyebrow text-primary">
-                                    Kostenloser Testzeitraum
-                                </strong>
-
-                                <div class="small text-muted">
-                                    @TrialText
+                                <div class="subscription-status-icon">
+                                    <i class="bi bi-clock-history"></i>
                                 </div>
 
-                                @if (company.TrialEndDate >
-                                    DateTime.UtcNow)
-                                {
+                                <div>
+                                    <strong>
+                                        Testphase abgelaufen
+                                    </strong>
+
+                                    <div class="small text-muted mt-1">
+                                        Deine kostenlose Testphase ist beendet.
+                                        Um myBauManagement weiter zu nutzen, wähle bitte ein Paket.
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-3 p-3 rounded-3 border bg-light">
+                                <div class="fw-semibold mb-1">
+                                    Weiter mit myBauManagement
+                                </div>
+
+                                <div class="small text-muted mb-3">
+                                    Wähle unten dein gewünschtes Paket. Die Aktivierung
+                                    erfolgt anschließend über Stripe.
+                                </div>
+
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button type="button"
+        class="btn btn-primary btn-sm"
+        @onclick="StartCheckout"
+        disabled="@paymentRunning">
+    @if (paymentRunning)
+    {
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        <span>Weiterleitung zu Stripe...</span>
+    }
+    else
+    {
+        <i class="bi bi-credit-card me-2"></i>
+        <span>Jetzt bezahlen</span>
+    }
+</button>
+
+                                    <button type="button"
+                                            class="btn btn-outline-danger btn-sm"
+                                            @onclick="StartCancellation">
+                                        <i class="bi bi-x-circle me-2"></i>
+                                        Kündigen
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="subscription-status trial">
+
+                                <div class="subscription-status-icon">
+                                    <i class="bi bi-clock"></i>
+                                </div>
+
+                                <div>
+
+                                    <strong class="eyebrow text-primary">
+                                        Kostenloser Testzeitraum
+                                    </strong>
+
+                                    <div class="small text-muted">
+                                        @TrialText
+                                    </div>
+
                                     <div class="small text-muted mt-1">
                                         Ende:
                                         @company.TrialEndDate
                                             .ToLocalTime()
                                             .ToString("dd.MM.yyyy HH:mm")
                                     </div>
-                                }
+
+                                </div>
 
                             </div>
-
-                        </div>
+                        }
                     }
 
 
@@ -326,8 +382,9 @@ else
                     <!-- PLAN WECHSELN -->
                     <!-- ================================================= -->
 
+                    <div id="paket-auswaehlen"></div>
                     <label class="form-label">
-                        Paket wechseln
+                        Paket auswählen
                     </label>
 
 
@@ -375,9 +432,9 @@ else
                     {
                         <div class="small text-muted mt-3">
 
-                            Während der Testphase wird keine Zahlung
-                            ausgelöst. Das gewählte Paket wird nach
-                            Ablauf der Testphase berechnet.
+                            Während der Testphase wird keine Zahlung ausgelöst.
+                            Nach Ablauf der Testphase muss ein aktives Paket
+                            abgeschlossen werden, um die Software weiter zu nutzen.
 
                         </div>
                     }
@@ -495,6 +552,8 @@ else
 
     private bool planChanging;
 
+    private bool paymentRunning;
+
     private bool cancellationRunning;
 
     private string? message;
@@ -558,6 +617,66 @@ else
 
         messageType = "success";
     }
+
+
+    // ============================================================
+    // START STRIPE CHECKOUT
+    // ============================================================
+
+    private async Task StartCheckout()
+    {
+        if (company is null)
+            return;
+
+        if (company.SubscriptionStatus != SubscriptionStatus.Trial ||
+            company.TrialEndDate > DateTime.UtcNow)
+        {
+            message = "Die kostenlose Testphase ist noch nicht abgelaufen.";
+            messageType = "warning";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(company.StripeCustomerId))
+        {
+            message =
+                "Für dieses Konto wurde kein Stripe-Kunde gefunden. " +
+                "Bitte kontaktiere den Support.";
+
+            messageType = "danger";
+            return;
+        }
+
+        paymentRunning = true;
+        message = null;
+
+        try
+        {
+            var session =
+                await StripeService.CreateCheckoutSessionAsync(
+                    company,
+                    company.StripeCustomerId,
+                    selectedPlan);
+
+            var checkoutUrl =
+                StripeService.GetCheckoutUrl(session);
+
+            Navigation.NavigateTo(
+                checkoutUrl,
+                forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            message =
+                "Die Zahlung konnte nicht gestartet werden. " +
+                "Bitte versuche es erneut.";
+
+            messageType = "danger";
+            paymentRunning = false;
+        }
+    }
+
 
 
     // ============================================================

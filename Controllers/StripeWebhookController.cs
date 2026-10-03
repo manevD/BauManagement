@@ -1,4 +1,4 @@
-﻿using BauManagement.Configuration;
+using BauManagement.Configuration;
 using BauManagement.Data;
 using BauManagement.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -218,17 +218,17 @@ public class StripeWebhookController : ControllerBase
 
 
         /*
-         * Checkout hat einen 7-Tage-Trial.
+         * Dieses Checkout wird nach Ablauf des kostenlosen
+         * Testzeitraums verwendet.
          *
-         * Deshalb hier NICHT direkt Active setzen.
-         * customer.subscription.created / updated
-         * liefert den tatsächlichen Stripe-Status.
+         * Es wird kein neuer Trial gestartet.
+         * Die endgültige Aktivierung erfolgt über den
+         * Stripe Subscription Status.
+         *
+         * checkout.session.completed kann vor
+         * customer.subscription.created/updated eintreffen.
+         * Deshalb setzen wir hier noch nicht blind Active.
          */
-
-        company.IsSubscriptionActive = true;
-
-        company.SubscriptionStatus =
-            SubscriptionStatus.Trial;
 
 
         await _db.SaveChangesAsync();
@@ -413,6 +413,16 @@ public class StripeWebhookController : ControllerBase
                         x.StripeSubscriptionId ==
                         subscription.Id);
 
+        if (company is null &&
+            !string.IsNullOrWhiteSpace(subscription.CustomerId))
+        {
+            company =
+                await _db.Companies
+                    .FirstOrDefaultAsync(
+                        x =>
+                            x.StripeCustomerId ==
+                            subscription.CustomerId);
+        }
 
         if (company is null)
             return;
