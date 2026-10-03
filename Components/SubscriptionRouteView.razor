@@ -1,0 +1,194 @@
+﻿@using BauManagement.Components.Account.Shared
+@using BauManagement.Services
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Routing
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ICurrentCompanyContext CurrentCompany
+@inject SubscriptionService SubscriptionService
+@inject NavigationManager NavigationManager
+
+
+@if (isLoading)
+{
+    <div class="subscription-loading">
+        <div class="subscription-loading-spinner"></div>
+        <div>Bitte laden...</div>
+    </div>
+}
+else if (isBlocked)
+{
+    <div class="subscription-loading">
+        <div class="subscription-loading-spinner"></div>
+        <div>Weiterleitung zur Unternehmensseite...</div>
+    </div>
+}
+else
+{
+    <AuthorizeRouteView
+        RouteData="RouteData"
+        DefaultLayout="DefaultLayout">
+
+        <NotAuthorized>
+            <RedirectToLogin />
+        </NotAuthorized>
+
+    </AuthorizeRouteView>
+}
+
+
+@code {
+
+    [Parameter]
+    public RouteData RouteData { get; set; } = default!;
+
+    [Parameter]
+    public Type? DefaultLayout { get; set; }
+
+
+    private bool isLoading = true;
+
+    private bool isBlocked = false;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await CheckSubscriptionAsync();
+    }
+
+
+    private async Task CheckSubscriptionAsync()
+    {
+        isLoading = true;
+        isBlocked = false;
+
+        try
+        {
+            // ---------------------------------------------------------
+            // Aktuellen Pfad ermitteln
+            // ---------------------------------------------------------
+
+            var currentPath =
+                NavigationManager
+                    .ToBaseRelativePath(
+                        NavigationManager.Uri)
+                    .Trim('/');
+
+
+            // ---------------------------------------------------------
+            // Company-Seite darf IMMER geöffnet werden
+            // ---------------------------------------------------------
+
+            if (currentPath.Equals(
+                    "company",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // Benutzer prüfen
+            // ---------------------------------------------------------
+
+            var authState =
+                await AuthenticationStateProvider
+                    .GetAuthenticationStateAsync();
+
+            var user = authState.User;
+
+
+            // Nicht eingeloggt
+            if (user.Identity?.IsAuthenticated != true)
+            {
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // Company ID holen
+            // ---------------------------------------------------------
+
+            Guid? companyId;
+
+            try
+            {
+                companyId =
+                    await CurrentCompany
+                        .GetCompanyIdAsync();
+            }
+            catch
+            {
+                companyId = null;
+            }
+
+
+            // Keine Company gefunden
+            if (!companyId.HasValue)
+            {
+                isBlocked = true;
+
+                NavigationManager.NavigateTo(
+                    "/company",
+                    replace: true);
+
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // Subscription prüfen
+            // ---------------------------------------------------------
+
+            var result =
+                await SubscriptionService
+                    .CanUseApplicationAsync(
+                        companyId.Value);
+
+
+            // ---------------------------------------------------------
+            // Subscription ist gültig
+            // ---------------------------------------------------------
+
+            if (result.IsAllowed)
+            {
+                isBlocked = false;
+
+                return;
+            }
+
+
+            // ---------------------------------------------------------
+            // Subscription ist NICHT gültig
+            // ---------------------------------------------------------
+
+            isBlocked = true;
+
+
+            // Benutzer direkt zur Company-Seite schicken
+            NavigationManager.NavigateTo(
+                "/company",
+                replace: true);
+
+            return;
+        }
+        catch
+        {
+            // Bei einem Fehler ebenfalls Zugriff sperren
+            // und zur Company-Seite schicken.
+
+            isBlocked = true;
+
+            NavigationManager.NavigateTo(
+                "/company",
+                replace: true);
+
+            return;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

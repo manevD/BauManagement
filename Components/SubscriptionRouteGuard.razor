@@ -1,0 +1,119 @@
+﻿@using BauManagement.Models
+@using BauManagement.Services
+@using Microsoft.AspNetCore.Components.Authorization
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ICurrentCompanyContext CurrentCompany
+@inject SubscriptionService SubscriptionService
+@inject NavigationManager NavigationManager
+
+@if (isChecking)
+{
+    <div class="subscription-loading">
+        <div class="subscription-loading-spinner"></div>
+        <div>Bitte laden...</div>
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    private bool isChecking = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckAsync();
+    }
+
+    private async Task CheckAsync()
+    {
+        try
+        {
+            isChecking = true;
+
+            var authState =
+                await AuthenticationStateProvider
+                    .GetAuthenticationStateAsync();
+
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated != true)
+            {
+                return;
+            }
+
+            var route =
+                NavigationManager
+                    .ToBaseRelativePath(
+                        NavigationManager.Uri)
+                    .Trim('/');
+
+            // Company-Seite muss immer erreichbar sein
+            if (route.Equals(
+                    "company",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            Guid? companyId;
+
+            try
+            {
+                companyId =
+                    await CurrentCompany
+                        .GetCompanyIdAsync();
+            }
+            catch
+            {
+                GoToCompany();
+                return;
+            }
+
+            if (!companyId.HasValue)
+            {
+                GoToCompany();
+                return;
+            }
+
+            var result =
+                await SubscriptionService
+                    .CanUseApplicationAsync(
+                        companyId.Value);
+
+            if (!result.IsAllowed)
+            {
+                GoToCompany();
+                return;
+            }
+        }
+        finally
+        {
+            isChecking = false;
+        }
+    }
+
+    private void GoToCompany()
+    {
+        var current =
+            NavigationManager
+                .ToBaseRelativePath(
+                    NavigationManager.Uri)
+                .Trim('/');
+
+        if (!current.Equals(
+                "company",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            NavigationManager.NavigateTo(
+                "/company",
+                replace: true);
+        }
+    }
+}

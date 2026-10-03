@@ -1,5 +1,128 @@
 @inherits LayoutComponentBase
 
+@using BauManagement.Data
+@using BauManagement.Models
+@using BauManagement.Services
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext Db
+@inject ICurrentCompanyContext CurrentCompany
+@inject NavigationManager Navigation
+
 <main>
     @Body
 </main>
+
+@code {
+
+    private bool checkingAccess = true;
+    private bool redirecting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CheckSubscriptionAccess();
+    }
+
+    private async Task CheckSubscriptionAccess()
+    {
+        try
+        {
+            var currentUri = Navigation.ToBaseRelativePath(
+                Navigation.Uri);
+
+            /*
+             * Company page mora sekogas da bide dostupna,
+             * bidejki tamu korisnikot treba da go plati
+             * / aktivira svoeto paket.
+             */
+            if (currentUri.StartsWith(
+                    "company",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                checkingAccess = false;
+                return;
+            }
+
+            var companyId =
+                await CurrentCompany.GetCompanyIdAsync();
+
+            if (!companyId.HasValue)
+            {
+                checkingAccess = false;
+                return;
+            }
+
+            var company =
+                await Db.Companies
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(
+                        x => x.Id == companyId.Value);
+
+            if (company is null)
+            {
+                checkingAccess = false;
+                return;
+            }
+
+            var now = DateTime.UtcNow;
+
+            /*
+             * =====================================================
+             * AKTIVNO PRETPLATEN ČLENSTVO
+             * =====================================================
+             */
+            if (company.SubscriptionStatus ==
+                SubscriptionStatus.Active)
+            {
+                checkingAccess = false;
+                return;
+            }
+
+            /*
+             * =====================================================
+             * AKTIVEN TRIAL
+             * =====================================================
+             */
+            if (company.SubscriptionStatus ==
+                    SubscriptionStatus.Trial
+                && company.TrialEndDate > now)
+            {
+                checkingAccess = false;
+                return;
+            }
+
+            /*
+             * =====================================================
+             * NEMA PRISTAP
+             *
+             * Trial expired
+             * Cancelled
+             * PastDue
+             * =====================================================
+             */
+            redirecting = true;
+
+            Navigation.NavigateTo(
+                "/company",
+                replace: true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            /*
+             * Ako ne može da se proveri subscription,
+             * ne mu dozvoluvame pristap do aplikacijata.
+             */
+            redirecting = true;
+
+            Navigation.NavigateTo(
+                "/company",
+                replace: true);
+        }
+        finally
+        {
+            checkingAccess = false;
+        }
+    }
+}

@@ -1,12 +1,14 @@
 ﻿@using BauManagement.Models
 @using BauManagement.Services
 @using Microsoft.AspNetCore.Components.Authorization
+
 @implements IDisposable
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ICurrentCompanyContext CurrentCompany
 @inject SubscriptionService SubscriptionService
 @inject NavigationManager NavigationManager
+
 
 @if (isLoading)
 {
@@ -15,7 +17,7 @@
         <div>Bitte laden...</div>
     </div>
 }
-else if (isBlocked && !IsSubscriptionPage)
+else if (isBlocked)
 {
     <div class="subscription-blocked">
 
@@ -64,119 +66,169 @@ else
     @ChildContent
 }
 
+
 @code {
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
+
     private bool isLoading = true;
 
-    private bool isBlocked;
+    private bool isBlocked = false;
 
     private SubscriptionBlockReason blockReason =
         SubscriptionBlockReason.None;
 
-    private bool IsSubscriptionPage =>
-        NavigationManager.Uri.Contains(
-            "/subscription",
-            StringComparison.OrdinalIgnoreCase);
+
+    private IDisposable? locationChangingRegistration;
+
 
     protected override async Task OnInitializedAsync()
     {
-        NavigationManager.LocationChanged += OnLocationChanged;
+        /*
+         * WICHTIG:
+         *
+         * Navigation wird abgefangen BEVOR
+         * die neue Seite geöffnet wird.
+         */
+        locationChangingRegistration =
+            NavigationManager.RegisterLocationChangingHandler(
+                HandleLocationChanging);
 
-        await CheckSubscriptionAsync();
+
+        await CheckCurrentPageAsync();
     }
 
-    private async void OnLocationChanged(
-        object? sender,
-        LocationChangedEventArgs e)
+
+    private async ValueTask HandleLocationChanging(
+        LocationChangingContext context)
     {
-        await CheckSubscriptionAsync();
+        /*
+         * Ziel-URL ermitteln
+         */
+        var targetRoute =
+            NavigationManager
+                .ToBaseRelativePath(context.TargetLocation)
+                .Trim('/');
 
-        await InvokeAsync(StateHasChanged);
+
+        /*
+         * /company darf IMMER geöffnet werden,
+         * damit der Benutzer ein Paket auswählen
+         * bzw. bezahlen kann.
+         */
+        if (targetRoute.Equals(
+                "company",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+
+        /*
+         * Subscription prüfen
+         */
+        var allowed =
+            await HasSubscriptionAccessAsync();
+
+
+        /*
+         * Zugriff erlaubt
+         */
+        if (allowed)
+        {
+            return;
+        }
+
+
+        /*
+         * Zugriff NICHT erlaubt.
+         *
+         * Navigation zur gewünschten Seite verhindern.
+         */
+        context.PreventNavigation();
+
+
+        /*
+         * Benutzer auf Company-Seite schicken.
+         *
+         * replace verhindert zusätzliche History-Einträge.
+         */
+        await InvokeAsync(() =>
+        {
+            NavigationManager.NavigateTo(
+                "/company",
+                replace: true);
+        });
     }
 
-    private async Task CheckSubscriptionAsync()
+
+    private async Task CheckCurrentPageAsync()
     {
         try
         {
             isLoading = true;
 
-            var authState =
-                await AuthenticationStateProvider
-                    .GetAuthenticationStateAsync();
+            isBlocked = false;
 
-            var user = authState.User;
+            blockReason =
+                SubscriptionBlockReason.None;
 
-            /*
-             * Nicht eingeloggte Benutzer werden vom
-             * normalen Authentication-System behandelt.
-             */
-            if (user.Identity?.IsAuthenticated != true)
-            {
-                isBlocked = false;
-                blockReason =
-                    SubscriptionBlockReason.None;
-
-                return;
-            }
-
-            Guid? companyId;
-
-            try
-            {
-                companyId =
-                    await CurrentCompany.GetCompanyIdAsync();
-            }
-            catch
-            {
-                /*
-                 * Sicherheitsprinzip:
-                 * Wenn CompanyId nicht ermittelt werden kann,
-                 * gibt es keinen Zugriff.
-                 */
-                isBlocked = true;
-
-                blockReason =
-                    SubscriptionBlockReason.CompanyNotFound;
-
-                return;
-            }
-
-            if (!companyId.HasValue)
-            {
-                isBlocked = true;
-
-                blockReason =
-                    SubscriptionBlockReason.CompanyNotFound;
-
-                return;
-            }
 
             /*
-             * EINZIGE Subscription-Prüfung.
+             * Aktuelle Route
              */
-            var result =
-                await SubscriptionService
-                    .CanUseApplicationAsync(companyId.Value);
+            var currentRoute =
+                NavigationManager
+                    .ToBaseRelativePath(
+                        NavigationManager.Uri)
+                    .Trim('/');
 
-            isBlocked = !result.IsAllowed;
 
-            blockReason = result.Reason;
+            /*
+             * Company-Seite ist immer erlaubt.
+             */
+            if (currentRoute.Equals(
+                    "company",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+
+            /*
+             * Subscription prüfen
+             */
+            var allowed =
+                await HasSubscriptionAccessAsync();
+
+
+            if (allowed)
+            {
+                return;
+            }
+
+
+            /*
+             * Zugriff blockieren
+             */
+            isBlocked = true;
+
+            NavigationManager.NavigateTo(
+                "/company",
+                replace: true);
         }
         catch
         {
-            /*
-             * FAIL CLOSED
-             *
-             * Wenn die Subscription nicht geprüft werden kann,
-             * wird der Zugriff verweigert.
-             */
             isBlocked = true;
 
             blockReason =
                 SubscriptionBlockReason.Unknown;
+
+            NavigationManager.NavigateTo(
+                "/company",
+                replace: true);
         }
         finally
         {
@@ -184,57 +236,150 @@ else
         }
     }
 
+
+    private async Task<bool> HasSubscriptionAccessAsync()
+    {
+        /*
+         * ==========================================
+         * AUTHENTICATION
+         * ==========================================
+         */
+
+        var authState =
+            await AuthenticationStateProvider
+                .GetAuthenticationStateAsync();
+
+        var user = authState.User;
+
+
+        /*
+         * Nicht eingeloggte Benutzer
+         * werden von der Authentication behandelt.
+         */
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            return true;
+        }
+
+
+        /*
+         * ==========================================
+         * COMPANY
+         * ==========================================
+         */
+
+        Guid? companyId;
+
+        try
+        {
+            companyId =
+                await CurrentCompany
+                    .GetCompanyIdAsync();
+        }
+        catch
+        {
+            blockReason =
+                SubscriptionBlockReason.CompanyNotFound;
+
+            return false;
+        }
+
+
+        if (!companyId.HasValue)
+        {
+            blockReason =
+                SubscriptionBlockReason.CompanyNotFound;
+
+            return false;
+        }
+
+
+        /*
+         * ==========================================
+         * SUBSCRIPTION
+         * ==========================================
+         */
+
+        var result =
+            await SubscriptionService
+                .CanUseApplicationAsync(
+                    companyId.Value);
+
+
+        /*
+         * Wenn erlaubt
+         */
+        if (result.IsAllowed)
+        {
+            blockReason =
+                SubscriptionBlockReason.None;
+
+            return true;
+        }
+
+
+        /*
+         * Wenn nicht erlaubt
+         */
+        blockReason =
+            result.Reason;
+
+        return false;
+    }
+
+
     private string GetTitle()
     {
         return blockReason switch
         {
+            SubscriptionBlockReason.TrialExpired =>
+                "Ihre Testphase ist abgelaufen",
+
             SubscriptionBlockReason.Cancelled =>
                 "Ihr Abonnement wurde gekündigt",
 
             SubscriptionBlockReason.Expired =>
                 "Ihr Abonnement ist abgelaufen",
 
-            SubscriptionBlockReason.TrialExpired =>
-                "Ihre Testphase ist abgelaufen",
-
-            SubscriptionBlockReason.PastDue =>
-                "Zahlungsproblem mit Ihrem Abonnement",
+            SubscriptionBlockReason.SubscriptionExpired =>
+                "Ihr Abonnement ist abgelaufen",
 
             SubscriptionBlockReason.SubscriptionInactive =>
                 "Ihr Abonnement ist nicht aktiv",
 
-            SubscriptionBlockReason.SubscriptionExpired =>
-                "Ihr Abonnement ist abgelaufen",
+            SubscriptionBlockReason.PastDue =>
+                "Zahlungsproblem mit Ihrem Abonnement",
 
             SubscriptionBlockReason.CompanyNotFound =>
-                "Kein aktives Firmenkonto gefunden",
+                "Kein Firmenkonto gefunden",
 
             _ =>
-                "Ihr Abonnement ist nicht aktiv"
+                "Zugriff nicht möglich"
         };
     }
+
 
     private string GetMessage()
     {
         return blockReason switch
         {
-            SubscriptionBlockReason.Cancelled =>
-                "Ihr Abonnement wurde gekündigt. Ihre Daten bleiben erhalten. Sie können jederzeit ein neues Paket auswählen.",
-
-            SubscriptionBlockReason.Expired =>
-                "Ihr Abonnement ist abgelaufen. Ihre Daten bleiben erhalten. Wählen Sie ein neues Paket, um MyBauManagement wieder zu verwenden.",
-
             SubscriptionBlockReason.TrialExpired =>
                 "Ihre kostenlose Testphase ist abgelaufen. Wählen Sie ein Paket, um MyBauManagement weiter zu verwenden.",
 
-            SubscriptionBlockReason.PastDue =>
-                "Bei Ihrem Abonnement ist ein Zahlungsproblem aufgetreten. Bitte wählen Sie ein Paket oder aktualisieren Sie Ihre Zahlungsdaten.",
+            SubscriptionBlockReason.Cancelled =>
+                "Ihr Abonnement wurde gekündigt. Wählen Sie ein neues Paket, um MyBauManagement wieder zu verwenden.",
+
+            SubscriptionBlockReason.Expired =>
+                "Ihr Abonnement ist abgelaufen. Wählen Sie ein neues Paket, um fortzufahren.",
+
+            SubscriptionBlockReason.SubscriptionExpired =>
+                "Ihr Abonnement ist abgelaufen. Wählen Sie ein neues Paket, um fortzufahren.",
 
             SubscriptionBlockReason.SubscriptionInactive =>
                 "Ihr Abonnement ist derzeit nicht aktiv.",
 
-            SubscriptionBlockReason.SubscriptionExpired =>
-                "Ihr Abonnement ist abgelaufen. Wählen Sie ein neues Paket, um fortzufahren.",
+            SubscriptionBlockReason.PastDue =>
+                "Bei Ihrem Abonnement ist ein Zahlungsproblem aufgetreten.",
 
             SubscriptionBlockReason.CompanyNotFound =>
                 "Für Ihr Benutzerkonto konnte kein gültiges Firmenkonto gefunden werden.",
@@ -244,11 +389,13 @@ else
         };
     }
 
+
     private void OpenSubscription()
     {
         NavigationManager.NavigateTo(
-            "/subscription");
+            "/company");
     }
+
 
     private void Logout()
     {
@@ -257,9 +404,9 @@ else
             forceLoad: true);
     }
 
+
     public void Dispose()
     {
-        NavigationManager.LocationChanged -=
-            OnLocationChanged;
+        locationChangingRegistration?.Dispose();
     }
 }

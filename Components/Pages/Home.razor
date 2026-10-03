@@ -72,6 +72,8 @@
       ]
     }
     </script>
+
+
 </HeadContent>
 
 
@@ -246,11 +248,6 @@
 
 
                         <div class="hero-trust mt-4">
-
-                            <span>
-                                <i class="bi bi-check-circle-fill"></i>
-                                Keine Kreditkarte erforderlich
-                            </span>
 
                             <span>
                                 <i class="bi bi-check-circle-fill"></i>
@@ -532,6 +529,116 @@
 </section>
 
 
+
+
+<!-- =========================================================
+     3D SCROLL PRODUCT EXPERIENCE
+========================================================= -->
+<section class="bm-3d-stage" aria-label="myBauManagement 3D Produktansicht">
+    <div class="bm-3d-sticky">
+        <div class="bm-3d-grid"></div>
+        <div class="bm-3d-glow"></div>
+        <div class="bm-side-word bm-word-left" aria-hidden="true">WER <span>ARBEITET</span></div>
+        <div class="bm-side-word bm-word-right" aria-hidden="true"><span>WO?</span></div>
+
+        <div class="bm-3d-copy">
+            <span class="eyebrow" id="bm3dEyebrow">DIGITALE BAUSTELLENPLANUNG</span>
+            <h2 id="bm3dTitle">Alles im Blick.</h2>
+            <p id="bm3dText">Baustellen, Mitarbeiter und Einsätze in einer einzigen übersichtlichen Ansicht.</p>
+            <div class="bm-3d-progress" aria-hidden="true"><span class="active"></span><span></span><span></span><span></span></div>
+        </div>
+
+        <div class="bm-3d-device-wrap">
+            <div class="bm-3d-device" id="bm3dDevice">
+                <div class="bm-3d-orb"></div>
+                <div class="dashboard-preview">
+                    <div class="preview-top"><div><small>HEUTE</small><strong>Baustellenübersicht</strong></div><span class="live-badge"><span></span>Live</span></div>
+                    <div class="preview-stats">
+                        <div class="preview-stat"><div class="preview-stat-icon orange"><i class="bi bi-buildings"></i></div><div><strong>12</strong><small>Baustellen</small></div></div>
+                        <div class="preview-stat"><div class="preview-stat-icon blue"><i class="bi bi-people"></i></div><div><strong>24</strong><small>Mitarbeiter</small></div></div>
+                        <div class="preview-stat"><div class="preview-stat-icon green"><i class="bi bi-check2-square"></i></div><div><strong>18</strong><small>Aufgaben</small></div></div>
+                    </div>
+                    <div class="preview-section-title"><span>Heutige Einsätze</span><span>08:00 – 17:00</span></div>
+                    <div class="preview-assignment"><div class="preview-avatar">MK</div><div class="preview-assignment-content"><strong>Marko K.</strong><span><i class="bi bi-geo-alt"></i>Müller GmbH</span></div><div class="preview-time">08:00<small>12:00</small></div></div>
+                    <div class="preview-assignment"><div class="preview-avatar orange">ST</div><div class="preview-assignment-content"><strong>Stefan T.</strong><span><i class="bi bi-geo-alt"></i>Neubau Weber</span></div><div class="preview-time">08:00<small>16:00</small></div></div>
+                    <div class="preview-assignment"><div class="preview-avatar green">DA</div><div class="preview-assignment-content"><strong>Daniel A.</strong><span><i class="bi bi-geo-alt"></i>Sanierung Schmidt</span></div><div class="preview-time">10:00<small>14:00</small></div></div>
+                    <div class="preview-time-row"><div><i class="bi bi-clock-history"></i><span>Arbeitszeit heute</span></div><strong>06:42 h</strong></div>
+                    <div class="preview-footer"><i class="bi bi-calendar3"></i>Alle Einsätze im Chef-Kalender verwalten</div>
+                </div>
+                <div class="bm-3d-side-card"><small>HEUTE GEPLANT</small><strong>24 Mitarbeiter</strong><div class="bar"><i></i></div></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+(function () {
+    const stage = document.querySelector('.bm-3d-stage');
+    const device = document.getElementById('bm3dDevice');
+    const eyebrow = document.getElementById('bm3dEyebrow');
+    const title = document.getElementById('bm3dTitle');
+    const copy = document.getElementById('bm3dText');
+    const bars = document.querySelectorAll('.bm-3d-progress span');
+    const leftWord = document.querySelector('.bm-word-left');
+    const rightWord = document.querySelector('.bm-word-right');
+    if (!stage || !device) return;
+
+    const scenes = [
+        ['DIGITALE BAUSTELLENPLANUNG', 'Alles im Blick.', 'Baustellen, Mitarbeiter und Einsätze in einer einzigen übersichtlichen Ansicht.'],
+        ['MITARBEITER & EINSÄTZE', 'Wer arbeitet wo?', 'Sehen Sie sofort, welcher Mitarbeiter wann auf welcher Baustelle eingeplant ist.'],
+        ['CHEF-KALENDER', 'Planung ohne Chaos.', 'Einsätze, Zeiten und Aufgaben werden zentral geplant und übersichtlich dargestellt.'],
+        ['BAUMANAGEMENT DIGITAL', 'Mehr Überblick. Weniger Aufwand.', 'Vom Büro bis zur Baustelle: myBauManagement verbindet Ihre tägliche Organisation.']
+    ];
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let pointerX = 0, pointerY = 0, targetX = 0, targetY = 0, ticking = false;
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    function updatePointer(event) {
+        if (reduceMotion || window.innerWidth < 992) return;
+        const rect = device.getBoundingClientRect();
+        targetX = clamp((event.clientX - (rect.left + rect.width / 2)) / rect.width, -.5, .5);
+        targetY = clamp((event.clientY - (rect.top + rect.height / 2)) / rect.height, -.5, .5);
+        if (!ticking) { ticking = true; requestAnimationFrame(animatePointer); }
+    }
+    function animatePointer() {
+        pointerX += (targetX - pointerX) * .12;
+        pointerY += (targetY - pointerY) * .12;
+        device.style.setProperty('--pointer-rx', (pointerY * -5).toFixed(2) + 'deg');
+        device.style.setProperty('--pointer-ry', (pointerX * 7).toFixed(2) + 'deg');
+        ticking = Math.abs(targetX - pointerX) > .001 || Math.abs(targetY - pointerY) > .001;
+        if (ticking) requestAnimationFrame(animatePointer);
+    }
+    stage.addEventListener('pointermove', updatePointer, { passive: true });
+    stage.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; }, { passive: true });
+
+    let scrollFrame = 0;
+    function render() {
+        const rect = stage.getBoundingClientRect();
+        const max = Math.max(1, stage.offsetHeight - window.innerHeight);
+        const p = clamp(-rect.top / max, 0, 1);
+        const ease = p * p * (3 - 2 * p);
+        const x = ease * -42, y = 70 - ease * 145;
+        const rx = 12 - ease * 23, ry = -24 + ease * 48, rz = -2 + ease * 4;
+        const scale = .70 + Math.sin(p * Math.PI) * .29;
+        device.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0) rotateX(calc(' + rx + 'deg + var(--pointer-rx, 0deg))) rotateY(calc(' + ry + 'deg + var(--pointer-ry, 0deg))) rotateZ(' + rz + 'deg) scale(' + scale + ')';
+        device.classList.toggle('deep', p > .25);
+        if (leftWord && rightWord) {
+            const word = clamp(p / .42, 0, 1), wordEase = 1 - Math.pow(1 - word, 3);
+            leftWord.style.transform = 'translate3d(' + wordEase * 25 + 'vw,-95%,0) rotateY(' + (1 - wordEase) * 35 + 'deg)';
+            rightWord.style.transform = 'translate3d(' + -wordEase * 25 + 'vw,5%,0) rotateY(' + (1 - wordEase) * -35 + 'deg)';
+            leftWord.style.opacity = rightWord.style.opacity = String(.2 + wordEase * .72);
+        }
+        const sceneIndex = Math.min(3, Math.floor(p * 4.01));
+        eyebrow.textContent = scenes[sceneIndex][0]; title.textContent = scenes[sceneIndex][1]; copy.textContent = scenes[sceneIndex][2];
+        bars.forEach((bar, index) => bar.classList.toggle('active', index === sceneIndex));
+        scrollFrame = 0;
+    }
+    function requestRender() { if (!scrollFrame) scrollFrame = requestAnimationFrame(render); }
+    window.addEventListener('scroll', requestRender, { passive: true });
+    window.addEventListener('resize', requestRender, { passive: true });
+    render();
+})();
+</script>
 
 <!-- =========================================================
      INTRO
@@ -1049,7 +1156,7 @@
 
             <div class="col-lg-6 order-2 order-lg-1">
 
-                <div class="mobile-image-preview">
+                <div class="mobile-image-preview bm-photo-3d">
 
                     <div class="mobile-image-glow"></div>
 
@@ -1182,19 +1289,11 @@
 
             <a href="Account/Register"
                class="btn btn-primary btn-lg px-5 fw-semibold">
-
                 Kostenlos starten
-
                 <i class="bi bi-arrow-right ms-2"></i>
-
             </a>
-
-
             <small>
-
-                Keine Kreditkarte erforderlich ·
                 Zahlung wird später aktiviert
-
             </small>
 
         </div>
