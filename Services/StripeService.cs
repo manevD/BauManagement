@@ -48,11 +48,19 @@ public class StripeService
         Company company,
         string email)
     {
+        if (company is null)
+            throw new ArgumentNullException(nameof(company));
+
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException(
+                "E-Mail-Adresse fehlt.",
+                nameof(email));
+
         var customerService = new CustomerService();
 
         var options = new CustomerCreateOptions
         {
-            Email = email,
+            Email = email.Trim(),
             Name = company.Name,
             Phone = company.Phone,
 
@@ -66,13 +74,21 @@ public class StripeService
                         Line1 = company.Address,
                         PostalCode = company.PostalCode,
                         City = company.City,
+
+                        // Deutschland
                         Country = "DE"
                     },
 
             Metadata = new Dictionary<string, string>
             {
-                { "CompanyId", company.Id.ToString() },
-                { "SubscriptionPlan", company.SubscriptionPlan.ToString() }
+                {
+                    "CompanyId",
+                    company.Id.ToString()
+                },
+                {
+                    "SubscriptionPlan",
+                    company.SubscriptionPlan.ToString()
+                }
             }
         };
 
@@ -80,7 +96,27 @@ public class StripeService
     }
 
     // ============================================================
-    // CREATE CHECKOUT
+    // CREATE CHECKOUT SESSION
+    // ============================================================
+    //
+    // IMPORTANT:
+    //
+    // This creates a REAL Stripe subscription.
+    //
+    // The Stripe Price MUST be recurring monthly.
+    //
+    // Example:
+    //
+    // S  = 35 € / month
+    // M  = 70 € / month
+    // L  = 140 € / month
+    // XL = 200 € / month
+    //
+    // There is NO 1-year period here.
+    //
+    // Stripe automatically charges the customer every month
+    // until the subscription is cancelled.
+    //
     // ============================================================
 
     public async Task<Session> CreateCheckoutSessionAsync(
@@ -88,6 +124,11 @@ public class StripeService
         string customerId,
         SubscriptionPlan plan)
     {
+        if (company is null)
+        {
+            throw new ArgumentNullException(nameof(company));
+        }
+
         if (string.IsNullOrWhiteSpace(customerId))
         {
             throw new ArgumentException(
@@ -96,6 +137,12 @@ public class StripeService
         }
 
         var priceId = GetPriceId(plan);
+
+        if (string.IsNullOrWhiteSpace(priceId))
+        {
+            throw new InvalidOperationException(
+                $"Für den Plan {plan} wurde keine Stripe Price ID konfiguriert.");
+        }
 
         var baseUrl =
             _navigationManager.BaseUri.TrimEnd('/');
@@ -109,70 +156,79 @@ public class StripeService
             $"{baseUrl}/stripe/cancel" +
             $"?companyId={company.Id}";
 
+        var metadata =
+            new Dictionary<string, string>
+            {
+                {
+                    "CompanyId",
+                    company.Id.ToString()
+                },
+                {
+                    "SubscriptionPlan",
+                    plan.ToString()
+                }
+            };
+
         var options = new SessionCreateOptions
         {
+            // VERY IMPORTANT
+            // This must be "subscription".
             Mode = "subscription",
 
+            // Existing Stripe Customer
             Customer = customerId,
 
             SuccessUrl = successUrl,
 
             CancelUrl = cancelUrl,
 
-            LineItems = new List<SessionLineItemOptions>
-            {
-                new()
+            // ====================================================
+            // MONTHLY RECURRING PRICE
+            // ====================================================
+
+            LineItems =
+                new List<SessionLineItemOptions>
                 {
-                    Price = priceId,
-                    Quantity = 1
-                }
-            },
+                    new()
+                    {
+                        Price = priceId,
+                        Quantity = 1
+                    }
+                },
+
+            // ====================================================
+            // SUBSCRIPTION METADATA
+            // ====================================================
 
             SubscriptionData =
                 new SessionSubscriptionDataOptions
                 {
-                    // IMPORTANT:
-                    // No trial here. This checkout is used after
-                    // the free trial has expired.
-
-                    Metadata =
-                        new Dictionary<string, string>
-                        {
-                            {
-                                "CompanyId",
-                                company.Id.ToString()
-                            },
-                            {
-                                "SubscriptionPlan",
-                                plan.ToString()
-                            }
-                        }
+                    Metadata = metadata
                 },
 
-            Metadata =
-                new Dictionary<string, string>
-                {
-                    {
-                        "CompanyId",
-                        company.Id.ToString()
-                    },
-                    {
-                        "SubscriptionPlan",
-                        plan.ToString()
-                    }
-                },
+            // ====================================================
+            // CHECKOUT METADATA
+            // ====================================================
 
+            Metadata = metadata,
+
+            // Customer must provide billing address
             BillingAddressCollection = "required",
 
+            // Allow Stripe promotion codes
             AllowPromotionCodes = true
         };
 
-        var service = new SessionService();
+        var sessionService =
+            new SessionService();
 
-        return await service.CreateAsync(options);
+        return await sessionService.CreateAsync(options);
     }
 
-    // Compatibility overload for existing callers.
+    // ============================================================
+    // COMPATIBILITY OVERLOAD
+    // ============================================================
+
     public Task<Session> CreateCheckoutSessionAsync(
         Company company,
         string customerId)
@@ -189,6 +245,11 @@ public class StripeService
 
     public string GetCheckoutUrl(Session session)
     {
+        if (session is null)
+        {
+            throw new ArgumentNullException(nameof(session));
+        }
+
         if (string.IsNullOrWhiteSpace(session.Url))
         {
             throw new InvalidOperationException(
@@ -201,11 +262,24 @@ public class StripeService
     // ============================================================
     // CHANGE SUBSCRIPTION PLAN
     // ============================================================
+    //
+    // Example:
+    //
+    // S 35 € -> M 70 €
+    //
+    // Stripe changes the recurring Price.
+    //
+    // ============================================================
 
     public async Task ChangeSubscriptionPlanAsync(
         Company company,
         SubscriptionPlan newPlan)
     {
+        if (company is null)
+        {
+            throw new ArgumentNullException(nameof(company));
+        }
+
         if (string.IsNullOrWhiteSpace(
                 company.StripeSubscriptionId))
         {
@@ -213,7 +287,14 @@ public class StripeService
                 "Für diese Firma wurde kein Stripe-Abonnement gefunden.");
         }
 
-        var newPriceId = GetPriceId(newPlan);
+        var newPriceId =
+            GetPriceId(newPlan);
+
+        if (string.IsNullOrWhiteSpace(newPriceId))
+        {
+            throw new InvalidOperationException(
+                $"Für den Plan {newPlan} wurde keine Stripe Price ID konfiguriert.");
+        }
 
         var subscriptionService =
             new Stripe.SubscriptionService();
@@ -244,6 +325,8 @@ public class StripeService
                         }
                     },
 
+                // Stripe calculates the difference
+                // and creates the appropriate invoice.
                 ProrationBehavior = "always_invoice"
             };
 
@@ -255,10 +338,37 @@ public class StripeService
     // ============================================================
     // CANCEL SUBSCRIPTION
     // ============================================================
+    //
+    // IMPORTANT:
+    //
+    // We do NOT immediately delete the subscription.
+    //
+    // Instead:
+    //
+    // CancelAtPeriodEnd = true
+    //
+    // This means:
+    //
+    // Customer paid for the current month
+    //          ↓
+    // Customer clicks "Kündigen"
+    //          ↓
+    // No next monthly payment
+    //          ↓
+    // Customer keeps access until CurrentPeriodEnd
+    //          ↓
+    // Subscription ends automatically
+    //
+    // ============================================================
 
     public async Task CancelSubscriptionAsync(
         Company company)
     {
+        if (company is null)
+        {
+            throw new ArgumentNullException(nameof(company));
+        }
+
         if (string.IsNullOrWhiteSpace(
                 company.StripeSubscriptionId))
         {
@@ -268,7 +378,53 @@ public class StripeService
         var subscriptionService =
             new Stripe.SubscriptionService();
 
-        await subscriptionService.CancelAsync(
-            company.StripeSubscriptionId);
+        var options =
+            new SubscriptionUpdateOptions
+            {
+                CancelAtPeriodEnd = true
+            };
+
+        await subscriptionService.UpdateAsync(
+            company.StripeSubscriptionId,
+            options);
+    }
+
+    // ============================================================
+    // RESUME CANCELLED SUBSCRIPTION
+    // ============================================================
+    //
+    // If the customer cancelled at period end but the current
+    // paid period has not ended yet, the subscription can be
+    // reactivated.
+    //
+    // ============================================================
+
+    public async Task ResumeSubscriptionAsync(
+        Company company)
+    {
+        if (company is null)
+        {
+            throw new ArgumentNullException(nameof(company));
+        }
+
+        if (string.IsNullOrWhiteSpace(
+                company.StripeSubscriptionId))
+        {
+            throw new InvalidOperationException(
+                "Für diese Firma wurde kein Stripe-Abonnement gefunden.");
+        }
+
+        var subscriptionService =
+            new Stripe.SubscriptionService();
+
+        var options =
+            new SubscriptionUpdateOptions
+            {
+                CancelAtPeriodEnd = false
+            };
+
+        await subscriptionService.UpdateAsync(
+            company.StripeSubscriptionId,
+            options);
     }
 }

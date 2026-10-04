@@ -143,6 +143,7 @@ else
                         </div>
 
                         <br />
+
                         <button class="btn btn-sm btn-primary me-1"
                                 type="submit">
 
@@ -189,10 +190,12 @@ else
                     <!-- ================================================= -->
 
                     @if (company.SubscriptionStatus ==
-                        SubscriptionStatus.Trial)
+                         SubscriptionStatus.Trial)
                     {
                         @if (company.TrialEndDate <= DateTime.UtcNow)
                         {
+                            <!-- TRIAL ABGELAUFEN -->
+
                             <div class="subscription-status danger">
 
                                 <div class="subscription-status-icon">
@@ -200,56 +203,62 @@ else
                                 </div>
 
                                 <div>
+
                                     <strong>
                                         Testphase abgelaufen
                                     </strong>
 
                                     <div class="small text-muted mt-1">
                                         Deine kostenlose Testphase ist beendet.
-                                        Um myBauManagement weiter zu nutzen, wähle bitte ein Paket.
+                                        Um myBauManagement weiter zu nutzen,
+                                        wähle bitte ein Paket.
                                     </div>
+
                                 </div>
 
                             </div>
 
+
                             <div class="mt-3 p-3 rounded-3 border bg-light">
+
                                 <div class="fw-semibold mb-1">
                                     Weiter mit myBauManagement
                                 </div>
 
                                 <div class="small text-muted mb-3">
-                                    Wähle unten dein gewünschtes Paket. Die Aktivierung
-                                    erfolgt anschließend über Stripe.
+                                    Wähle dein gewünschtes Paket.
+                                    Die Zahlung erfolgt sicher über Stripe.
                                 </div>
+
 
                                 <div class="d-flex gap-2 flex-wrap">
-                                    <button type="button"
-        class="btn btn-primary btn-sm"
-        @onclick="StartCheckout"
-        disabled="@paymentRunning">
-    @if (paymentRunning)
-    {
-        <span class="spinner-border spinner-border-sm me-2"></span>
-        <span>Weiterleitung zu Stripe...</span>
-    }
-    else
-    {
-        <i class="bi bi-credit-card me-2"></i>
-        <span>Jetzt bezahlen</span>
-    }
-</button>
 
                                     <button type="button"
-                                            class="btn btn-outline-danger btn-sm"
-                                            @onclick="StartCancellation">
-                                        <i class="bi bi-x-circle me-2"></i>
-                                        Kündigen
+                                            class="btn btn-primary btn-sm"
+                                            @onclick="StartCheckout"
+                                            disabled="@paymentRunning">
+
+                                        @if (paymentRunning)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2"></span>
+                                            <span>Weiterleitung zu Stripe...</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-credit-card me-2"></i>
+                                            <span>Jetzt bezahlen</span>
+                                        }
+
                                     </button>
+
                                 </div>
+
                             </div>
                         }
                         else
                         {
+                            <!-- TRIAL NOCH AKTIV -->
+
                             <div class="subscription-status trial">
 
                                 <div class="subscription-status-icon">
@@ -285,7 +294,7 @@ else
                     <!-- ================================================= -->
 
                     @if (company.SubscriptionStatus ==
-                        SubscriptionStatus.Active)
+                         SubscriptionStatus.Active)
                     {
                         <div class="subscription-status active">
 
@@ -313,6 +322,12 @@ else
                             </div>
 
                         </div>
+
+
+                        <div class="small text-muted mt-3">
+                            Dein Abonnement wird monatlich automatisch
+                            verlängert und abgerechnet, bis du es kündigst.
+                        </div>
                     }
 
 
@@ -321,7 +336,7 @@ else
                     <!-- ================================================= -->
 
                     @if (company.SubscriptionStatus ==
-                        SubscriptionStatus.PastDue)
+                         SubscriptionStatus.PastDue)
                     {
                         <div class="subscription-status danger">
 
@@ -338,6 +353,8 @@ else
                                 <div class="small text-muted">
                                     Die letzte Zahlung konnte nicht
                                     verarbeitet werden.
+                                    Bitte überprüfe deine Zahlungsdaten
+                                    bei Stripe.
                                 </div>
 
                             </div>
@@ -351,7 +368,7 @@ else
                     <!-- ================================================= -->
 
                     @if (company.SubscriptionStatus ==
-                        SubscriptionStatus.Cancelled)
+                         SubscriptionStatus.Cancelled)
                     {
                         <div class="subscription-status danger">
 
@@ -366,10 +383,35 @@ else
                                 </strong>
 
                                 <div class="small text-muted">
-                                    Das Abonnement ist nicht mehr aktiv.
+                                    Dein Abonnement ist nicht mehr aktiv.
+                                    Wähle ein Paket, um die Software
+                                    wieder zu aktivieren.
                                 </div>
 
                             </div>
+
+                        </div>
+
+
+                        <div class="mt-3">
+
+                            <button type="button"
+                                    class="btn btn-primary btn-sm"
+                                    @onclick="StartCheckout"
+                                    disabled="@paymentRunning">
+
+                                @if (paymentRunning)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                    <span>Weiterleitung zu Stripe...</span>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-credit-card me-2"></i>
+                                    <span>Abonnement neu starten</span>
+                                }
+
+                            </button>
 
                         </div>
                     }
@@ -383,6 +425,7 @@ else
                     <!-- ================================================= -->
 
                     <div id="paket-auswaehlen"></div>
+
                     <label class="form-label">
                         Paket auswählen
                     </label>
@@ -392,7 +435,7 @@ else
                                  @bind-Value="selectedPlan">
 
                         @foreach (var plan in
-                            Enum.GetValues<SubscriptionPlan>())
+                                 Enum.GetValues<SubscriptionPlan>())
                         {
                             <option value="@plan">
 
@@ -406,7 +449,10 @@ else
 
                     </InputSelect>
 
+
                     <br />
+
+
                     <button class="btn btn-sm btn-primary me-1"
                             @onclick="ChangePlan"
                             disabled="@planChanging">
@@ -428,13 +474,24 @@ else
 
 
                     @if (company.SubscriptionStatus ==
-                        SubscriptionStatus.Trial)
+                         SubscriptionStatus.Trial)
                     {
                         <div class="small text-muted mt-3">
 
-                            Während der Testphase wird keine Zahlung ausgelöst.
-                            Nach Ablauf der Testphase muss ein aktives Paket
-                            abgeschlossen werden, um die Software weiter zu nutzen.
+                            Während der Testphase wird keine Zahlung
+                            ausgelöst. Nach Ablauf der Testphase muss ein
+                            aktives Paket abgeschlossen werden.
+
+                        </div>
+                    }
+                    else if (company.SubscriptionStatus ==
+                             SubscriptionStatus.Active)
+                    {
+                        <div class="small text-muted mt-3">
+
+                            Bei einer Änderung wird die Preisänderung von
+                            Stripe automatisch entsprechend der laufenden
+                            Abrechnungsperiode berechnet.
 
                         </div>
                     }
@@ -442,10 +499,8 @@ else
                     {
                         <div class="small text-muted mt-3">
 
-                            Bei einer Änderung wird die
-                            Preisänderung von Stripe automatisch
-                            entsprechend der laufenden
-                            Abrechnungsperiode berechnet.
+                            Wähle dein gewünschtes Paket und starte dein
+                            Abonnement erneut über Stripe.
 
                         </div>
                     }
@@ -459,85 +514,103 @@ else
             <!-- KÜNDIGUNG -->
             <!-- ===================================================== -->
 
-            <div class="card danger-card mt-4">
+            @if (company.SubscriptionStatus ==
+                 SubscriptionStatus.Active)
+            {
+                <div class="card danger-card mt-4">
 
-                <div class="card-body p-4">
+                    <div class="card-body p-4">
 
-                    <h2 class="h6 mb-3">
-                        Kündigung
-                    </h2>
+                        <h2 class="h6 mb-3">
+                            Kündigung
+                        </h2>
 
-                    <p class="small text-muted mb-3">
-                        Wenn du dein Abonnement kündigst, wird dein Zugang zu
-                        MyBauManagement deaktiviert. Deine Firmendaten, Mitarbeiter,
-                        Baustellen und bisherigen Daten bleiben gespeichert.
-                    </p>
 
-                    @if (!confirmCancellation)
-                    {
-                        <button class="btn btn-outline-danger btn-sm"
-                                @onclick="StartCancellation">
+                        <p class="small text-muted mb-3">
 
-                            Abonnement kündigen
+                            Wenn du dein Abonnement kündigst, wird die
+                            nächste monatliche Zahlung nicht mehr ausgeführt.
+                            Dein Zugang bleibt bis zum Ende der bereits
+                            bezahlten Abrechnungsperiode bestehen.
 
-                        </button>
-                    }
-                    else
-                    {
-                        <div class="cancellation-confirm">
+                        </p>
 
-                            <div class="cancellation-confirm-icon">
-                                <i class="bi bi-exclamation-triangle"></i>
-                            </div>
 
-                            <div>
-                                <strong>
-                                    Abonnement wirklich kündigen?
-                                </strong>
+                        @if (!confirmCancellation)
+                        {
+                            <button class="btn btn-outline-danger btn-sm"
+                                    @onclick="StartCancellation">
 
-                                <p class="mb-0">
-                                    Dein Zugang wird deaktiviert. Du kannst dein Konto
-                                    später jederzeit durch die Auswahl eines neuen
-                                    Pakets wieder aktivieren.
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <div class="d-flex gap-2 flex-wrap mt-3">
-
-                            <button class="btn btn-danger btn-sm"
-                                    @onclick="CancelCompany"
-                                    disabled="@cancellationRunning">
-
-                                @if (cancellationRunning)
-                                {
-                                    <span class="spinner-border spinner-border-sm me-2"></span>
-                                    <span>Wird gekündigt...</span>
-                                }
-                                else
-                                {
-                                    <i class="bi bi-x-circle me-2"></i>
-                                    <span>Abonnement kündigen</span>
-                                }
+                                Abonnement kündigen
 
                             </button>
+                        }
+                        else
+                        {
+                            <div class="cancellation-confirm">
 
-                            <button class="btn btn-link btn-sm"
-                                    @onclick="CancelCancellation"
-                                    disabled="@cancellationRunning">
+                                <div class="cancellation-confirm-icon">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </div>
 
-                                Abbrechen
+                                <div>
 
-                            </button>
+                                    <strong>
+                                        Abonnement wirklich kündigen?
+                                    </strong>
 
-                        </div>
-                    }
+                                    <p class="mb-0">
+
+                                        Dein Abonnement wird zum Ende der
+                                        aktuellen Abrechnungsperiode beendet.
+                                        Bis dahin kannst du die Software
+                                        weiterhin nutzen.
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="d-flex gap-2 flex-wrap mt-3">
+
+                                <button class="btn btn-danger btn-sm"
+                                        @onclick="CancelCompany"
+                                        disabled="@cancellationRunning">
+
+                                    @if (cancellationRunning)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                        <span>Wird gekündigt...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-x-circle me-2"></i>
+                                        <span>Abonnement kündigen</span>
+                                    }
+
+                                </button>
+
+
+                                <button class="btn btn-link btn-sm"
+                                        @onclick="CancelCancellation"
+                                        disabled="@cancellationRunning">
+
+                                    Abbrechen
+
+                                </button>
+
+                            </div>
+                        }
+
+                    </div>
 
                 </div>
+            }
 
-            </div>
         </div>
+
     </div>
 }
 
@@ -628,26 +701,59 @@ else
         if (company is null)
             return;
 
-        if (company.SubscriptionStatus != SubscriptionStatus.Trial ||
-            company.TrialEndDate > DateTime.UtcNow)
+
+        // ========================================================
+        // TRIAL EXPIRED
+        // ========================================================
+
+        var trialExpired =
+            company.SubscriptionStatus ==
+                SubscriptionStatus.Trial
+            &&
+            company.TrialEndDate <= DateTime.UtcNow;
+
+
+        // ========================================================
+        // CANCELLED
+        // ========================================================
+
+        var cancelled =
+            company.SubscriptionStatus ==
+                SubscriptionStatus.Cancelled;
+
+
+        // ========================================================
+        // ONLY THESE TWO STATES MAY START CHECKOUT
+        // ========================================================
+
+        if (!trialExpired && !cancelled)
         {
-            message = "Die kostenlose Testphase ist noch nicht abgelaufen.";
+            message =
+                "Für dieses Konto kann derzeit kein neues Abonnement gestartet werden.";
+
             messageType = "warning";
+
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(company.StripeCustomerId))
+
+        if (string.IsNullOrWhiteSpace(
+                company.StripeCustomerId))
         {
             message =
                 "Für dieses Konto wurde kein Stripe-Kunde gefunden. " +
                 "Bitte kontaktiere den Support.";
 
             messageType = "danger";
+
             return;
         }
 
+
         paymentRunning = true;
+
         message = null;
+
 
         try
         {
@@ -657,8 +763,10 @@ else
                     company.StripeCustomerId,
                     selectedPlan);
 
+
             var checkoutUrl =
                 StripeService.GetCheckoutUrl(session);
+
 
             Navigation.NavigateTo(
                 checkoutUrl,
@@ -673,10 +781,10 @@ else
                 "Bitte versuche es erneut.";
 
             messageType = "danger";
+
             paymentRunning = false;
         }
     }
-
 
 
     // ============================================================
@@ -687,6 +795,7 @@ else
     {
         if (company is null)
             return;
+
 
         if (selectedPlan ==
             company.SubscriptionPlan)
@@ -699,6 +808,23 @@ else
             return;
         }
 
+
+        // ========================================================
+        // ONLY ACTIVE SUBSCRIPTIONS CAN CHANGE PLAN DIRECTLY
+        // ========================================================
+
+        if (company.SubscriptionStatus !=
+            SubscriptionStatus.Active)
+        {
+            message =
+                "Das Paket kann nur bei einem aktiven Abonnement direkt geändert werden.";
+
+            messageType = "warning";
+
+            return;
+        }
+
+
         if (string.IsNullOrWhiteSpace(
                 company.StripeSubscriptionId))
         {
@@ -710,9 +836,11 @@ else
             return;
         }
 
+
         planChanging = true;
 
         message = null;
+
 
         try
         {
@@ -720,22 +848,14 @@ else
                 company.SubscriptionPlan;
 
 
-            /*
-             * Stripe zuerst ändern.
-             */
             await StripeService.ChangeSubscriptionPlanAsync(
                 company,
                 selectedPlan);
 
 
-            /*
-             * Lokale Daten ebenfalls setzen.
-             *
-             * Der Webhook aktualisiert diese Werte
-             * anschließend nochmals.
-             */
             company.SubscriptionPlan =
                 selectedPlan;
+
 
             company.StripePriceId =
                 StripeService.GetPriceId(
@@ -798,30 +918,41 @@ else
         if (company is null)
             return;
 
+
         cancellationRunning = true;
+
 
         try
         {
-            /*
-             * 1. Stripe Subscription kündigen
-             */
+            // ====================================================
+            // STRIPE
+            // CancelAtPeriodEnd = true
+            // ====================================================
+
             await StripeService.CancelSubscriptionAsync(
                 company);
 
 
             /*
-             * 2. Lokale Firma löschen
+             * IMPORTANT:
+             *
+             * Do NOT immediately deactivate/delete the company here.
+             *
+             * Stripe keeps the subscription active until
+             * CurrentPeriodEnd.
+             *
+             * The webhook will handle the final cancellation.
              */
-            await CancellationService.CancelAsync(
-                companyId);
 
 
-            /*
-             * 3. Logout
-             */
-            Navigation.NavigateTo(
-                "/Account/Logout",
-                true);
+            confirmCancellation = false;
+
+            message =
+                "Dein Abonnement wurde gekündigt. " +
+                "Du kannst die Software bis zum Ende der " +
+                "bezahlten Abrechnungsperiode weiter nutzen.";
+
+            messageType = "success";
         }
         catch (Exception ex)
         {
@@ -831,7 +962,9 @@ else
                 "Die Kündigung konnte nicht durchgeführt werden.";
 
             messageType = "danger";
-
+        }
+        finally
+        {
             cancellationRunning = false;
         }
     }

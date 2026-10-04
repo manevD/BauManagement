@@ -97,7 +97,12 @@ public class StripeWebhookController : ControllerBase
                         stripeEvent);
 
                     break;
+                case EventTypes.InvoicePaid:
 
+                    await HandleInvoicePaid(
+                        stripeEvent);
+
+                    break;
 
                 case EventTypes.CustomerSubscriptionCreated:
 
@@ -238,7 +243,59 @@ public class StripeWebhookController : ControllerBase
             "Checkout completed for Company {CompanyId}.",
             company.Id);
     }
+    // ============================================================
+    // PAYMENT SUCCESSFUL
+    // ============================================================
 
+    private async Task HandleInvoicePaid(
+        Event stripeEvent)
+    {
+        var invoice =
+            stripeEvent.Data.Object
+                as Invoice;
+
+        if (invoice is null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(
+                invoice.CustomerId))
+        {
+            _logger.LogWarning(
+                "Paid invoice {InvoiceId} has no CustomerId.",
+                invoice.Id);
+
+            return;
+        }
+
+        var company =
+            await _db.Companies
+                .FirstOrDefaultAsync(
+                    x =>
+                        x.StripeCustomerId ==
+                        invoice.CustomerId);
+
+        if (company is null)
+        {
+            _logger.LogWarning(
+                "Company not found for Stripe customer {CustomerId}.",
+                invoice.CustomerId);
+
+            return;
+        }
+
+        // Payment was successfully completed.
+        company.IsSubscriptionActive = true;
+
+        company.SubscriptionStatus =
+            SubscriptionStatus.Active;
+
+        await _db.SaveChangesAsync();
+
+        _logger.LogInformation(
+            "Invoice {InvoiceId} paid successfully for Company {CompanyId}.",
+            invoice.Id,
+            company.Id);
+    }
 
     // ============================================================
     // SUBSCRIPTION CREATED
