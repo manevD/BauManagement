@@ -393,45 +393,6 @@
 
             <section class="register-card">
 
-                <div class="register-section-header">
-
-                    <div class="section-number">
-                        03
-                    </div>
-
-                    <div>
-                        <h2>Zahlungsdaten</h2>
-                        <p>Sichere Zahlung über Stripe</p>
-                    </div>
-
-                </div>
-
-
-                <div class="stripe-box">
-
-                    <div class="stripe-lock">
-
-                        <i class="bi bi-shield-lock-fill"></i>
-
-                    </div>
-
-                    <div class="stripe-content">
-
-                        <strong>Sichere Zahlung mit Stripe</strong>
-
-                        <span>
-                            Deine Zahlungsdaten werden sicher über Stripe verarbeitet.
-                        </span>
-
-                    </div>
-
-                    <div class="stripe-word">
-                        stripe
-                    </div>
-
-                </div>
-
-
                 <div class="stripe-note">
 
                     <i class="bi bi-info-circle"></i>
@@ -455,7 +416,7 @@
                 <div class="register-section-header">
 
                     <div class="section-number">
-                        04
+                        03
                     </div>
 
                     <div>
@@ -802,23 +763,23 @@
             await Db.SaveChangesAsync();
 
 
-            // =====================================================
-            // 9. STRIPE CHECKOUT SESSION
-            // =====================================================
+            // // =====================================================
+            // // 9. STRIPE CHECKOUT SESSION
+            // // =====================================================
 
-            var checkoutSession =
-                await StripeService.CreateCheckoutSessionAsync(
-                    company,
-                    stripeCustomer.Id);
+            // var checkoutSession =
+            //     await StripeService.CreateCheckoutSessionAsync(
+            //         company,
+            //         stripeCustomer.Id);
 
 
-            // =====================================================
-            // 10. ZUR STRIPE CHECKOUT SEITE
-            // =====================================================
+            // // =====================================================
+            // // 10. ZUR STRIPE CHECKOUT SEITE
+            // // =====================================================
 
-            NavigationManager.NavigateTo(
-                StripeService.GetCheckoutUrl(checkoutSession),
-                forceLoad: true);
+            // NavigationManager.NavigateTo(
+            //     StripeService.GetCheckoutUrl(checkoutSession),
+            //     forceLoad: true);
         }
         catch (Exception ex)
         {

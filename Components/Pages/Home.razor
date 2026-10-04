@@ -1,7 +1,7 @@
 @page "/"
 @layout LandingLayout
 @inject IJSRuntime JS
-
+@inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.Components.Authorization
 
 <PageTitle>myBauManagement – Baustellen- und Mitarbeiterplanung für Handwerksbetriebe</PageTitle>
@@ -106,7 +106,8 @@
                 <AuthorizeView>
                     <NotAuthorized>
                         <a class="btn btn-primary nav-login" href="Account/Login">Anmelden</a>
-                        <a class="btn btn-primary fw-semibold nav-action" href="Account/Register" @onclick="TrackRegistrationClick"> 
+                        <a class="btn btn-primary fw-semibold nav-action" href="Account/Register"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true"> 
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -162,7 +163,8 @@
 
                     <NotAuthorized>
                         <div class="d-flex flex-wrap gap-3 mt-4">
-                            <a class="btn btn-primary btn-lg px-4 fw-semibold" href="Account/Register" @onclick="TrackRegistrationClick">
+                            <a class="btn btn-primary btn-lg px-4 fw-semibold" href="Account/Register"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true">
                                 Kostenlos starten
                                 <i class="bi bi-arrow-right ms-2"></i>
                             </a>
@@ -722,11 +724,21 @@
 </footer>
 
 @code {
-    private async Task TrackRegistrationClick()
+       private async Task TrackRegistrationClick()
     {
-        await JS.InvokeVoidAsync(
-            "bauAnalytics.event",
-            "kostenlos_starten",
-            new { button_name = "Kostenlos starten" });
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "bauAnalytics.event",
+                "kostenlos_starten",
+                new
+                {
+                    button_name = "Kostenlos starten"
+                });
+        }
+        finally
+        {
+            NavigationManager.NavigateTo("/Account/Register");
+        }
     }
 }

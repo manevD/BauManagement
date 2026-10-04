@@ -1,7 +1,7 @@
 @page "/funktionen"
 @layout LandingLayout
 @inject IJSRuntime JS
-
+@inject NavigationManager NavigationManager
 @using Microsoft.AspNetCore.Components.Authorization
 
 <PageTitle>BauManagement Funktionen – Baustellenplanung für Bau & Handwerk</PageTitle>
@@ -36,7 +36,8 @@
                 <AuthorizeView>
                     <NotAuthorized>
                         <a class="bm-mobile-login" href="Account/Login">Anmelden</a>
-                        <a class="bm-mobile-register" href="Account/Register"  @onclick="TrackRegistrationClick">
+                        <a class="bm-mobile-register" href="Account/Register"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true">
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>

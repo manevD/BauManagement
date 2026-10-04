@@ -208,11 +208,14 @@
                     });
                 },
 
-                event: function (eventName, parameters) {
-                    if (typeof gtag !== "function")
-                        return;
+              event: function (eventName, parameters) {
+                        if (typeof gtag !== "function")
+                    return;
 
-                    gtag('event', eventName, parameters || {});
+                gtag('event', eventName, {
+                    ...(parameters || {}),
+                    transport_type: 'beacon'
+                });
                 }
             };
     </script>

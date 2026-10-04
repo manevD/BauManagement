@@ -1,7 +1,7 @@
 @page "/preise"
 @layout LandingLayout
 @inject IJSRuntime JS
-
+@inject NavigationManager NavigationManager
 <PageTitle>Preise – BauManagement</PageTitle>
 
 <div class="bm-pricing-page">
@@ -41,7 +41,8 @@
                         <a class="bm-mobile-login" href="Account/Login">
                             Anmelden
                         </a>
-                        <a class="bm-mobile-register" href="Account/Register"  @onclick="TrackRegistrationClick">
+                        <a class="bm-mobile-register" href="Account/Register"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true">
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
                         </a>
@@ -148,7 +149,8 @@
                     <li>Zeiterfassung</li>
                 </ul>
 
-                <a href="/Account/Register" class="bm-plan-btn">
+                <a href="/Account/Register" class="bm-plan-btn"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true">
                     Jetzt starten <span>→</span>
                 </a>
 
@@ -195,7 +197,8 @@
                     <li>Urlaubsverwaltung</li>
                 </ul>
 
-                <a href="/Account/Register" class="bm-plan-btn">
+                <a href="/Account/Register" class="bm-plan-btn"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true">
                     Jetzt starten <span>→</span>
                 </a>
 
@@ -247,7 +250,8 @@
                     <li>Desktop, Tablet &amp; Smartphone</li>
                 </ul>
 
-                <a href="/Account/Register"
+                <a href="/Account/Register"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true"
                    class="bm-plan-btn bm-plan-btn-primary">
                     Jetzt starten <span>→</span>
                 </a>
@@ -296,7 +300,8 @@
                     <li>Urlaubsverwaltung</li>
                 </ul>
 
-                <a href="/Account/Register" class="bm-plan-btn">
+                <a href="/Account/Register" class="bm-plan-btn"    @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true">
                     Jetzt starten <span>→</span>
                 </a>
 
@@ -435,7 +440,8 @@
             Starten Sie mit dem Tarif, der zu Ihrem Team passt.
         </p>
 
-        <a href="/Account/Register" class="bm-cta-btn"  @onclick="TrackRegistrationClick">
+        <a href="/Account/Register" class="bm-cta-btn"     @onclick="TrackRegistrationClick"
+   @onclick:preventDefault="true">
             Kostenlos starten <span>→</span>
         </a>
 
@@ -478,15 +484,22 @@
 
 @code {
 
-    private async Task TrackRegistrationClick()
+     private async Task TrackRegistrationClick()
     {
-        await JS.InvokeVoidAsync(
-            "bauAnalytics.event",
-            "kostenlos_starten",
-            new
-            {
-                button_name = "Kostenlos starten"
-            });
+        try
+        {
+            await JS.InvokeVoidAsync(
+                "bauAnalytics.event",
+                "kostenlos_starten",
+                new
+                {
+                    button_name = "Kostenlos starten"
+                });
+        }
+        finally
+        {
+            NavigationManager.NavigateTo("/Account/Register");
+        }
     }
 }
 <style>
