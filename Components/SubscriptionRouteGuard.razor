@@ -30,74 +30,94 @@ else
     {
         await CheckAsync();
     }
-
-    private async Task CheckAsync()
+private async Task CheckAsync()
+{
+    try
     {
+        isChecking = true;
+
+        var authState =
+            await AuthenticationStateProvider
+                .GetAuthenticationStateAsync();
+
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated != true)
+        {
+            return;
+        }
+
+        var route =
+            NavigationManager
+                .ToBaseRelativePath(
+                    NavigationManager.Uri)
+                .Trim('/');
+
+        // ========================================================
+        // COMPANY PAGE MUSS IMMER ERREICHBAR SEIN
+        // ========================================================
+        //
+        // Besonders wichtig nach Stripe Checkout:
+        //
+        // /company?payment=success&session_id=cs_xxx
+        //
+        // Hier muss CompanyPage zuerst Stripe prüfen können.
+        //
+        if (route.Equals(
+                "company",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        // ========================================================
+        // COMPANY ID
+        // ========================================================
+
+        Guid? companyId;
+
         try
         {
-            isChecking = true;
-
-            var authState =
-                await AuthenticationStateProvider
-                    .GetAuthenticationStateAsync();
-
-            var user = authState.User;
-
-            if (user.Identity?.IsAuthenticated != true)
-            {
-                return;
-            }
-
-            var route =
-                NavigationManager
-                    .ToBaseRelativePath(
-                        NavigationManager.Uri)
-                    .Trim('/');
-
-            // Company-Seite muss immer erreichbar sein
-            if (route.Equals(
-                    "company",
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
-
-            Guid? companyId;
-
-            try
-            {
-                companyId =
-                    await CurrentCompany
-                        .GetCompanyIdAsync();
-            }
-            catch
-            {
-                GoToCompany();
-                return;
-            }
-
-            if (!companyId.HasValue)
-            {
-                GoToCompany();
-                return;
-            }
-
-            var result =
-                await SubscriptionService
-                    .CanUseApplicationAsync(
-                        companyId.Value);
-
-            if (!result.IsAllowed)
-            {
-                GoToCompany();
-                return;
-            }
+            companyId =
+                await CurrentCompany
+                    .GetCompanyIdAsync();
         }
-        finally
+        catch
         {
-            isChecking = false;
+            GoToCompany();
+            return;
+        }
+
+        if (!companyId.HasValue)
+        {
+            GoToCompany();
+            return;
+        }
+
+        // ========================================================
+        // SUBSCRIPTION PRÜFEN
+        // ========================================================
+
+        var result =
+            await SubscriptionService
+                .CanUseApplicationAsync(
+                    companyId.Value);
+
+        // ========================================================
+        // KEIN ZUGRIFF
+        // ========================================================
+
+        if (!result.IsAllowed)
+        {
+            GoToCompany();
+            return;
         }
     }
+    finally
+    {
+        isChecking = false;
+    }
+}
 
     private void GoToCompany()
     {

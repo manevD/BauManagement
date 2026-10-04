@@ -20,7 +20,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuth
 builder.Services.AddScoped<ICurrentCompanyContext, CurrentCompanyContext>();
 builder.Services.AddScoped<CompanyCancellationService>();
 builder.Services.AddScoped<BauManagement.Services.SubscriptionService>();
-
+builder.Services.AddScoped<SubscriptionAccessService>();
 builder.Services.Configure<StripeOptions>(
     builder.Configuration.GetSection("Stripe"));
 StripeConfiguration.ApiKey =

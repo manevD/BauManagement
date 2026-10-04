@@ -1,64 +1,17 @@
-﻿@using BauManagement.Models
+@using BauManagement.Models
 @using BauManagement.Services
 @using Microsoft.AspNetCore.Components.Authorization
-
-@implements IDisposable
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ICurrentCompanyContext CurrentCompany
 @inject SubscriptionService SubscriptionService
 @inject NavigationManager NavigationManager
 
-
-@if (isLoading)
+@if (isChecking)
 {
     <div class="subscription-loading">
         <div class="subscription-loading-spinner"></div>
         <div>Bitte laden...</div>
-    </div>
-}
-else if (isBlocked)
-{
-    <div class="subscription-blocked">
-
-        <div class="subscription-blocked-card">
-
-            <div class="subscription-blocked-icon">
-                <i class="bi bi-lock-fill"></i>
-            </div>
-
-            <h2>
-                @GetTitle()
-            </h2>
-
-            <p>
-                @GetMessage()
-            </p>
-
-            <div class="subscription-blocked-actions">
-
-                <button class="btn btn-subscription"
-                        @onclick="OpenSubscription">
-
-                    <i class="bi bi-credit-card me-2"></i>
-
-                    Paket auswählen
-
-                </button>
-
-                <button class="btn btn-logout"
-                        @onclick="Logout">
-
-                    <i class="bi bi-box-arrow-right me-2"></i>
-
-                    Abmelden
-
-                </button>
-
-            </div>
-
-        </div>
-
     </div>
 }
 else
@@ -66,347 +19,104 @@ else
     @ChildContent
 }
 
-
 @code {
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
 
-
-    private bool isLoading = true;
-
-    private bool isBlocked = false;
-
-    private SubscriptionBlockReason blockReason =
-        SubscriptionBlockReason.None;
-
-
-    private IDisposable? locationChangingRegistration;
-
+    private bool isChecking = true;
 
     protected override async Task OnInitializedAsync()
     {
-        /*
-         * WICHTIG:
-         *
-         * Navigation wird abgefangen BEVOR
-         * die neue Seite geöffnet wird.
-         */
-        locationChangingRegistration =
-            NavigationManager.RegisterLocationChangingHandler(
-                HandleLocationChanging);
-
-
-        await CheckCurrentPageAsync();
+        await CheckAsync();
     }
 
-
-    private async ValueTask HandleLocationChanging(
-        LocationChangingContext context)
-    {
-        /*
-         * Ziel-URL ermitteln
-         */
-        var targetRoute =
-            NavigationManager
-                .ToBaseRelativePath(context.TargetLocation)
-                .Trim('/');
-
-
-        /*
-         * /company darf IMMER geöffnet werden,
-         * damit der Benutzer ein Paket auswählen
-         * bzw. bezahlen kann.
-         */
-        if (targetRoute.Equals(
-                "company",
-                StringComparison.OrdinalIgnoreCase))
-        {
-            return;
-        }
-
-
-        /*
-         * Subscription prüfen
-         */
-        var allowed =
-            await HasSubscriptionAccessAsync();
-
-
-        /*
-         * Zugriff erlaubt
-         */
-        if (allowed)
-        {
-            return;
-        }
-
-
-        /*
-         * Zugriff NICHT erlaubt.
-         *
-         * Navigation zur gewünschten Seite verhindern.
-         */
-        context.PreventNavigation();
-
-
-        /*
-         * Benutzer auf Company-Seite schicken.
-         *
-         * replace verhindert zusätzliche History-Einträge.
-         */
-        await InvokeAsync(() =>
-        {
-            NavigationManager.NavigateTo(
-                "/company",
-                replace: true);
-        });
-    }
-
-
-    private async Task CheckCurrentPageAsync()
+    private async Task CheckAsync()
     {
         try
         {
-            isLoading = true;
+            isChecking = true;
 
-            isBlocked = false;
+            var authState =
+                await AuthenticationStateProvider
+                    .GetAuthenticationStateAsync();
 
-            blockReason =
-                SubscriptionBlockReason.None;
+            var user = authState.User;
 
+            if (user.Identity?.IsAuthenticated != true)
+                return;
 
-            /*
-             * Aktuelle Route
-             */
-            var currentRoute =
+            // WICHTIG:
+            // AbsolutePath verwenden, damit
+            // /company?payment=success&session_id=cs_xxx
+            // trotzdem als "company" erkannt wird.
+            var route =
                 NavigationManager
-                    .ToBaseRelativePath(
-                        NavigationManager.Uri)
+                    .ToAbsoluteUri(NavigationManager.Uri)
+                    .AbsolutePath
                     .Trim('/');
 
-
-            /*
-             * Company-Seite ist immer erlaubt.
-             */
-            if (currentRoute.Equals(
+            // Company-Seite muss immer erreichbar sein.
+            // CompanyPage prüft dort zuerst die Stripe-Session.
+            if (route.Equals(
                     "company",
                     StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
 
+            Guid? companyId;
 
-            /*
-             * Subscription prüfen
-             */
-            var allowed =
-                await HasSubscriptionAccessAsync();
-
-
-            if (allowed)
+            try
             {
+                companyId =
+                    await CurrentCompany
+                        .GetCompanyIdAsync();
+            }
+            catch
+            {
+                GoToCompany();
                 return;
             }
 
+            if (!companyId.HasValue)
+            {
+                GoToCompany();
+                return;
+            }
 
-            /*
-             * Zugriff blockieren
-             */
-            isBlocked = true;
+            var result =
+                await SubscriptionService
+                    .CanUseApplicationAsync(
+                        companyId.Value);
 
-            NavigationManager.NavigateTo(
-                "/company",
-                replace: true);
-        }
-        catch
-        {
-            isBlocked = true;
-
-            blockReason =
-                SubscriptionBlockReason.Unknown;
-
-            NavigationManager.NavigateTo(
-                "/company",
-                replace: true);
+            if (!result.IsAllowed)
+            {
+                GoToCompany();
+                return;
+            }
         }
         finally
         {
-            isLoading = false;
+            isChecking = false;
         }
     }
 
-
-    private async Task<bool> HasSubscriptionAccessAsync()
+    private void GoToCompany()
     {
-        /*
-         * ==========================================
-         * AUTHENTICATION
-         * ==========================================
-         */
+        var current =
+            NavigationManager
+                .ToAbsoluteUri(NavigationManager.Uri)
+                .AbsolutePath
+                .Trim('/');
 
-        var authState =
-            await AuthenticationStateProvider
-                .GetAuthenticationStateAsync();
-
-        var user = authState.User;
-
-
-        /*
-         * Nicht eingeloggte Benutzer
-         * werden von der Authentication behandelt.
-         */
-        if (user.Identity?.IsAuthenticated != true)
+        if (!current.Equals(
+                "company",
+                StringComparison.OrdinalIgnoreCase))
         {
-            return true;
+            NavigationManager.NavigateTo(
+                "/company",
+                replace: true);
         }
-
-
-        /*
-         * ==========================================
-         * COMPANY
-         * ==========================================
-         */
-
-        Guid? companyId;
-
-        try
-        {
-            companyId =
-                await CurrentCompany
-                    .GetCompanyIdAsync();
-        }
-        catch
-        {
-            blockReason =
-                SubscriptionBlockReason.CompanyNotFound;
-
-            return false;
-        }
-
-
-        if (!companyId.HasValue)
-        {
-            blockReason =
-                SubscriptionBlockReason.CompanyNotFound;
-
-            return false;
-        }
-
-
-        /*
-         * ==========================================
-         * SUBSCRIPTION
-         * ==========================================
-         */
-
-        var result =
-            await SubscriptionService
-                .CanUseApplicationAsync(
-                    companyId.Value);
-
-
-        /*
-         * Wenn erlaubt
-         */
-        if (result.IsAllowed)
-        {
-            blockReason =
-                SubscriptionBlockReason.None;
-
-            return true;
-        }
-
-
-        /*
-         * Wenn nicht erlaubt
-         */
-        blockReason =
-            result.Reason;
-
-        return false;
-    }
-
-
-    private string GetTitle()
-    {
-        return blockReason switch
-        {
-            SubscriptionBlockReason.TrialExpired =>
-                "Ihre Testphase ist abgelaufen",
-
-            SubscriptionBlockReason.Cancelled =>
-                "Ihr Abonnement wurde gekündigt",
-
-            SubscriptionBlockReason.Expired =>
-                "Ihr Abonnement ist abgelaufen",
-
-            SubscriptionBlockReason.SubscriptionExpired =>
-                "Ihr Abonnement ist abgelaufen",
-
-            SubscriptionBlockReason.SubscriptionInactive =>
-                "Ihr Abonnement ist nicht aktiv",
-
-            SubscriptionBlockReason.PastDue =>
-                "Zahlungsproblem mit Ihrem Abonnement",
-
-            SubscriptionBlockReason.CompanyNotFound =>
-                "Kein Firmenkonto gefunden",
-
-            _ =>
-                "Zugriff nicht möglich"
-        };
-    }
-
-
-    private string GetMessage()
-    {
-        return blockReason switch
-        {
-            SubscriptionBlockReason.TrialExpired =>
-                "Ihre kostenlose Testphase ist abgelaufen. Wählen Sie ein Paket, um MyBauManagement weiter zu verwenden.",
-
-            SubscriptionBlockReason.Cancelled =>
-                "Ihr Abonnement wurde gekündigt. Wählen Sie ein neues Paket, um MyBauManagement wieder zu verwenden.",
-
-            SubscriptionBlockReason.Expired =>
-                "Ihr Abonnement ist abgelaufen. Wählen Sie ein neues Paket, um fortzufahren.",
-
-            SubscriptionBlockReason.SubscriptionExpired =>
-                "Ihr Abonnement ist abgelaufen. Wählen Sie ein neues Paket, um fortzufahren.",
-
-            SubscriptionBlockReason.SubscriptionInactive =>
-                "Ihr Abonnement ist derzeit nicht aktiv.",
-
-            SubscriptionBlockReason.PastDue =>
-                "Bei Ihrem Abonnement ist ein Zahlungsproblem aufgetreten.",
-
-            SubscriptionBlockReason.CompanyNotFound =>
-                "Für Ihr Benutzerkonto konnte kein gültiges Firmenkonto gefunden werden.",
-
-            _ =>
-                "Der Zugriff auf die Anwendung ist derzeit nicht möglich."
-        };
-    }
-
-
-    private void OpenSubscription()
-    {
-        NavigationManager.NavigateTo(
-            "/company");
-    }
-
-
-    private void Logout()
-    {
-        NavigationManager.NavigateTo(
-            "/Account/Logout",
-            forceLoad: true);
-    }
-
-
-    public void Dispose()
-    {
-        locationChangingRegistration?.Dispose();
     }
 }

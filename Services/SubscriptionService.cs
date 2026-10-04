@@ -8,58 +8,106 @@ public class SubscriptionService
 {
     private readonly ApplicationDbContext _db;
 
-    public SubscriptionService(ApplicationDbContext db)
+    public SubscriptionService(
+        ApplicationDbContext db)
     {
         _db = db;
     }
 
-    public async Task<Company?> GetCompanyAsync(Guid companyId)
+
+    // ============================================================
+    // COMPANY
+    // ============================================================
+
+    public async Task<Company?> GetCompanyAsync(
+        Guid companyId)
     {
         return await _db.Companies
             .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == companyId);
+            .FirstOrDefaultAsync(
+                x => x.Id == companyId);
     }
 
-    public async Task<int> GetEmployeeCountAsync(Guid companyId)
+
+    // ============================================================
+    // EMPLOYEES
+    // ============================================================
+
+    public async Task<int> GetEmployeeCountAsync(
+        Guid companyId)
     {
         return await _db.Employees
-            .CountAsync(x =>
-                x.CompanyId == companyId &&
-                x.IsActive);
+            .CountAsync(
+                x =>
+                    x.CompanyId == companyId &&
+                    x.IsActive);
     }
 
-    public async Task<SubscriptionPlan> GetMinimumPlanAsync(Guid companyId)
+
+    // ============================================================
+    // MINIMUM PLAN
+    // ============================================================
+
+    public async Task<SubscriptionPlan>
+        GetMinimumPlanAsync(
+            Guid companyId)
     {
-        var employeeCount = await GetEmployeeCountAsync(companyId);
+        var employeeCount =
+            await GetEmployeeCountAsync(
+                companyId);
 
         return employeeCount switch
         {
-            <= 5 => SubscriptionPlan.S,
-            <= 10 => SubscriptionPlan.M,
-            <= 20 => SubscriptionPlan.L,
-            _ => SubscriptionPlan.XL
+            <= 5 =>
+                SubscriptionPlan.S,
+
+            <= 10 =>
+                SubscriptionPlan.M,
+
+            <= 20 =>
+                SubscriptionPlan.L,
+
+            _ =>
+                SubscriptionPlan.XL
         };
     }
 
-    public async Task<bool> IsPlanAllowedAsync(
-        Guid companyId,
-        SubscriptionPlan selectedPlan)
+
+    // ============================================================
+    // PLAN ALLOWED
+    // ============================================================
+
+    public async Task<bool>
+        IsPlanAllowedAsync(
+            Guid companyId,
+            SubscriptionPlan selectedPlan)
     {
-        var minimumPlan = await GetMinimumPlanAsync(companyId);
+        var minimumPlan =
+            await GetMinimumPlanAsync(
+                companyId);
 
         return selectedPlan >= minimumPlan;
     }
 
-    /// <summary>
-    /// Zentrale Prüfung, ob die Company die Anwendung verwenden darf.
-    /// Diese Methode ist die einzige authoritative Subscription-Prüfung.
-    /// </summary>
-    public async Task<SubscriptionAccessResult> CanUseApplicationAsync(
-        Guid companyId)
+
+    // ============================================================
+    // APPLICATION ACCESS
+    // ============================================================
+
+    public async Task<SubscriptionAccessResult>
+        CanUseApplicationAsync(
+            Guid companyId)
     {
-        var company = await _db.Companies
-            .AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == companyId);
+        var company =
+            await _db.Companies
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    x => x.Id == companyId);
+
+
+        // --------------------------------------------------------
+        // COMPANY NICHT GEFUNDEN
+        // --------------------------------------------------------
 
         if (company is null)
         {
@@ -67,67 +115,132 @@ public class SubscriptionService
                 SubscriptionBlockReason.CompanyNotFound);
         }
 
-        switch (company.SubscriptionStatus)
+
+        // --------------------------------------------------------
+        // TRIAL
+        // --------------------------------------------------------
+
+        if (company.SubscriptionStatus ==
+            SubscriptionStatus.Trial)
         {
-            case SubscriptionStatus.Trial:
-
-                if (company.TrialEndDate <= DateTime.UtcNow)
-                {
-                    return SubscriptionAccessResult.Blocked(
-                        SubscriptionBlockReason.TrialExpired);
-                }
-
-                return SubscriptionAccessResult.Allowed();
-
-            case SubscriptionStatus.Active:
-
-                if (!company.IsSubscriptionActive)
-                {
-                    return SubscriptionAccessResult.Blocked(
-                        SubscriptionBlockReason.SubscriptionInactive);
-                }
-
-                if (company.CurrentPeriodEnd.HasValue &&
-                    company.CurrentPeriodEnd.Value <= DateTime.UtcNow)
-                {
-                    return SubscriptionAccessResult.Blocked(
-                        SubscriptionBlockReason.SubscriptionExpired);
-                }
-
-                return SubscriptionAccessResult.Allowed();
-
-            case SubscriptionStatus.Cancelled:
-
+            // Trial abgelaufen
+            if (company.TrialEndDate <=
+                DateTime.UtcNow)
+            {
                 return SubscriptionAccessResult.Blocked(
-                    SubscriptionBlockReason.Cancelled);
+                    SubscriptionBlockReason.TrialExpired);
+            }
 
-            case SubscriptionStatus.Expired:
-
-                return SubscriptionAccessResult.Blocked(
-                    SubscriptionBlockReason.Expired);
-
-            case SubscriptionStatus.PastDue:
-
-                return SubscriptionAccessResult.Blocked(
-                    SubscriptionBlockReason.PastDue);
-
-            default:
-
-                return SubscriptionAccessResult.Blocked(
-                    SubscriptionBlockReason.Unknown);
+            // Trial noch aktiv
+            return SubscriptionAccessResult.Allowed();
         }
+
+
+        // --------------------------------------------------------
+        // ACTIVE
+        // --------------------------------------------------------
+
+        if (company.SubscriptionStatus ==
+            SubscriptionStatus.Active)
+        {
+            // Stripe sagt nicht mehr aktiv
+            if (!company.IsSubscriptionActive)
+            {
+                return SubscriptionAccessResult.Blocked(
+                    SubscriptionBlockReason.SubscriptionInactive);
+            }
+
+
+            // bezahlter Zeitraum abgelaufen
+            if (company.CurrentPeriodEnd.HasValue &&
+                company.CurrentPeriodEnd.Value <=
+                DateTime.UtcNow)
+            {
+                return SubscriptionAccessResult.Blocked(
+                    SubscriptionBlockReason.SubscriptionExpired);
+            }
+
+
+            return SubscriptionAccessResult.Allowed();
+        }
+
+
+        // --------------------------------------------------------
+        // PAST DUE
+        // --------------------------------------------------------
+
+        if (company.SubscriptionStatus ==
+            SubscriptionStatus.PastDue)
+        {
+            return SubscriptionAccessResult.Blocked(
+                SubscriptionBlockReason.PastDue);
+        }
+
+
+        // --------------------------------------------------------
+        // CANCELLED
+        // --------------------------------------------------------
+
+        if (company.SubscriptionStatus ==
+            SubscriptionStatus.Cancelled)
+        {
+            return SubscriptionAccessResult.Blocked(
+                SubscriptionBlockReason.Cancelled);
+        }
+
+
+        // --------------------------------------------------------
+        // EXPIRED
+        // --------------------------------------------------------
+
+        if (company.SubscriptionStatus ==
+            SubscriptionStatus.Expired)
+        {
+            return SubscriptionAccessResult.Blocked(
+                SubscriptionBlockReason.Expired);
+        }
+
+
+        // --------------------------------------------------------
+        // UNKNOWN
+        // --------------------------------------------------------
+
+        return SubscriptionAccessResult.Blocked(
+            SubscriptionBlockReason.Unknown);
     }
 
-    public async Task<bool> NeedsNewSubscriptionAsync(Guid companyId)
-    {
-        var result = await CanUseApplicationAsync(companyId);
 
-        return result.Reason == SubscriptionBlockReason.Cancelled
-            || result.Reason == SubscriptionBlockReason.Expired
-            || result.Reason == SubscriptionBlockReason.TrialExpired;
+    // ============================================================
+    // NEED NEW SUBSCRIPTION
+    // ============================================================
+
+    public async Task<bool>
+        NeedsNewSubscriptionAsync(
+            Guid companyId)
+    {
+        var result =
+            await CanUseApplicationAsync(
+                companyId);
+
+        return
+            result.Reason ==
+                SubscriptionBlockReason.TrialExpired
+            ||
+            result.Reason ==
+                SubscriptionBlockReason.Cancelled
+            ||
+            result.Reason ==
+                SubscriptionBlockReason.Expired
+            ||
+            result.Reason ==
+                SubscriptionBlockReason.SubscriptionExpired;
     }
 }
 
+
+// ================================================================
+// BLOCK REASONS
+// ================================================================
 
 public enum SubscriptionBlockReason
 {
@@ -151,24 +264,33 @@ public enum SubscriptionBlockReason
 }
 
 
+// ================================================================
+// RESULT
+// ================================================================
+
 public sealed class SubscriptionAccessResult
 {
     public bool IsAllowed { get; private set; }
 
     public SubscriptionBlockReason Reason { get; private set; }
 
+
     private SubscriptionAccessResult()
     {
     }
+
 
     public static SubscriptionAccessResult Allowed()
     {
         return new SubscriptionAccessResult
         {
             IsAllowed = true,
-            Reason = SubscriptionBlockReason.None
+
+            Reason =
+                SubscriptionBlockReason.None
         };
     }
+
 
     public static SubscriptionAccessResult Blocked(
         SubscriptionBlockReason reason)
@@ -176,6 +298,7 @@ public sealed class SubscriptionAccessResult
         return new SubscriptionAccessResult
         {
             IsAllowed = false,
+
             Reason = reason
         };
     }
