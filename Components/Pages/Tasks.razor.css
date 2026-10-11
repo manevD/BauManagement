@@ -34,13 +34,17 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 1.5rem;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
     padding: 2rem 2.25rem;
-    margin-bottom: 1.5rem !important;
+    margin: 0 0 1.5rem;
     overflow: hidden;
+    box-sizing: border-box;
     color: #fff;
     background: radial-gradient(circle at 90% 20%, rgba(255, 117, 24, .35), transparent 30%), linear-gradient(125deg, #0e1012 0%, #1d2227 100%);
     border: 1px solid rgba(255, 255, 255, .06);
-    border-radius: var(--as-radius);
+    border-radius: 20px;
     box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 
@@ -596,8 +600,13 @@ textarea:focus-visible {
    ========================================================= */
 
 .tasks-page {
-    max-width: 1440px;
-    margin-inline: auto;
+    display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
     /* The Tasks markup uses btn-light for edit and pagination controls. */
@@ -609,14 +618,6 @@ textarea:focus-visible {
         border: 1px solid #dfe2e6 !important;
     }
 
-        .tasks-page button.btn.btn-light:hover:not(:disabled),
-        .tasks-page button.btn.btn-light:focus-visible,
-        .tasks-page a.btn.btn-light:hover,
-        .tasks-page a.btn.btn-light:focus-visible {
-            color: #fff !important;
-            background: var(--as-orange) !important;
-            border-color: var(--as-orange) !important;
-        }
 
     .tasks-page .task-title-cell {
         max-width: 280px;

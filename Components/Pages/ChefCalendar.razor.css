@@ -184,12 +184,12 @@
 
 .employee-row {
     min-height: 86px;
-    border-bottom: 1px solid #f0f1f3;
+    border-bottom: 1px solid black;
     transition: background .18s ease;
 }
 
     .employee-row:hover {
-        background: #fffaf6;
+        background: black;
     }
 
 .employee-cell {
@@ -203,6 +203,35 @@
 .employee-name {
     font-size: .85rem;
     font-weight: 800;
+}
+
+.calendar-page {
+    display: block;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.calendar-header {
+    width: 100%;
+    max-width: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+}
+
+.calendar-wrapper {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    overflow-x: auto;
+    box-sizing: border-box;
 }
 
 .employee-position {
@@ -424,11 +453,6 @@
     border-radius: 9px;
 }
 
-    .btn-secondary:hover {
-        color: #fff;
-        background: var(--ck-orange);
-        border-color: var(--ck-orange);
-    }
 
 .error-message {
     position: fixed;

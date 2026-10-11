@@ -8,7 +8,7 @@
 @using WorkAssignmentModel = BauManagement.Models.WorkAssignment
 @using EmployeeModel = BauManagement.Models.Employee
 @inject ICurrentCompanyContext CurrentCompany
-@inject ApplicationDbContext Db
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject IJSRuntime JS
 
 <PageTitle>Chef Kalender</PageTitle>
@@ -186,40 +186,60 @@
         return wrapper;
     }
 
-    private async Task Load()
-    {
-        var id = await CurrentCompany.GetCompanyIdAsync();
+  
+private int _loadVersion;
 
-        if (!id.HasValue)
+private async Task Load()
+{
+    var version = Interlocked.Increment(ref _loadVersion);
+
+    try
+    {
+        errorMessage = null;
+
+        var companyId = await CurrentCompany.GetCompanyIdAsync();
+
+        if (!companyId.HasValue)
         {
+            employees = [];
+            assignments = [];
             return;
         }
-        errorMessage = null;
-        try
-        {
-            employees = await Db.Employees
-                .AsNoTracking()
-                .Where(x => x.IsActive && x.CompanyId == id)
-                .OrderBy(x => x.FirstName)
-                .ThenBy(x => x.LastName)
-                .ToListAsync();
 
-            var dayStart = selectedDate.Date;
-            var dayEnd = dayStart.AddDays(1);
+        var dayStart = selectedDate.Date;
+        var dayEnd = dayStart.AddDays(1);
 
-            assignments = await Db.WorkAssignments
-                .Include(x => x.Employee)
-                .Include(x => x.Baustelle)
-                .Where(x => x.Start < dayEnd && x.End > dayStart)
-                .OrderBy(x => x.Start)
-                .AsNoTracking()
-                .ToListAsync();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = ex.Message;
-        }
+        await using var db = await DbFactory.CreateDbContextAsync();
+
+        var loadedEmployees = await db.Employees
+            .AsNoTracking()
+            .Where(x => x.IsActive && x.CompanyId == companyId)
+            .OrderBy(x => x.FirstName)
+            .ThenBy(x => x.LastName)
+            .ToListAsync();
+
+        var loadedAssignments = await db.WorkAssignments
+            .AsNoTracking()
+            .Include(x => x.Employee)
+            .Include(x => x.Baustelle)
+            .Where(x => x.Start < dayEnd && x.End > dayStart)
+            .OrderBy(x => x.Start)
+            .ToListAsync();
+
+        // Игнорирај ги резултатите од постаро вчитување.
+        if (version != Volatile.Read(ref _loadVersion))
+            return;
+
+        employees = loadedEmployees;
+        assignments = loadedAssignments;
     }
+    catch (Exception ex)
+    {
+        if (version == Volatile.Read(ref _loadVersion))
+            errorMessage = ex.Message;
+    }
+}
+
 
     private List<MergedAssignment> GetMergedAssignments(Guid employeeId)
     {
@@ -294,8 +314,9 @@
             {
                 newEnd = selectedDate.Date.AddHours(23).AddMinutes(59);
             }
+            await using var db = await DbFactory.CreateDbContextAsync();
 
-            var dbAssignments = await Db.WorkAssignments
+            var dbAssignments = await db.WorkAssignments
                 .Where(x => dragged.SourceIds.Contains(x.Id))
                 .ToListAsync();
 
@@ -308,7 +329,7 @@
                     item.EmployeeId = targetEmployeeId;
                 }
 
-                await Db.SaveChangesAsync();
+                await db.SaveChangesAsync();
             }
 
             draggedAssignmentKey = null;
@@ -382,12 +403,14 @@
             }
 
             if (merged is null) return;
+            await using var db = await DbFactory.CreateDbContextAsync();
 
-            var dbAssignments = await Db.WorkAssignments
+            var dbAssignments = await db.WorkAssignments
                 .Where(x => merged.SourceIds.Contains(x.Id))
                 .ToListAsync();
 
-            if (dbAssignments.Count == 0) return;
+            if (dbAssignments.Count == 0)
+                return;
 
             newMinute = Math.Clamp(newMinute, 0, 1440);
             var newTime = selectedDate.Date.AddMinutes(newMinute);
@@ -405,7 +428,7 @@
                 foreach (var item in dbAssignments) item.End = item.End.Add(delta);
             }
 
-            await Db.SaveChangesAsync();
+            await db.SaveChangesAsync();
             await Load();
             StateHasChanged();
         }

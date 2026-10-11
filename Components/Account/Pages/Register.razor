@@ -1,6 +1,8 @@
 @page "/Account/Register"
 
 @using System.ComponentModel.DataAnnotations
+@using System.Security.Cryptography
+@using System.Text
 @using BauManagement.Data
 @using BauManagement.Models
 @using BauManagement.Services
@@ -513,6 +515,34 @@
             </section>
 
 
+            <!-- Legal -->
+            <div class="register-legal">
+                <p>
+                    Mit der Registrierung akzeptierst du unsere
+                    <a href="/agb" target="_blank" rel="noopener noreferrer">AGB</a>
+                    und
+                    <a href="/datenschutz" target="_blank" rel="noopener noreferrer">Datenschutzerklärung</a>.
+                </p>
+
+                <div class="form-check mt-3">
+                    <InputCheckbox @bind-Value="Input.AcceptAvv"
+                                   class="form-check-input"
+                                   id="acceptAvv" />
+
+                    <label class="form-check-label" for="acceptAvv">
+                        Ich bin berechtigt, diesen Vertrag für mein Unternehmen abzuschließen,
+                        und stimme dem
+                        <a href="/avv" target="_blank" rel="noopener noreferrer">
+                            Auftragsverarbeitungsvertrag (AVV)
+                        </a>
+                        zu.
+                    </label>
+
+                    <ValidationMessage For="() => Input.AcceptAvv" />
+                </div>
+            </div>
+
+
             <!-- =====================================================
                  SUBMIT
                  ===================================================== -->
@@ -550,17 +580,6 @@
                 </div>
 
             </div>
-
-
-            <!-- Legal -->
-            <p class="register-legal">
-
-                Mit der Registrierung akzeptierst du unsere
-                <a href="/agb">AGB</a>
-                und
-                <a href="/datenschutz">Datenschutzerklärung</a>.
-
-            </p>
 
 
             <!-- Login -->
@@ -613,193 +632,188 @@
         Input ??= new();
     }
 
+   
     public async Task RegisterUser(EditContext editContext)
     {
         identityErrors = null;
 
+        // AVV-Datei vor jeglichen Änderungen prüfen.
+        var avvPath = Path.Combine(
+            AppContext.BaseDirectory,
+            "LegalDocuments",
+            "AVV",
+            "AVV-v1.0.html");
+
+        if (!File.Exists(avvPath))
+        {
+            Logger.LogError("Die AVV-Datei wurde nicht gefunden: {Path}", avvPath);
+            identityErrors = new[]
+            {
+                new IdentityError
+                {
+                    Description = "Der AVV konnte nicht geladen werden. Bitte versuchen Sie es später erneut."
+                }
+            };
+            return;
+        }
+
+        string avvHash;
         try
         {
-            var now = DateTime.UtcNow;
-
-            // =====================================================
-            // 1. COMPANY ERSTELLEN
-            // =====================================================
-
-            var company = new Company
-            {
-                Id = Guid.NewGuid(),
-
-                Name = Input.CompanyName.Trim(),
-
-                Address = string.IsNullOrWhiteSpace(Input.Address)
-                    ? null
-                    : Input.Address.Trim(),
-
-                PostalCode = string.IsNullOrWhiteSpace(Input.PostalCode)
-                    ? null
-                    : Input.PostalCode.Trim(),
-
-                City = string.IsNullOrWhiteSpace(Input.City)
-                    ? null
-                    : Input.City.Trim(),
-
-                Phone = string.IsNullOrWhiteSpace(Input.Phone)
-                    ? null
-                    : Input.Phone.Trim(),
-
-                Email = Input.Email.Trim(),
-
-                SubscriptionPlan = Input.SubscriptionPlan,
-
-                TrialStartDate = now,
-
-                TrialEndDate = now.AddDays(7),
-
-                SubscriptionStatus = SubscriptionStatus.Trial,
-
-                IsSubscriptionActive = false
-            };
-
-
-            // =====================================================
-            // 2. USER ERSTELLEN
-            // =====================================================
-
-            var user = CreateUser();
-
-            user.CompanyId = company.Id;
-
-            user.EmailConfirmed = true;
-
-
-            await UserStore.SetUserNameAsync(
-                user,
-                Input.Email,
-                CancellationToken.None);
-
-
-            var emailStore = GetEmailStore();
-
-            await emailStore.SetEmailAsync(
-                user,
-                Input.Email,
-                CancellationToken.None);
-
-
-            // =====================================================
-            // 3. COMPANY IN DATABASE
-            // =====================================================
-
-            Db.Companies.Add(company);
-
-
-            // =====================================================
-            // 4. IDENTITY USER ERSTELLEN
-            // =====================================================
-
-            var result =
-                await UserManager.CreateAsync(
-                    user,
-                    Input.Password);
-
-
-            if (!result.Succeeded)
-            {
-                identityErrors = result.Errors;
-
-                return;
-            }
-
-
-            Logger.LogInformation(
-                "User created a new account with password.");
-
-
-            // =====================================================
-            // 5. ADMIN ROLE
-            // =====================================================
-
-            var resultRole =
-                await UserManager.AddToRoleAsync(
-                    user,
-                    "Admin");
-
-
-            if (!resultRole.Succeeded)
-            {
-                identityErrors = resultRole.Errors;
-
-                return;
-            }
-
-
-            // =====================================================
-            // 6. STRIPE CUSTOMER
-            // =====================================================
-
-            var stripeCustomer =
-                await StripeService.CreateCustomerAsync(
-                    company,
-                    Input.Email);
-
-
-            company.StripeCustomerId =
-                stripeCustomer.Id;
-
-
-            // =====================================================
-            // 7. STRIPE PRICE ID SPEICHERN
-            // =====================================================
-
-            company.StripePriceId =
-                StripeService.GetPriceId(
-                    company.SubscriptionPlan);
-
-
-            // =====================================================
-            // 8. DATABASE SPEICHERN
-            // =====================================================
-
-            await Db.SaveChangesAsync();
-
-
-            // // =====================================================
-            // // 9. STRIPE CHECKOUT SESSION
-            // // =====================================================
-
-            // var checkoutSession =
-            //     await StripeService.CreateCheckoutSessionAsync(
-            //         company,
-            //         stripeCustomer.Id);
-
-
-            // // =====================================================
-            // // 10. ZUR STRIPE CHECKOUT SEITE
-            // // =====================================================
-
-            // NavigationManager.NavigateTo(
-            //     StripeService.GetCheckoutUrl(checkoutSession),
-            //     forceLoad: true);
+            var avvBytes = await File.ReadAllBytesAsync(avvPath);
+            avvHash = Convert.ToHexString(SHA256.HashData(avvBytes));
         }
         catch (Exception ex)
         {
-            Logger.LogError(
-                ex,
-                "Error during registration and Stripe checkout.");
-
+            Logger.LogError(ex, "Die AVV-Datei konnte nicht gelesen oder geprüft werden.");
             identityErrors = new[]
-             {
+            {
                 new IdentityError
                 {
-                    Description =
-                        "Bei der Registrierung ist ein Fehler aufgetreten. " +
-                        "Bitte versuchen Sie es erneut."
+                    Description = "Der AVV konnte nicht überprüft werden. Bitte versuchen Sie es später erneut."
                 }
             };
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        ApplicationUser? createdUser = null;
+        string? stripeCustomerId = null;
+
+        try
+        {
+            await using var transaction = await Db.Database.BeginTransactionAsync();
+
+            // 1. Unternehmen anlegen.
+            var company = new Company
+            {
+                Id = Guid.NewGuid(),
+                Name = Input.CompanyName.Trim(),
+                Address = string.IsNullOrWhiteSpace(Input.Address) ? null : Input.Address.Trim(),
+                PostalCode = string.IsNullOrWhiteSpace(Input.PostalCode) ? null : Input.PostalCode.Trim(),
+                City = string.IsNullOrWhiteSpace(Input.City) ? null : Input.City.Trim(),
+                Phone = string.IsNullOrWhiteSpace(Input.Phone) ? null : Input.Phone.Trim(),
+                Email = Input.Email.Trim(),
+                SubscriptionPlan = Input.SubscriptionPlan,
+                TrialStartDate = now,
+                TrialEndDate = now.AddDays(7),
+                SubscriptionStatus = SubscriptionStatus.Trial,
+                IsSubscriptionActive = false
+            };
+
+            Db.Companies.Add(company);
+            await Db.SaveChangesAsync();
+
+            // 2. Benutzer anlegen.
+            var user = CreateUser();
+            user.CompanyId = company.Id;
+            user.EmailConfirmed = true;
+
+            await UserStore.SetUserNameAsync(user, Input.Email.Trim(), CancellationToken.None);
+            var emailStore = GetEmailStore();
+            await emailStore.SetEmailAsync(user, Input.Email.Trim(), CancellationToken.None);
+
+            var userResult = await UserManager.CreateAsync(user, Input.Password);
+            if (!userResult.Succeeded)
+            {
+                identityErrors = userResult.Errors;
+                await transaction.RollbackAsync();
+                Db.ChangeTracker.Clear();
+                return;
+            }
+
+            // 3. Admin-Rolle zuweisen.
+            var roleResult = await UserManager.AddToRoleAsync(user, "Admin");
+            if (!roleResult.Succeeded)
+            {
+                identityErrors = roleResult.Errors;
+                await transaction.RollbackAsync();
+                Db.ChangeTracker.Clear();
+                return;
+            }
+
+            // 4. Stripe-Kundenkonto erstellen.
+            var stripeCustomer = await StripeService.CreateCustomerAsync(company, Input.Email.Trim());
+            stripeCustomerId = stripeCustomer.Id;
+
+            company.StripeCustomerId = stripeCustomer.Id;
+            company.StripePriceId = StripeService.GetPriceId(company.SubscriptionPlan);
+
+            // 5. Annahme der AVV dokumentieren.
+            Db.CompanyAvvs.Add(new CompanyAvv
+            {
+                Id = Guid.NewGuid(),
+                CompanyId = company.Id,
+                Version = "1.0",
+                AcceptedAtUtc = now,
+                AcceptedByUserId = user.Id,
+                DocumentPath = "/avv",
+                DocumentHash = avvHash
+            });
+
+            // 6. Änderungen speichern und Datenbanktransaktion abschließen.
+            await Db.SaveChangesAsync();
+            await transaction.CommitAsync();
+            createdUser = user;
+
+            Logger.LogInformation(
+                "Registrierung erfolgreich. CompanyId: {CompanyId}, UserId: {UserId}, AVV-Version: {AvvVersion}, AVV-Prüfsumme: {AvvHash}.",
+                company.Id,
+                user.Id,
+                "1.0",
+                avvHash);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Bei der Registrierung ist ein Fehler aufgetreten.");
+
+            // Die Datenbanktransaktion wird beim Verlassen des try-Blocks freigegeben.
+            // Ein bereits bei Stripe angelegter Kunde muss separat bereinigt werden.
+            if (!string.IsNullOrWhiteSpace(stripeCustomerId))
+            {
+                try
+                {
+                    await StripeService.DeleteCustomerAsync(stripeCustomerId);
+                    Logger.LogInformation(
+                        "Der Stripe-Kunde {StripeCustomerId} wurde nach einer fehlgeschlagenen Registrierung gelöscht.",
+                        stripeCustomerId);
+                }
+                catch (Exception stripeEx)
+                {
+                    Logger.LogError(
+                        stripeEx,
+                        "Der Stripe-Kunde {StripeCustomerId} konnte nach einer fehlgeschlagenen Registrierung nicht gelöscht werden. Eine manuelle Prüfung ist erforderlich.",
+                        stripeCustomerId);
+                }
+            }
+
+            identityErrors = new[]
+            {
+                new IdentityError
+                {
+                    Description = "Bei der Registrierung ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+                }
+            };
+
+            Db.ChangeTracker.Clear();
+            return;
+        }
+
+        // 7. Erst nach erfolgreichem Commit anmelden.
+        if (createdUser is not null)
+        {
+            try
+            {
+                await SignInManager.SignInAsync(createdUser, isPersistent: false);
+                NavigationManager.NavigateTo("/mitarbeiter", forceLoad: true);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex, "Die Registrierung war erfolgreich, aber die automatische Anmeldung ist fehlgeschlagen.");
+                NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
+            }
         }
     }
-
-
     // =============================================================
     // CREATE USER
     // =============================================================
@@ -813,9 +827,8 @@
         catch
         {
             throw new InvalidOperationException(
-                $"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class " +
-                $"and has a parameterless constructor.");
+                $"Eine Instanz von '{nameof(ApplicationUser)}' konnte nicht erstellt werden. " +
+                $"Stellen Sie sicher, dass die Klasse nicht abstrakt ist und einen parameterlosen Konstruktor besitzt.");
         }
     }
 
@@ -829,7 +842,7 @@
         if (!UserManager.SupportsUserEmail)
         {
             throw new NotSupportedException(
-                "The default UI requires a user store with email support.");
+                "Die Registrierungsoberfläche benötigt einen Benutzerspeicher mit E-Mail-Unterstützung.");
         }
 
         return (IUserEmailStore<ApplicationUser>)UserStore;
@@ -898,5 +911,10 @@
             ErrorMessage =
                 "Die Passwörter stimmen nicht überein.")]
         public string ConfirmPassword { get; set; } = "";
+
+
+        [Range(typeof(bool), "true", "true",
+            ErrorMessage = "Bitte stimmen Sie dem AVV zu.")]
+        public bool AcceptAvv { get; set; }
     }
 }

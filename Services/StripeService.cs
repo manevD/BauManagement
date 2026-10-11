@@ -316,22 +316,41 @@ public class StripeService
     // CANCEL / RESUME SUBSCRIPTION
     // ============================================================
 
+
     public async Task CancelSubscriptionAsync(Company company)
     {
         if (company is null)
             throw new ArgumentNullException(nameof(company));
 
         if (string.IsNullOrWhiteSpace(company.StripeSubscriptionId))
-            return;
+            throw new InvalidOperationException(
+                "Für diese Firma wurde kein Stripe-Abonnement gefunden.");
 
         var subscriptionService = new Stripe.SubscriptionService();
+
         var options = new SubscriptionUpdateOptions
         {
             CancelAtPeriodEnd = true
         };
 
-        await subscriptionService.UpdateAsync(company.StripeSubscriptionId, options);
+        // Stripe потврдува отказ на крајот на платениот период.
+        var subscription = await subscriptionService.UpdateAsync(
+            company.StripeSubscriptionId,
+            options);
+
+        var item = subscription.Items.Data.FirstOrDefault();
+
+        if (item is not null)
+            company.CurrentPeriodEnd = item.CurrentPeriodEnd;
+
+        // Го евидентираме датумот кога е побаран отказот.
+        company.CancelledAt ??= DateTime.UtcNow;
+
+        // Не ја деактивираме веднаш компанијата.
+        // Пристапот треба да остане до крајот на платениот период.
     }
+
+
 
     public async Task ResumeSubscriptionAsync(Company company)
     {
@@ -339,18 +358,57 @@ public class StripeService
             throw new ArgumentNullException(nameof(company));
 
         if (string.IsNullOrWhiteSpace(company.StripeSubscriptionId))
-        {
             throw new InvalidOperationException(
                 "Für diese Firma wurde kein Stripe-Abonnement gefunden.");
-        }
 
         var subscriptionService = new Stripe.SubscriptionService();
+
         var options = new SubscriptionUpdateOptions
         {
             CancelAtPeriodEnd = false
         };
 
-        await subscriptionService.UpdateAsync(company.StripeSubscriptionId, options);
+        // Stripe мора успешно да го потврди повторното активирање.
+        var subscription = await subscriptionService.UpdateAsync(
+            company.StripeSubscriptionId,
+            options);
+
+        var item = subscription.Items.Data.FirstOrDefault();
+
+        if (item is not null)
+            company.CurrentPeriodEnd = item.CurrentPeriodEnd;
+
+        // Отказот повеќе не е планиран.
+        company.CancelledAt = null;
+
+        if (subscription.Status == "active")
+        {
+            company.SubscriptionStatus = SubscriptionStatus.Active;
+            company.IsSubscriptionActive = true;
+        }
+        else if (subscription.Status == "trialing")
+        {
+            company.SubscriptionStatus = SubscriptionStatus.Trial;
+            company.IsSubscriptionActive = true;
+        }
+        else
+        {
+            // Не давај пристап ако Stripe не ја потврдил
+            // активната претплата или пробниот период.
+            company.SubscriptionStatus =
+                StripeService.MapSubscriptionStatus(subscription.Status);
+
+            company.IsSubscriptionActive = false;
+        }
+    }
+    public async Task DeleteCustomerAsync(string customerId)
+    {
+        if (string.IsNullOrWhiteSpace(customerId))
+            return;
+
+        var customerService = new CustomerService();
+
+        await customerService.DeleteAsync(customerId);
     }
     public async Task<bool> SyncCompanySubscriptionAsync(Company company)
     {

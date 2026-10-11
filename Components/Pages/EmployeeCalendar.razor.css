@@ -425,12 +425,6 @@
     border-radius: 9px;
 }
 
-    .btn-secondary:hover {
-        color: #fff;
-        background: var(--ck-orange);
-        border-color: var(--ck-orange);
-    }
-
 .error-message {
     position: fixed;
     z-index: 1100;
@@ -637,4 +631,25 @@
 .calendar-page .date-input {
     height: 44px;
     min-height: 44px;
+}
+
+.calendar-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.calendar-wrapper {
+    width: 100%;
+    max-width: none;
+    overflow-x: auto;
+    box-sizing: border-box;
+}
+
+.calendar-grid-header,
+.employee-row {
+    width: 100%;
+    min-width: 0;
 }

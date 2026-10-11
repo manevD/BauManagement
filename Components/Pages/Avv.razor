@@ -1,0 +1,72 @@
+
+@page "/avv"
+@layout LandingLayout
+@using System.Text.RegularExpressions
+@inject IWebHostEnvironment WebHostEnvironment
+
+<PageTitle>Auftragsverarbeitungsvertrag | BauManagement</PageTitle>
+
+@if (!string.IsNullOrWhiteSpace(AvvContent))
+{
+    @((MarkupString)AvvContent)
+}
+else if (!string.IsNullOrWhiteSpace(LoadError))
+{
+    <div class="legal-page avv-page">
+        <div class="legal-container">
+            <div class="avv-notice">
+                <i class="bi bi-exclamation-triangle"></i>
+                <div>
+                    <strong>Der AVV konnte nicht geladen werden.</strong>
+                    <p>@LoadError</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string AvvContent = string.Empty;
+    private string LoadError = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var avvPath = Path.Combine(
+                AppContext.BaseDirectory,
+                "LegalDocuments",
+                "AVV",
+                "AVV-v1.0.html");
+
+            if (!File.Exists(avvPath))
+            {
+                LoadError =
+                    "Die Datei LegalDocuments/AVV/AVV-v1.0.html wurde nicht gefunden.";
+
+                return;
+            }
+
+            var html = await File.ReadAllTextAsync(avvPath);
+
+            var bodyMatch = Regex.Match(
+                html,
+                @"<body\b[^>]*>(.*?)</body\s*>",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+            if (!bodyMatch.Success)
+            {
+                LoadError =
+                    "Die HTML-Datei enthält keinen gültigen Body-Bereich.";
+
+                return;
+            }
+
+            AvvContent = bodyMatch.Groups[1].Value;
+        }
+        catch (Exception ex)
+        {
+            LoadError = $"Fehler beim Laden des AVV: {ex.Message}";
+        }
+    }
+}

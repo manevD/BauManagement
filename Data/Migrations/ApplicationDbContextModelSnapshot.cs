@@ -206,6 +206,41 @@ namespace BauManagement.Migrations
                     b.ToTable("Companies");
                 });
 
+            modelBuilder.Entity("BauManagement.Models.CompanyAvv", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AcceptedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AcceptedByUserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DocumentHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DocumentPath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId", "Version");
+
+                    b.ToTable("CompanyAvvs");
+                });
+
             modelBuilder.Entity("BauManagement.Models.Employee", b =>
                 {
                     b.Property<Guid>("Id")
@@ -601,6 +636,17 @@ namespace BauManagement.Migrations
                 {
                     b.HasOne("BauManagement.Models.Company", "Company")
                         .WithMany("Baustellen")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("BauManagement.Models.CompanyAvv", b =>
+                {
+                    b.HasOne("BauManagement.Models.Company", "Company")
+                        .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

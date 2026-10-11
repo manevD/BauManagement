@@ -603,7 +603,7 @@ else
         {
             await StripeService.CancelSubscriptionAsync(company);
             confirmCancellation = false;
-
+            await Db.SaveChangesAsync();
             message = "Dein Abonnement wurde gekündigt. Du kannst die Software bis zum Ende der bezahlten Abrechnungsperiode weiter nutzen.";
             messageType = "success";
         }

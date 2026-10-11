@@ -40,7 +40,7 @@
     color: #fff;
     background: radial-gradient(circle at 90% 20%, rgba(255, 117, 24, .35), transparent 30%), linear-gradient(125deg, #0e1012 0%, #1d2227 100%);
     border: 1px solid rgba(255, 255, 255, .06);
-    border-radius: var(--as-radius);
+    border-radius: 20px;
     box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 
@@ -596,9 +596,12 @@ textarea:focus-visible {
    ========================================================= */
 
 .working-times-page {
-    max-width: 1600px;
+    width: 100%;
+    max-width: 100%;
     margin-inline: auto;
     color: var(--as-ink);
+    border-radius: 20px;
+    box-sizing: border-box;
 }
 
 .working-times-header {
@@ -612,7 +615,7 @@ textarea:focus-visible {
     overflow: hidden;
     color: #fff;
     background: radial-gradient(circle at 88% 15%, rgba(255, 117, 24, .38), transparent 30%), linear-gradient(125deg, #0e1012, #20262b);
-    border-radius: var(--as-radius);
+    border-radius: 20px;
     box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 

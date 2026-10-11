@@ -19,6 +19,7 @@
     --as-shadow-hover: 0 18px 38px rgba(16, 18, 20, .13);
     --as-radius: 18px;
     display: block;
+    max-width: 100%;
     color: var(--as-ink);
 }
 
@@ -40,7 +41,7 @@
     color: #fff;
     background: radial-gradient(circle at 90% 20%, rgba(255, 117, 24, .35), transparent 30%), linear-gradient(125deg, #0e1012 0%, #1d2227 100%);
     border: 1px solid rgba(255, 255, 255, .06);
-    border-radius: var(--as-radius);
+    border-radius: 20px;
     box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 
@@ -156,11 +157,11 @@ a.btn.btn-primary {
 .btn-outline-danger {
     color: var(--as-danger) !important;
     border-color: #f0bcbc !important;
-    background: #fff !important;
+    background: red !important;
 }
 
     .btn-outline-danger:hover:not(:disabled) {
-        color: #fff !important;
+        color: red !important;
         background: var(--as-danger) !important;
         border-color: var(--as-danger) !important;
     }
@@ -596,7 +597,7 @@ textarea:focus-visible {
    ========================================================= */
 
 .vacation-page {
-    max-width: 1600px;
+    max-width: 100%;
     margin-inline: auto;
 }
 
@@ -611,7 +612,7 @@ textarea:focus-visible {
     overflow: hidden;
     color: #fff;
     background: radial-gradient(circle at 88% 15%, rgba(255, 117, 24, .38), transparent 30%), linear-gradient(125deg, #0e1012, #20262b);
-    border-radius: var(--as-radius);
+    border-radius: 20px;
     box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 
@@ -748,11 +749,9 @@ textarea:focus-visible {
     border-color: #dfe2e6 !important;
 }
 
-    .vacation-page .btn-light:hover:not(:disabled) {
-        color: #fff !important;
-        background: var(--as-orange) !important;
-        border-color: var(--as-orange) !important;
-    }
+.btn-light {
+    background-color: grey !important;
+}
 
 .vacation-page .btn-outline-primary {
     color: var(--as-orange-dark) !important;
@@ -764,7 +763,6 @@ textarea:focus-visible {
         background: var(--as-orange) !important;
         border-color: var(--as-orange) !important;
     }
-
 /* Legend */
 .vacation-legend {
     display: flex;
@@ -805,7 +803,6 @@ textarea:focus-visible {
 .vacation-status-rejected {
     background: #e05a62 !important;
 }
-
 /* Calendar grid */
 .vacation-calendar-wrapper {
     overflow-x: auto;
@@ -969,7 +966,6 @@ textarea:focus-visible {
 .vacation-end {
     position: relative;
 }
-
 /* Pending modal and edit modal */
 .vacation-modal-backdrop {
     position: fixed;
@@ -1191,7 +1187,6 @@ textarea:focus-visible {
         flex-wrap: wrap;
     }
 }
-
 /* =========================================================
    MEIN URLAUB EXTENSIONS
    ========================================================= */
@@ -1211,7 +1206,6 @@ textarea:focus-visible {
             background: #d95505 !important;
             border-color: #d95505 !important;
         }
-
 /* Personal request table */
 .vacation-page .table:not(.table-modern) {
     width: 100%;
@@ -1245,7 +1239,6 @@ textarea:focus-visible {
     .vacation-page .table:not(.table-modern) tbody tr:last-child td {
         border-bottom: 0;
     }
-
 /* Status badge classes returned by GetStatusBadgeClass */
 .status-badge,
 .badge-status,
@@ -1283,7 +1276,6 @@ textarea:focus-visible {
     color: #8c2d36 !important;
     background: #ffeaec !important;
 }
-
 /* Modal overrides for the employee-facing form */
 .vacation-page .vacation-modal-header h2 {
     color: #fff;
@@ -1343,4 +1335,438 @@ textarea:focus-visible {
     .vacation-page .table:not(.table-modern) {
         min-width: 680px;
     }
+}
+/* =========================================================
+   FIX: URLAUBANTRAG-BEARBEITEN – BUTTON LAYOUT
+   Delete stays on the left; Cancel and Save stay together on the right.
+   ========================================================= */
+
+.vacation-page .vacation-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+}
+
+    .vacation-page .vacation-modal-footer > .btn,
+    .vacation-page .vacation-modal-footer > button {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        margin: 0;
+    }
+    /* Keep the destructive action on the left when all three buttons
+   are direct children of the footer. */
+    .vacation-page .vacation-modal-footer > :first-child {
+        margin-right: auto;
+    }
+
+    .vacation-page .vacation-modal-footer .btn-primary {
+        min-width: 0;
+    }
+/* On narrow screens, use two clean rows instead of awkward wrapping:
+   delete first, then Cancel + Save side by side. */
+@media (max-width: 480px) {
+    .vacation-page .vacation-modal-footer {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 1rem;
+    }
+
+        .vacation-page .vacation-modal-footer > :first-child {
+            grid-column: 1 / -1;
+            justify-self: start;
+            margin-right: 0;
+        }
+
+        .vacation-page .vacation-modal-footer > :nth-child(2) {
+            grid-column: 1;
+            justify-self: end;
+        }
+
+        .vacation-page .vacation-modal-footer > :nth-child(3) {
+            grid-column: 2;
+            justify-self: end;
+        }
+
+        .vacation-page .vacation-modal-footer .btn {
+            max-width: 100%;
+            padding: 0.65rem 0.85rem;
+            font-size: 0.82rem;
+        }
+}
+/* If the footer contains a wrapper around Cancel/Save, keep that pair
+   in one row as well. */
+.vacation-page .vacation-modal-footer > .d-flex {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 0.65rem;
+    min-width: 0;
+}
+
+@media (max-width: 480px) {
+    .vacation-page .vacation-modal-footer > .d-flex {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        width: 100%;
+    }
+}
+/* FINAL FIX: vacation edit modal footer */
+.vacation-modal-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+    .vacation-modal-footer > .vacation-delete-button {
+        flex: 0 0 auto !important;
+        margin-right: auto !important;
+    }
+
+    .vacation-modal-footer > .vacation-modal-footer-actions {
+        display: flex !important;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-left: auto;
+        min-width: 0;
+    }
+
+.vacation-modal-footer-actions .btn {
+    white-space: nowrap;
+    margin: 0;
+}
+
+@media (max-width: 480px) {
+    .vacation-modal-footer {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        padding: 16px !important;
+    }
+
+        .vacation-modal-footer > .vacation-delete-button {
+            align-self: flex-start !important;
+            margin: 0 auto 0 0 !important;
+            width: auto !important;
+        }
+
+        .vacation-modal-footer > .vacation-modal-footer-actions {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) !important;
+            width: 100% !important;
+            margin: 0 !important;
+            gap: 10px !important;
+        }
+
+    .vacation-modal-footer-actions .btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 10px 8px !important;
+        font-size: .82rem !important;
+    }
+}
+/* High-contrast Cancel button in the vacation edit modal */
+.vacation-page .vacation-modal-footer .vacation-modal-footer-actions .btn.btn-light,
+.vacation-page .vacation-modal-footer .btn.btn-light {
+    color: #252a30 !important;
+    background-color: #e9edf1 !important;
+    background-image: none !important;
+    border: 1px solid #cbd2d9 !important;
+    box-shadow: 0 2px 5px rgba(16, 18, 20, .08) !important;
+    opacity: 1 !important;
+    font-weight: 750 !important;
+}
+
+    .vacation-page .vacation-modal-footer .vacation-modal-footer-actions .btn.btn-light:hover,
+    .vacation-page .vacation-modal-footer .btn.btn-light:hover {
+        color: #17191c !important;
+        background-color: #dce2e8 !important;
+        border-color: #b8c1ca !important;
+    }
+
+    .vacation-page .vacation-modal-footer .vacation-modal-footer-actions .btn.btn-light:focus-visible,
+    .vacation-page .vacation-modal-footer .btn.btn-light:focus-visible {
+        outline: 3px solid rgba(255, 117, 24, .35) !important;
+        outline-offset: 2px;
+    }
+/* Consistent button widths in the personal vacation modal */
+.vacation-page .vacation-modal-footer .vacation-delete-button,
+.vacation-page .vacation-modal-footer-actions .btn {
+    box-sizing: border-box !important;
+    width: 160px !important;
+    min-width: 160px !important;
+    max-width: 160px !important;
+    justify-content: center !important;
+    text-align: center !important;
+}
+
+.vacation-page .vacation-modal-footer .vacation-modal-footer-actions {
+    display: flex !important;
+    gap: 10px !important;
+}
+
+@media (max-width: 480px) {
+    .vacation-page .vacation-modal-footer > .vacation-delete-button {
+        width: calc((100% - 10px) / 2) !important;
+        min-width: 0 !important;
+        max-width: calc((100% - 10px) / 2) !important;
+        align-self: flex-start !important;
+    }
+
+    .vacation-page .vacation-modal-footer > .vacation-modal-footer-actions {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .vacation-page .vacation-modal-footer-actions .btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+    }
+}
+/* FINAL OVERRIDE: all vacation modal buttons same size */
+.vacation-page .vacation-modal-footer {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 10px !important;
+}
+
+    .vacation-page .vacation-modal-footer .vacation-delete-button,
+    .vacation-page .vacation-modal-footer .vacation-modal-footer-actions .btn {
+        box-sizing: border-box !important;
+        flex: 0 0 160px !important;
+        width: 160px !important;
+        min-width: 160px !important;
+        max-width: 160px !important;
+        min-height: 44px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 10px 8px !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+    }
+
+    .vacation-page .vacation-modal-footer .vacation-modal-footer-actions {
+        display: flex !important;
+        align-items: stretch !important;
+        justify-content: flex-end !important;
+        gap: 10px !important;
+        margin-left: auto !important;
+        min-width: 0 !important;
+    }
+    /* Yellow, clearly visible Abbrechen button */
+    .vacation-page .vacation-modal-footer .btn.btn-light {
+        color: #302400 !important;
+        background: #ffd34f !important;
+        background-color: #ffd34f !important;
+        background-image: none !important;
+        border: 1px solid #e6b92e !important;
+        box-shadow: 0 3px 8px rgba(145, 105, 0, .14) !important;
+        opacity: 1 !important;
+        font-weight: 800 !important;
+    }
+
+        .vacation-page .vacation-modal-footer .btn.btn-light:hover {
+            color: #241b00 !important;
+            background: #f5c52e !important;
+            border-color: #d8aa1d !important;
+        }
+
+@media (max-width: 640px) {
+    .vacation-page .vacation-modal-footer {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        align-items: stretch !important;
+        justify-content: stretch !important;
+        gap: 10px !important;
+        padding: 16px !important;
+    }
+
+        .vacation-page .vacation-modal-footer > .vacation-delete-button {
+            grid-column: 1 / -1 !important;
+            justify-self: start !important;
+            flex: 0 0 calc((100% - 10px) / 2) !important;
+            width: calc((100% - 10px) / 2) !important;
+            min-width: 0 !important;
+            max-width: calc((100% - 10px) / 2) !important;
+            margin: 0 !important;
+        }
+
+        .vacation-page .vacation-modal-footer > .vacation-modal-footer-actions {
+            grid-column: 1 / -1 !important;
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+            gap: 10px !important;
+            width: 100% !important;
+            margin: 0 !important;
+        }
+
+        .vacation-page .vacation-modal-footer .vacation-modal-footer-actions .btn {
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: none !important;
+            flex: initial !important;
+        }
+}
+/* MOBILE FINAL FIX: all three modal footer buttons exactly equal width */
+@media (max-width: 640px) {
+    .vacation-page .vacation-modal-footer {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        padding: 16px !important;
+    }
+
+        .vacation-page .vacation-modal-footer > .vacation-delete-button,
+        .vacation-page .vacation-modal-footer > .vacation-modal-footer-actions,
+        .vacation-page .vacation-modal-footer .vacation-modal-footer-actions .btn {
+            box-sizing: border-box !important;
+            display: flex !important;
+            flex: 0 0 auto !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            min-height: 44px !important;
+            margin: 0 !important;
+        }
+
+        .vacation-page .vacation-modal-footer > .vacation-modal-footer-actions {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+
+        .vacation-page .vacation-modal-footer .vacation-modal-footer-actions .btn {
+            justify-content: center !important;
+            padding: 10px 12px !important;
+            white-space: normal !important;
+        }
+}
+/* =========================================================
+   FINAL FIX: Mein Urlaub modal footer buttons
+   Desktop: keep the existing horizontal layout and equal sizes.
+   Mobile: all three buttons use the same full width.
+   Abbrechen stays yellow on every screen size.
+   ========================================================= */
+/* Yellow Abbrechen button on desktop and mobile */
+.vacation-page .vacation-modal-footer .vacation-modal-footer-actions > button.btn.btn-light {
+    color: #302400 !important;
+    background-color: #ffd34f !important;
+    background-image: none !important;
+    border: 1px solid #e6b92e !important;
+    box-shadow: 0 3px 8px rgba(145, 105, 0, .14) !important;
+    opacity: 1 !important;
+    font-weight: 800 !important;
+}
+
+    .vacation-page .vacation-modal-footer .vacation-modal-footer-actions > button.btn.btn-light:hover {
+        color: #241b00 !important;
+        background-color: #f5c52e !important;
+        border-color: #d8aa1d !important;
+    }
+/* Mobile: equal full-width buttons stacked vertically */
+@media (max-width: 640px) {
+    .vacation-page .vacation-modal .vacation-modal-footer {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: 10px !important;
+        width: 100% !important;
+        padding: 16px !important;
+        box-sizing: border-box !important;
+    }
+
+        .vacation-page .vacation-modal .vacation-modal-footer > button.vacation-delete-button,
+        .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions,
+        .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions > button {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            flex: 0 0 auto !important;
+            margin: 0 !important;
+        }
+
+            .vacation-page .vacation-modal .vacation-modal-footer > button.vacation-delete-button,
+            .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions > button {
+                min-height: 44px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 10px 12px !important;
+                white-space: normal !important;
+            }
+
+        .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+        }
+}
+/* FINAL: employee vacation modal footer buttons */
+.vacation-page .vacation-modal-footer .vacation-modal-footer-actions > button.btn-light {
+    color: #302400 !important;
+    background: #ffd34f !important;
+    background-image: none !important;
+    border: 1px solid #e6b92e !important;
+    box-shadow: 0 3px 8px rgba(145, 105, 0, .14) !important;
+    opacity: 1 !important;
+    font-weight: 800 !important;
+}
+
+@media (max-width: 640px) {
+    .vacation-page .vacation-modal .vacation-modal-footer {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        align-items: stretch !important;
+        justify-items: stretch !important;
+        gap: 10px !important;
+        padding: 16px !important;
+        box-sizing: border-box !important;
+    }
+
+        .vacation-page .vacation-modal .vacation-modal-footer > .vacation-delete-button,
+        .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions,
+        .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions > .btn {
+            box-sizing: border-box !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+        }
+
+            .vacation-page .vacation-modal .vacation-modal-footer > .vacation-delete-button,
+            .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions > .btn {
+                display: flex !important;
+                min-height: 44px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                padding: 10px 12px !important;
+            }
+
+        .vacation-page .vacation-modal .vacation-modal-footer > .vacation-modal-footer-actions {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 10px !important;
+        }
 }

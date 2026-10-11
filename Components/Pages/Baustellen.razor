@@ -525,8 +525,10 @@
                             Start
                         </label>
 
-                        <InputDate class="form-control"
-                                   @bind-Value="form.StartDate" />
+                     <InputDate class="form-control"
+           @bind-Value="form.StartDate"
+           min="@DateTime.Today.ToString("yyyy-MM-dd")"
+           @bind-Value:after="OnStartDateChanged" />
 
                     </div>
 
@@ -539,8 +541,11 @@
                             Ende
                         </label>
 
-                        <InputDate class="form-control"
-                                   @bind-Value="form.EndDate" />
+                        
+<InputDate class="form-control"
+           @bind-Value="form.EndDate"
+           min="@EndDateMin" />
+
 
                     </div>
 
@@ -1045,7 +1050,20 @@
         await Load();
     }
 
+    private string EndDateMin =>
+    form.StartDate.HasValue
+        ? form.StartDate.Value.AddDays(1).ToString("yyyy-MM-dd")
+        : DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
 
+private void OnStartDateChanged()
+{
+    if (form.StartDate.HasValue &&
+        form.EndDate.HasValue &&
+        form.EndDate.Value.Date <= form.StartDate.Value.Date)
+    {
+        form.EndDate = form.StartDate.Value.Date.AddDays(1);
+    }
+}
     // =========================================================
     // LOAD
     // =========================================================

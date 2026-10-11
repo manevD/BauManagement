@@ -10,7 +10,7 @@
     --me-orange: #ff7518;
     --me-orange-dark: #d95505;
     --me-orange-soft: #fff1e8;
-    max-width: 980px;
+    max-width: 100%;
     margin-inline: auto;
     color: var(--me-ink);
 }
@@ -26,7 +26,7 @@
     overflow: hidden;
     color: #fff;
     background: radial-gradient(circle at 88% 15%, rgba(255, 117, 24, .4), transparent 30%), linear-gradient(125deg, #0e1012, #20262b);
-    border-radius: 18px;
+    border-radius: 20px;
     box-shadow: 0 20px 45px rgba(16, 18, 20, .14);
 }
 

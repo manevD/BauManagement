@@ -25,7 +25,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<WorkTask> WorkTasks => Set<WorkTask>();
 
     public DbSet<WorkTimeEntry> WorkTimeEntries => Set<WorkTimeEntry>();
-
+    public DbSet<CompanyAvv> CompanyAvvs => Set<CompanyAvv>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -43,6 +43,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(x => x.CompanyId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<CompanyAvv>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.HasOne(x => x.Company)
+                .WithMany()
+                .HasForeignKey(x => x.CompanyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.Property(x => x.Version)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(x => x.AcceptedByUserId)
+                .IsRequired()
+                .HasMaxLength(450);
+
+            entity.HasIndex(x => new { x.CompanyId, x.Version });
+        });
 
         // =========================================================
         // EMPLOYEE
