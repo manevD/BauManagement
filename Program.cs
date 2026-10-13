@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using BauManagement.Configuration;
 using Stripe;
+using BauManagement.Services.Email;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -33,6 +34,12 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
+builder.Services.Configure<SmtpEmailOptions>(
+    builder.Configuration.GetSection("SmtpEmail"));
+
+builder.Services.AddScoped<
+    IEmailSender<ApplicationUser>,
+    SmtpEmailSender>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
@@ -55,7 +62,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddDefaultTokenProviders();
 
 
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {

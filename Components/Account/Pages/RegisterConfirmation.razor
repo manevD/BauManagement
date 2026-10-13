@@ -1,4 +1,4 @@
-﻿@page "/Account/RegisterConfirmation"
+@page "/Account/RegisterConfirmation"
 
 @using System.Text
 @using Microsoft.AspNetCore.Identity
@@ -6,34 +6,158 @@
 @using BauManagement.Data
 
 @inject UserManager<ApplicationUser> UserManager
-@inject IEmailSender<ApplicationUser> EmailSender
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Register confirmation</PageTitle>
+@layout BauManagement.Components.Layout.AuthLayout
 
-<h1>Register confirmation</h1>
+<PageTitle>E-Mail bestätigen – BauManagement</PageTitle>
 
-<StatusMessage Message="@statusMessage" />
+<div class="login-page">
+    <div class="login-background">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="grid-lines"></div>
+    </div>
 
-@if (emailConfirmationLink is not null)
-{
-    <p>
-        This app does not currently have a real email sender registered, see <a href="https://aka.ms/aspaccountconf">these docs</a> for how to configure a real email sender.
-        Normally this would be emailed: <a href="@emailConfirmationLink">Click here to confirm your account</a>
-    </p>
-}
-else
-{
-    <p role="alert">Please check your email to confirm your account.</p>
-}
+    <div class="construction-shape shape-left">
+        <div class="crane-tower"></div>
+        <div class="crane-arm"></div>
+    </div>
+
+    <div class="construction-shape shape-right">
+        <div class="building building-1"></div>
+        <div class="building building-2"></div>
+        <div class="building building-3"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-top">
+            <a href="/" class="brand-back">
+                <span class="back-arrow">←</span>
+                <span class="brand-name"><span class="brand-orange">Bau</span>Management</span>
+            </a>
+        </div>
+
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="logo-inner">
+                    <span class="logo-icon">🏗️</span>
+                </div>
+            </div>
+
+            <div class="login-header">
+                <h1>E-Mail bestätigen</h1>
+                <p>Nur noch ein Schritt, um dein BauManagement-Konto zu aktivieren.</p>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            {
+                <div class="confirmation-message confirmation-error" role="alert">
+                    <i class="bi bi-exclamation-circle error-icon"></i>
+                    <span>@statusMessage</span>
+                </div>
+            }
+            else
+            {
+                <div class="confirmation-message confirmation-success" role="status">
+                    <i class="bi bi-envelope-check confirmation-icon"></i>
+                    <div>
+                        <strong>Registrierung erfolgreich!</strong>
+                        <p>
+                            Wir haben die Registrierung für <strong>@Email</strong> vorbereitet.
+                            Bitte öffne dein E-Mail-Postfach und klicke auf den Bestätigungslink.
+                        </p>
+                        <p>Prüfe bei Bedarf auch den Spam-Ordner.</p>
+                    </div>
+                </div>
+            }
+
+            <div class="confirmation-actions">
+                <a href="/Account/Login" class="login-button">
+                    <span>Zur Anmeldung</span>
+                    <span class="button-arrow">→</span>
+                </a>
+                <a href="/" class="login-link">
+                    <i class="bi bi-house link-icon"></i>
+                    Zur Startseite
+                </a>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <span>MyBauManagement</span>
+            <span>•</span>
+            <span>Webolar</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .confirmation-message {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 14px;
+        margin: 22px 0;
+        line-height: 1.55;
+        font-size: .95rem;
+    }
+
+    .confirmation-message p {
+        margin: 8px 0 0;
+        color: inherit;
+        opacity: .9;
+    }
+
+    .confirmation-success {
+        color: #b7f7d1;
+        background: rgba(34, 197, 94, .10);
+        border: 1px solid rgba(34, 197, 94, .28);
+    }
+
+    .confirmation-error {
+        color: #fecaca;
+        background: rgba(239, 68, 68, .10);
+        border: 1px solid rgba(239, 68, 68, .28);
+    }
+
+    .confirmation-icon {
+        font-size: 1.35rem;
+        color: #4ade80;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .confirmation-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+        margin-top: 24px;
+    }
+
+    .confirmation-actions .login-button {
+        text-decoration: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .confirmation-actions .login-link {
+        justify-content: center;
+        text-decoration: none;
+    }
+</style>
 
 @code {
-    private string? emailConfirmationLink;
     private string? statusMessage;
 
     [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    private HttpContext? HttpContext { get; set; }
 
     [SupplyParameterFromQuery]
     private string? Email { get; set; }
@@ -43,27 +167,32 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (Email is null)
+        if (string.IsNullOrWhiteSpace(Email))
         {
-            RedirectManager.RedirectTo("");
+            statusMessage = "Die E-Mail-Adresse fehlt. Bitte starte die Registrierung erneut.";
             return;
         }
 
         var user = await UserManager.FindByEmailAsync(Email);
+
         if (user is null)
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            statusMessage = "Error finding user for unspecified email";
+            if (HttpContext is not null)
+            {
+                HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+            }
+
+            statusMessage = "Das Benutzerkonto konnte nicht gefunden werden. Bitte prüfe die E-Mail-Adresse.";
+            return;
         }
-        else if (EmailSender is IdentityNoOpEmailSender)
+
+        if (await UserManager.IsEmailConfirmedAsync(user))
         {
-            // Once you add a real email sender, you should remove this code that lets you confirm the account
-            var userId = await UserManager.GetUserIdAsync(user);
-            var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            emailConfirmationLink = NavigationManager.GetUriWithQueryParameters(
-                NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-                new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code, ["returnUrl"] = ReturnUrl });
+            statusMessage = "Diese E-Mail-Adresse wurde bereits bestätigt. Du kannst dich jetzt anmelden.";
+            return;
         }
+
+        // Der Bestätigungslink wird in Register.razor erzeugt und per E-Mail versendet.
+        // Hier absichtlich keinen Link direkt auf der Webseite anzeigen.
     }
 }

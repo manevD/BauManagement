@@ -18,6 +18,23 @@ public class StripeService
     {
         _options = options.Value;
         _navigationManager = navigationManager;
+
+        // Alle serverseitigen Stripe-Aufrufe benötigen den Secret Key.
+        // Ein Publishable Key (pk_...) ist hierfür nicht zulässig.
+        if (string.IsNullOrWhiteSpace(_options.SecretKey))
+        {
+            throw new InvalidOperationException(
+                "Stripe Secret Key fehlt. Bitte konfigurieren Sie Stripe:SecretKey.");
+        }
+
+        if (_options.SecretKey.StartsWith("pk_", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Stripe:SecretKey enthält einen Publishable Key (pk_...). " +
+                "Bitte verwenden Sie einen Secret Key (sk_test_... oder sk_live_...).");
+        }
+
+        StripeConfiguration.ApiKey = _options.SecretKey;
     }
 
     // ============================================================

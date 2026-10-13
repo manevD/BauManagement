@@ -8,14 +8,131 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject IdentityRedirectManager RedirectManager
 
-<PageTitle>Confirm email</PageTitle>
+@layout BauManagement.Components.Layout.AuthLayout
 
-<h1>Confirm email</h1>
-<StatusMessage Message="@statusMessage" />
+<PageTitle>E-Mail bestätigen – BauManagement</PageTitle>
+
+<div class="login-page">
+    <div class="login-background">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+        <div class="grid-lines"></div>
+
+        <div class="construction-shape shape-left">
+            <div class="crane-tower"></div>
+            <div class="crane-arm"></div>
+        </div>
+
+        <div class="construction-shape shape-right">
+            <div class="building building-1"></div>
+            <div class="building building-2"></div>
+            <div class="building building-3"></div>
+        </div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-top">
+            <a href="/" class="brand-back">
+                <span class="back-arrow">←</span>
+                <span class="brand-name">
+                    <span class="brand-orange">Bau</span>Management
+                </span>
+            </a>
+        </div>
+
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="logo-inner confirmation-logo">
+                    <span class="logo-icon">
+                        <i class="bi bi-envelope-check"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="login-header">
+                <h1>E-Mail <span>bestätigen</span></h1>
+                <p>
+                    Wir überprüfen Ihre E-Mail-Adresse, damit Sie
+                    BauManagement vollständig nutzen können.
+                </p>
+            </div>
+
+            @if (IsProcessing)
+            {
+                <div class="confirmation-message">
+                    <span class="confirmation-message-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </span>
+                    <div>
+                        <strong>E-Mail wird überprüft</strong>
+                        <p>Bitte warten Sie einen Moment.</p>
+                    </div>
+                </div>
+            }
+            else if (IsSuccess)
+            {
+                <div class="confirmation-message success-message">
+                    <span class="confirmation-message-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </span>
+                    <div>
+                        <strong>E-Mail erfolgreich bestätigt!</strong>
+                        <p>
+                            Ihre E-Mail-Adresse wurde erfolgreich bestätigt.
+                            Sie können sich jetzt bei BauManagement anmelden.
+                        </p>
+                    </div>
+                </div>
+
+                <a href="/Account/Login" class="login-button confirmation-button">
+                    <span>Jetzt anmelden</span>
+                    <span class="button-arrow">→</span>
+                </a>
+            }
+            else
+            {
+                <div class="confirmation-message error-message" role="alert">
+                    <span class="confirmation-message-icon">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </span>
+                    <div>
+                        <strong>Bestätigung fehlgeschlagen</strong>
+                        <p>@StatusText</p>
+                    </div>
+                </div>
+
+                <a href="/Account/Login" class="login-button confirmation-button">
+                    <span>Zur Anmeldung</span>
+                    <span class="button-arrow">→</span>
+                </a>
+            }
+
+            <div class="login-divider">
+                <span></span>
+                <small>BauManagement</small>
+                <span></span>
+            </div>
+
+            <div class="login-links">
+                <a href="/" class="login-link">
+                    <span class="link-icon">
+                        <i class="bi bi-house"></i>
+                    </span>
+                    <span>Zurück zur Startseite</span>
+                    <span class="link-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <span>MyBauManagement</span>
+            <span>•</span>
+            <span>Webolar</span>
+        </div>
+    </div>
+</div>
 
 @code {
-    private string? statusMessage;
-
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
 
@@ -25,25 +142,153 @@
     [SupplyParameterFromQuery]
     private string? Code { get; set; }
 
+    private bool IsProcessing { get; set; } = true;
+    private bool IsSuccess { get; set; }
+    private string StatusText { get; set; } =
+        "Der Bestätigungslink ist ungültig oder abgelaufen.";
+
     protected override async Task OnInitializedAsync()
     {
-        if (UserId is null || Code is null)
+        if (string.IsNullOrWhiteSpace(UserId) ||
+            string.IsNullOrWhiteSpace(Code))
         {
-            RedirectManager.RedirectTo("");
+            IsProcessing = false;
+            IsSuccess = false;
+            StatusText =
+                "Der Bestätigungslink ist unvollständig. Bitte verwenden Sie den vollständigen Link aus Ihrer E-Mail.";
             return;
         }
 
-        var user = await UserManager.FindByIdAsync(UserId);
-        if (user is null)
+        try
         {
-            HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
-            statusMessage = $"Error loading user with ID {UserId}";
+            var user = await UserManager.FindByIdAsync(UserId);
+
+            if (user is null)
+            {
+                HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                IsProcessing = false;
+                IsSuccess = false;
+                StatusText =
+                    "Das zugehörige Benutzerkonto wurde nicht gefunden.";
+                return;
+            }
+
+            if (await UserManager.IsEmailConfirmedAsync(user))
+            {
+                IsProcessing = false;
+                IsSuccess = true;
+                return;
+            }
+
+            var decodedCode = Encoding.UTF8.GetString(
+                WebEncoders.Base64UrlDecode(Code));
+
+            var result = await UserManager.ConfirmEmailAsync(
+                user, decodedCode);
+
+            IsProcessing = false;
+            IsSuccess = result.Succeeded;
+
+            if (!result.Succeeded)
+            {
+                StatusText =
+                    "Die E-Mail-Adresse konnte nicht bestätigt werden. Der Link ist möglicherweise ungültig oder abgelaufen.";
+            }
         }
-        else
+        catch (FormatException)
         {
-            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
-            var result = await UserManager.ConfirmEmailAsync(user, code);
-            statusMessage = result.Succeeded ? "Thank you for confirming your email." : "Error confirming your email.";
+            IsProcessing = false;
+            IsSuccess = false;
+            StatusText =
+                "Der Bestätigungslink ist ungültig oder beschädigt. Bitte verwenden Sie den vollständigen Link aus Ihrer E-Mail.";
+        }
+        catch (ArgumentException)
+        {
+            IsProcessing = false;
+            IsSuccess = false;
+            StatusText =
+                "Der Bestätigungslink ist ungültig oder beschädigt.";
         }
     }
 }
+
+<style>
+    .confirmation-logo {
+        border-color: rgba(255, 122, 0, .5);
+    }
+
+    .confirmation-logo .logo-icon {
+        color: #ff7a00;
+        font-size: 31px;
+    }
+
+    .confirmation-message {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 15px;
+        margin-bottom: 22px;
+        background: rgba(255, 122, 0, .06);
+        border: 1px solid rgba(255, 122, 0, .2);
+        border-radius: 12px;
+    }
+
+    .confirmation-message-icon {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(255, 122, 0, .1);
+        color: #ff7a00;
+        font-size: 18px;
+    }
+
+    .confirmation-message strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #f1f1f1;
+        font-size: .86rem;
+    }
+
+    .confirmation-message p {
+        margin: 0;
+        color: #999;
+        font-size: .8rem;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .success-message {
+        background: rgba(34, 197, 94, .06);
+        border-color: rgba(34, 197, 94, .2);
+    }
+
+    .success-message .confirmation-message-icon {
+        color: #22c55e;
+        background: rgba(34, 197, 94, .1);
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, .06);
+        border-color: rgba(239, 68, 68, .2);
+    }
+
+    .error-message .confirmation-message-icon {
+        color: #ef4444;
+        background: rgba(239, 68, 68, .1);
+    }
+
+    .confirmation-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .confirmation-button:hover {
+        color: #fff;
+    }
+</style>

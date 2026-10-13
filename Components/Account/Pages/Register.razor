@@ -1,5 +1,6 @@
 @page "/Account/Register"
-
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.WebUtilities
 @using System.ComponentModel.DataAnnotations
 @using System.Security.Cryptography
 @using System.Text
@@ -707,7 +708,6 @@
             // 2. Benutzer anlegen.
             var user = CreateUser();
             user.CompanyId = company.Id;
-            user.EmailConfirmed = true;
 
             await UserStore.SetUserNameAsync(user, Input.Email.Trim(), CancellationToken.None);
             var emailStore = GetEmailStore();
@@ -799,18 +799,51 @@
             return;
         }
 
-        // 7. Erst nach erfolgreichem Commit anmelden.
+        // 7. E-Mail-Bestätigungslink erstellen und versenden.
+        // Der Benutzer wird hier ausdrücklich NICHT automatisch angemeldet.
         if (createdUser is not null)
         {
             try
             {
-                await SignInManager.SignInAsync(createdUser, isPersistent: false);
-                NavigationManager.NavigateTo("/mitarbeiter", forceLoad: true);
+                var token = await UserManager.GenerateEmailConfirmationTokenAsync(createdUser);
+
+                var encodedToken = WebEncoders.Base64UrlEncode(
+                    Encoding.UTF8.GetBytes(token));
+
+                var callbackUrl = NavigationManager.GetUriWithQueryParameters(
+                    "/Account/ConfirmEmail",
+                    new Dictionary<string, object?>
+                    {
+                        ["userId"] = createdUser.Id,
+                        ["code"] = encodedToken
+                    });
+
+                await EmailSender.SendConfirmationLinkAsync(
+                    createdUser,
+                    Input.Email.Trim(),
+                    HtmlEncoder.Default.Encode(callbackUrl));
+
+                Logger.LogInformation(
+                    "E-Mail-Bestätigungslink wurde für {Email} erstellt und an den E-Mail-Dienst übergeben.",
+                    Input.Email.Trim());
+
+                NavigationManager.NavigateTo(
+                    $"/Account/RegisterConfirmation?email={Uri.EscapeDataString(Input.Email.Trim())}",
+                    forceLoad: true);
             }
             catch (Exception ex)
             {
-                Logger.LogError(ex, "Die Registrierung war erfolgreich, aber die automatische Anmeldung ist fehlgeschlagen.");
-                NavigationManager.NavigateTo("/Account/Login", forceLoad: true);
+                Logger.LogError(
+                    ex,
+                    "Registrierung erfolgreich, aber die Bestätigungs-E-Mail konnte nicht versendet werden.");
+
+                identityErrors = new[]
+                {
+                    new IdentityError
+                    {
+                        Description = "Dein Konto wurde erstellt, aber die Bestätigungs-E-Mail konnte nicht versendet werden. Bitte prüfe die SMTP-Konfiguration oder kontaktiere den Support."
+                    }
+                };
             }
         }
     }
