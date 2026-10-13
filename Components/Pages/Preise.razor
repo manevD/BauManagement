@@ -41,7 +41,7 @@
                         <a class="bm-mobile-login" href="Account/Login">
                             Anmelden
                         </a>
-                        <a class="bm-mobile-register" href="Account/Register"    @onclick="TrackRegistrationClick"
+                        <a class="bm-mobile-register" href="Account/Register"   
    @onclick:preventDefault="true">
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
@@ -149,7 +149,7 @@
                     <li>Zeiterfassung</li>
                 </ul>
 
-                <a href="/Account/Register" class="bm-plan-btn"    @onclick="TrackRegistrationClick"
+                <a href="/Account/Register" class="bm-plan-btn"
    @onclick:preventDefault="true">
                     Jetzt starten <span>→</span>
                 </a>
@@ -197,7 +197,7 @@
                     <li>Urlaubsverwaltung</li>
                 </ul>
 
-                <a href="/Account/Register" class="bm-plan-btn"    @onclick="TrackRegistrationClick"
+                <a href="/Account/Register" class="bm-plan-btn" 
    @onclick:preventDefault="true">
                     Jetzt starten <span>→</span>
                 </a>
@@ -250,7 +250,7 @@
                     <li>Desktop, Tablet &amp; Smartphone</li>
                 </ul>
 
-                <a href="/Account/Register"    @onclick="TrackRegistrationClick"
+                <a href="/Account/Register" 
    @onclick:preventDefault="true"
                    class="bm-plan-btn bm-plan-btn-primary">
                     Jetzt starten <span>→</span>
@@ -300,7 +300,7 @@
                     <li>Urlaubsverwaltung</li>
                 </ul>
 
-                <a href="/Account/Register" class="bm-plan-btn"    @onclick="TrackRegistrationClick"
+                <a href="/Account/Register" class="bm-plan-btn"
    @onclick:preventDefault="true">
                     Jetzt starten <span>→</span>
                 </a>
@@ -440,7 +440,7 @@
             Starten Sie mit dem Tarif, der zu Ihrem Team passt.
         </p>
 
-        <a href="/Account/Register" class="bm-cta-btn"     @onclick="TrackRegistrationClick"
+        <a href="/Account/Register" class="bm-cta-btn"
    @onclick:preventDefault="true">
             Kostenlos starten <span>→</span>
         </a>
@@ -481,7 +481,7 @@
     </footer>
 
 </div>
-
+@* 
 @code {
 
      private async Task TrackRegistrationClick()
@@ -501,7 +501,7 @@
             NavigationManager.NavigateTo("/Account/Register");
         }
     }
-}
+} *@
 <style>
     /* Nur der aktive Preise-Link wird markiert.
        Alle anderen Navbar-Stile kommen vom bestehenden Home-CSS. */

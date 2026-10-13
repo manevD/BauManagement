@@ -106,7 +106,7 @@
                 <AuthorizeView>
                     <NotAuthorized>
                         <a class="btn btn-primary nav-login" href="Account/Login">Anmelden</a>
-                        <a class="btn btn-primary fw-semibold nav-action" href="Account/Register"    @onclick="TrackRegistrationClick"
+                        <a class="btn btn-primary fw-semibold nav-action" href="Account/Register"  
    @onclick:preventDefault="true"> 
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
@@ -163,7 +163,7 @@
 
                     <NotAuthorized>
                         <div class="d-flex flex-wrap gap-3 mt-4">
-                            <a class="btn btn-primary btn-lg px-4 fw-semibold" href="Account/Register"    @onclick="TrackRegistrationClick"
+                            <a class="btn btn-primary btn-lg px-4 fw-semibold" href="Account/Register" 
    @onclick:preventDefault="true">
                                 Kostenlos starten
                                 <i class="bi bi-arrow-right ms-2"></i>
@@ -690,7 +690,7 @@
                 Planen Sie Mitarbeiter, Baustellen, Einsätze und Aufgaben zentral
                 und behalten Sie Ihre Arbeitszeiten jederzeit im Blick.
             </p>
-            <a href="Account/Register" @onclick="TrackRegistrationClick" class="btn btn-primary btn-lg px-5 fw-semibold">
+            <a href="Account/Register" class="btn btn-primary btn-lg px-5 fw-semibold">
                 Kostenlos starten
                 <i class="bi bi-arrow-right ms-2"></i>
             </a>
@@ -723,7 +723,7 @@
     </div>
 </footer>
 
-@code {
+@* @code {
        private async Task TrackRegistrationClick()
     {
         try
@@ -741,4 +741,4 @@
             NavigationManager.NavigateTo("/Account/Register");
         }
     }
-}
+} *@

@@ -36,7 +36,7 @@
                 <AuthorizeView>
                     <NotAuthorized>
                         <a class="bm-mobile-login" href="Account/Login">Anmelden</a>
-                        <a class="bm-mobile-register" href="Account/Register"    @onclick="TrackRegistrationClick"
+                        <a class="bm-mobile-register" href="Account/Register"   
    @onclick:preventDefault="true">
                             Kostenlos starten
                             <i class="bi bi-arrow-right"></i>
@@ -88,7 +88,7 @@
                 </p>
 
                 <div class="bm-hero-actions">
-                    <a class="btn btn-primary btn-lg px-4" href="Account/Register"  @onclick="TrackRegistrationClick">
+                    <a class="btn btn-primary btn-lg px-4" href="Account/Register" >
                         Kostenlos starten
                         <i class="bi bi-arrow-right ms-2"></i>
                     </a>
@@ -600,7 +600,7 @@
                     Arbeitszeiten und Urlaub zentral mit BauManagement.
                 </p>
 
-                <a class="btn btn-primary btn-lg px-5" href="Account/Register"  @onclick="TrackRegistrationClick">
+                <a class="btn btn-primary btn-lg px-5" href="Account/Register" >
                     Kostenlos starten
                     <i class="bi bi-arrow-right ms-2"></i>
                 </a>
@@ -643,7 +643,7 @@
     </footer>
 
 </div>
-@code {
+@* @code {
 
     private async Task TrackRegistrationClick()
     {
@@ -655,4 +655,4 @@
                 button_name = "Kostenlos starten"
             });
     }
-}
+} *@

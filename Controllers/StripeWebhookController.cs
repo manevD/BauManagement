@@ -209,21 +209,54 @@ public class StripeWebhookController : ControllerBase
         return company;
     }
 
+
     private async Task HandleSubscriptionDeleted(Event stripeEvent)
     {
         var subscription = stripeEvent.Data.Object as Subscription;
-        if (subscription is null) return;
+
+        if (subscription is null)
+            return;
 
         var company = await FindCompanyAsync(subscription);
-        if (company is null) return;
+
+        if (company is null)
+        {
+            _logger.LogWarning(
+                "Company not found for deleted Stripe subscription {SubscriptionId}, Customer={CustomerId}.",
+                subscription.Id,
+                subscription.CustomerId);
+
+            return;
+        }
+
+        // Осигури се дека настанот се однесува на
+        // претплатата што моментално е поврзана со компанијата.
+        if (!string.Equals(
+            company.StripeSubscriptionId,
+            subscription.Id,
+            StringComparison.Ordinal))
+        {
+            _logger.LogWarning(
+                "Ignoring deleted subscription {SubscriptionId}; company {CompanyId} currently has subscription {CurrentSubscriptionId}.",
+                subscription.Id,
+                company.Id,
+                company.StripeSubscriptionId);
+
+            return;
+        }
 
         company.IsSubscriptionActive = false;
         company.SubscriptionStatus = SubscriptionStatus.Cancelled;
+        company.CancelledAt ??= DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
 
-        _logger.LogInformation("Subscription {SubscriptionId} ended for Company {CompanyId}.", subscription.Id, company.Id);
+        _logger.LogInformation(
+            "Subscription {SubscriptionId} ended for Company {CompanyId}. Cleanup eligibility will be checked separately.",
+            subscription.Id,
+            company.Id);
     }
+
 
     private async Task HandleInvoicePaymentFailed(Event stripeEvent)
     {
