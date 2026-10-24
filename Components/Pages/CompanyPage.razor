@@ -1,5 +1,5 @@
 @page "/company"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 @rendermode InteractiveServer
 
 @using BauManagement.Data

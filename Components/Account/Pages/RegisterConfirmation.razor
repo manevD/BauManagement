@@ -1,8 +1,7 @@
+
 @page "/Account/RegisterConfirmation"
 
-@using System.Text
 @using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.WebUtilities
 @using BauManagement.Data
 
 @inject UserManager<ApplicationUser> UserManager
@@ -18,69 +17,112 @@
         <div class="glow glow-1"></div>
         <div class="glow glow-2"></div>
         <div class="grid-lines"></div>
-    </div>
 
-    <div class="construction-shape shape-left">
-        <div class="crane-tower"></div>
-        <div class="crane-arm"></div>
-    </div>
+        <div class="construction-shape shape-left">
+            <div class="crane-tower"></div>
+            <div class="crane-arm"></div>
+        </div>
 
-    <div class="construction-shape shape-right">
-        <div class="building building-1"></div>
-        <div class="building building-2"></div>
-        <div class="building building-3"></div>
+        <div class="construction-shape shape-right">
+            <div class="building building-1"></div>
+            <div class="building building-2"></div>
+            <div class="building building-3"></div>
+        </div>
     </div>
 
     <div class="login-container">
         <div class="login-top">
             <a href="/" class="brand-back">
                 <span class="back-arrow">←</span>
-                <span class="brand-name"><span class="brand-orange">Bau</span>Management</span>
+                <span class="brand-name">
+                    <span class="brand-orange">Bau</span>Management
+                </span>
             </a>
         </div>
 
         <div class="login-card">
             <div class="login-logo">
-                <div class="logo-inner">
-                    <span class="logo-icon">🏗️</span>
+                <div class="logo-inner confirmation-logo">
+                    <span class="logo-icon">
+                        <i class="bi bi-envelope-check"></i>
+                    </span>
                 </div>
             </div>
 
             <div class="login-header">
-                <h1>E-Mail bestätigen</h1>
-                <p>Nur noch ein Schritt, um dein BauManagement-Konto zu aktivieren.</p>
+                <h1>E-Mail <span>bestätigen</span></h1>
+                <p>
+                    Nur noch ein Schritt, um Ihr BauManagement-Konto
+                    zu aktivieren.
+                </p>
             </div>
 
-            @if (!string.IsNullOrWhiteSpace(statusMessage))
+            @if (IsProcessing)
             {
-                <div class="confirmation-message confirmation-error" role="alert">
-                    <i class="bi bi-exclamation-circle error-icon"></i>
-                    <span>@statusMessage</span>
+                <div class="confirmation-message">
+                    <span class="confirmation-message-icon">
+                        <i class="bi bi-hourglass-split"></i>
+                    </span>
+                    <div>
+                        <strong>Registrierung wird überprüft</strong>
+                        <p>Bitte warten Sie einen Moment.</p>
+                    </div>
+                </div>
+            }
+            else if (IsSuccess)
+            {
+                <div class="confirmation-message success-message">
+                    <span class="confirmation-message-icon">
+                        <i class="bi bi-check-circle"></i>
+                    </span>
+                    <div>
+                        <strong>Registrierung erfolgreich!</strong>
+                        <p>
+                            Die Registrierung für
+                            <strong>@Email</strong> wurde vorbereitet.
+                            Bitte öffnen Sie Ihr E-Mail-Postfach und
+                            klicken Sie auf den Bestätigungslink.
+                        </p>
+                        <p>
+                            Prüfen Sie bei Bedarf auch Ihren Spam-Ordner.
+                        </p>
+                    </div>
                 </div>
             }
             else
             {
-                <div class="confirmation-message confirmation-success" role="status">
-                    <i class="bi bi-envelope-check confirmation-icon"></i>
+                <div class="confirmation-message error-message" role="alert">
+                    <span class="confirmation-message-icon">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </span>
                     <div>
-                        <strong>Registrierung erfolgreich!</strong>
-                        <p>
-                            Wir haben die Registrierung für <strong>@Email</strong> vorbereitet.
-                            Bitte öffne dein E-Mail-Postfach und klicke auf den Bestätigungslink.
-                        </p>
-                        <p>Prüfe bei Bedarf auch den Spam-Ordner.</p>
+                        <strong>@StatusTitle</strong>
+                        <p>@StatusText</p>
                     </div>
                 </div>
             }
 
             <div class="confirmation-actions">
-                <a href="/Account/Login" class="login-button">
+                <a href="/Account/Login"
+                   class="login-button confirmation-button">
                     <span>Zur Anmeldung</span>
                     <span class="button-arrow">→</span>
                 </a>
+            </div>
+
+            <div class="login-divider">
+                <span></span>
+                <small>BauManagement</small>
+                <span></span>
+            </div>
+
+            <div class="login-links">
                 <a href="/" class="login-link">
-                    <i class="bi bi-house link-icon"></i>
-                    Zur Startseite
+                    <span class="link-icon">
+                        <i class="bi bi-house"></i>
+                    </span>
+                    <span>Zurück zur Startseite</span>
+                    <span class="link-arrow">→</span>
                 </a>
             </div>
         </div>
@@ -93,69 +135,7 @@
     </div>
 </div>
 
-<style>
-    .confirmation-message {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 16px;
-        border-radius: 14px;
-        margin: 22px 0;
-        line-height: 1.55;
-        font-size: .95rem;
-    }
-
-    .confirmation-message p {
-        margin: 8px 0 0;
-        color: inherit;
-        opacity: .9;
-    }
-
-    .confirmation-success {
-        color: #b7f7d1;
-        background: rgba(34, 197, 94, .10);
-        border: 1px solid rgba(34, 197, 94, .28);
-    }
-
-    .confirmation-error {
-        color: #fecaca;
-        background: rgba(239, 68, 68, .10);
-        border: 1px solid rgba(239, 68, 68, .28);
-    }
-
-    .confirmation-icon {
-        font-size: 1.35rem;
-        color: #4ade80;
-        flex-shrink: 0;
-        margin-top: 2px;
-    }
-
-    .confirmation-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 14px;
-        margin-top: 24px;
-    }
-
-    .confirmation-actions .login-button {
-        text-decoration: none;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .confirmation-actions .login-link {
-        justify-content: center;
-        text-decoration: none;
-    }
-</style>
-
 @code {
-    private string? statusMessage;
-
     [CascadingParameter]
     private HttpContext? HttpContext { get; set; }
 
@@ -165,34 +145,164 @@
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
+    private bool IsProcessing { get; set; } = true;
+    private bool IsSuccess { get; set; }
+    private string StatusTitle { get; set; } = "Registrierung nicht möglich";
+    private string StatusText { get; set; } = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
         if (string.IsNullOrWhiteSpace(Email))
         {
-            statusMessage = "Die E-Mail-Adresse fehlt. Bitte starte die Registrierung erneut.";
+            IsProcessing = false;
+            IsSuccess = false;
+            StatusTitle = "E-Mail-Adresse fehlt";
+            StatusText =
+                "Die E-Mail-Adresse fehlt. Bitte starten Sie die Registrierung erneut.";
             return;
         }
 
-        var user = await UserManager.FindByEmailAsync(Email);
-
-        if (user is null)
+        try
         {
-            if (HttpContext is not null)
+            var user = await UserManager.FindByEmailAsync(Email);
+
+            if (user is null)
             {
-                HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+                if (HttpContext is not null)
+                {
+                    HttpContext.Response.StatusCode =
+                        StatusCodes.Status404NotFound;
+                }
+
+                IsProcessing = false;
+                IsSuccess = false;
+                StatusTitle = "Benutzerkonto nicht gefunden";
+                StatusText =
+                    "Das Benutzerkonto konnte nicht gefunden werden. Bitte prüfen Sie die E-Mail-Adresse.";
+                return;
             }
 
-            statusMessage = "Das Benutzerkonto konnte nicht gefunden werden. Bitte prüfe die E-Mail-Adresse.";
-            return;
-        }
+            if (await UserManager.IsEmailConfirmedAsync(user))
+            {
+                IsProcessing = false;
+                IsSuccess = false;
+                StatusTitle = "E-Mail bereits bestätigt";
+                StatusText =
+                    "Diese E-Mail-Adresse wurde bereits bestätigt. Sie können sich jetzt anmelden.";
+                return;
+            }
 
-        if (await UserManager.IsEmailConfirmedAsync(user))
+            // Der Bestätigungslink wird in Register.razor erzeugt
+            // und per E-Mail versendet.
+            IsProcessing = false;
+            IsSuccess = true;
+        }
+        catch (Exception)
         {
-            statusMessage = "Diese E-Mail-Adresse wurde bereits bestätigt. Du kannst dich jetzt anmelden.";
-            return;
+            IsProcessing = false;
+            IsSuccess = false;
+            StatusTitle = "Ein Fehler ist aufgetreten";
+            StatusText =
+                "Die Registrierung konnte momentan nicht überprüft werden. Bitte versuchen Sie es später erneut.";
         }
-
-        // Der Bestätigungslink wird in Register.razor erzeugt und per E-Mail versendet.
-        // Hier absichtlich keinen Link direkt auf der Webseite anzeigen.
     }
 }
+
+<style>
+    .confirmation-logo {
+        border-color: rgba(255, 122, 0, .5);
+    }
+
+    .confirmation-logo .logo-icon {
+        color: #ff7a00;
+        font-size: 31px;
+    }
+
+    .confirmation-message {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 15px;
+        margin-bottom: 22px;
+        background: rgba(255, 122, 0, .06);
+        border: 1px solid rgba(255, 122, 0, .2);
+        border-radius: 12px;
+    }
+
+    .confirmation-message-icon {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: rgba(255, 122, 0, .1);
+        color: #ff7a00;
+        font-size: 18px;
+    }
+
+    .confirmation-message strong {
+        display: inline;
+        color: #f1f1f1;
+        font-size: .86rem;
+        overflow-wrap: anywhere;
+    }
+
+    .confirmation-message > div > strong {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .confirmation-message p {
+        margin: 0;
+        color: #999;
+        font-size: .8rem;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .confirmation-message p + p {
+        margin-top: 8px;
+    }
+
+    .success-message {
+        background: rgba(34, 197, 94, .06);
+        border-color: rgba(34, 197, 94, .2);
+    }
+
+    .success-message .confirmation-message-icon {
+        color: #22c55e;
+        background: rgba(34, 197, 94, .1);
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, .06);
+        border-color: rgba(239, 68, 68, .2);
+    }
+
+    .error-message .confirmation-message-icon {
+        color: #ef4444;
+        background: rgba(239, 68, 68, .1);
+    }
+
+    .confirmation-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 8px;
+    }
+
+    .confirmation-button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        box-sizing: border-box;
+        text-decoration: none;
+    }
+
+    .confirmation-button:hover {
+        color: #fff;
+    }
+</style>

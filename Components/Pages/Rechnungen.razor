@@ -1,0 +1,352 @@
+﻿
+@page "/admin/rechnungen"
+@attribute [Authorize(Roles = "Admin")]
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components
+
+@inject LexwareService Lexware
+
+<PageTitle>Rechnungen – Lexware Office</PageTitle>
+
+<div class="invoices-page">
+
+    <div class="page-hero mb-4">
+        <div>
+            <span class="invoice-eyebrow">
+                <i class="bi bi-receipt-cutoff me-2"></i>BUCHHALTUNG
+            </span>
+
+            <h3>Rechnungen</h3>
+
+            <p class="mb-0">
+                Rechnungen und offene Beträge aus Lexware Office verwalten.
+            </p>
+        </div>
+
+        <div class="invoice-hero-icon">
+            <i class="bi bi-receipt"></i>
+        </div>
+    </div>
+
+    @if (loading)
+    {
+        <div class="card invoice-card">
+            <div class="card-body invoice-loading">
+                <span class="spinner-border invoice-spinner"></span>
+
+                <div>
+                    <strong>Rechnungen werden geladen...</strong>
+                    <div class="text-muted small">
+                        Verbindung zu Lexware Office wird hergestellt.
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger invoice-alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span>@error</span>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-4">
+                <div class="invoice-stat-card">
+                    <div class="invoice-stat-icon orange">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+
+                    <div>
+                        <div class="invoice-stat-label">
+                            Rechnungen geladen
+                        </div>
+                        <div class="invoice-stat-value">
+                            @invoices.Count
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="invoice-stat-card">
+                    <div class="invoice-stat-icon green">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+
+                    <div>
+                        <div class="invoice-stat-label">
+                            Gesamtbetrag
+                        </div>
+                        <div class="invoice-stat-value">
+                            @invoices.Sum(x => x.TotalAmount).ToString("N2") €
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="invoice-stat-card">
+                    <div class="invoice-stat-icon red">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+
+                    <div>
+                        <div class="invoice-stat-label">
+                            Offener Betrag
+                        </div>
+                        <div class="invoice-stat-value">
+                            @invoices.Sum(x => x.OpenAmount ?? 0m).ToString("N2") €
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card invoice-card">
+
+            <div class="invoice-card-header">
+                <div>
+                    <h2>Rechnungsübersicht</h2>
+                    <p class="text-muted mb-0">
+                        Übersicht der von Lexware zurückgegebenen Rechnungen.
+                    </p>
+                </div>
+
+                <div class="invoice-count">
+                    <i class="bi bi-files me-1"></i>
+                    @invoices.Count Einträge
+                </div>
+            </div>
+
+            <div class="invoice-filters">
+
+                <div class="invoice-search">
+                    <i class="bi bi-search"></i>
+
+                    <input class="form-control"
+                           placeholder="Rechnung oder Kunde suchen..."
+                           @bind="searchTerm"
+                           @bind:event="oninput" />
+                </div>
+
+                <select class="form-select invoice-status-filter"
+                        @bind="statusFilter">
+
+                    <option value="">Alle Status</option>
+
+                    @foreach (var status in invoices
+                        .Select(x => x.VoucherStatus)
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Distinct()
+                        .OrderBy(x => x))
+                    {
+                        <option value="@status">@status</option>
+                    }
+
+                </select>
+
+            </div>
+
+            @if (!filteredInvoices.Any())
+            {
+                <div class="invoice-empty">
+                    <div class="invoice-empty-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+
+                    <h3>Keine Rechnungen gefunden</h3>
+
+                    <p class="text-muted mb-0">
+                        Passe deine Suchanfrage oder den ausgewählten Status an.
+                    </p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive invoice-table-wrapper">
+
+                    <table class="table invoice-table align-middle mb-0">
+
+                        <thead>
+                            <tr>
+                                <th>RECHNUNG</th>
+                                <th>KUNDE</th>
+                                <th>DATUM</th>
+                                <th class="text-end">BETRAG</th>
+                                <th class="text-end">OFFEN</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var invoice in filteredInvoices)
+                            {
+                                <tr @key="invoice.Id">
+
+                                    <td>
+                                        <div class="invoice-number">
+                                            <span class="invoice-number-icon">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </span>
+
+                                            <span>
+                                                <strong>
+                                                    @(string.IsNullOrWhiteSpace(invoice.VoucherNumber)
+                                                        ? "Ohne Rechnungsnummer"
+                                                        : invoice.VoucherNumber)
+                                                </strong>
+
+                                                <small>Lexware Office</small>
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="invoice-customer">
+                                            @(string.IsNullOrWhiteSpace(invoice.ContactName)
+                                                ? "Unbekannter Kunde"
+                                                : invoice.ContactName)
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="invoice-date">
+                                            @(invoice.VoucherDate?.ToString("dd.MM.yyyy") ?? "—")
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <span class="invoice-amount">
+                                            @invoice.TotalAmount.ToString("N2") €
+                                        </span>
+                                    </td>
+
+                                    <td class="text-end">
+                                        <span class="invoice-open-amount @(invoice.OpenAmount > 0 ? "has-open-amount" : "no-open-amount")">
+                                            @(invoice.OpenAmount?.ToString("N2") ?? "—") €
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="@GetStatusClass(invoice.VoucherStatus)">
+                                            <span class="status-dot"></span>
+
+                                            @(string.IsNullOrWhiteSpace(invoice.VoucherStatus)
+                                                ? "Unbekannt"
+                                                : invoice.VoucherStatus)
+                                        </span>
+                                    </td>
+
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="invoice-table-footer">
+                    <span>
+                        @filteredInvoices.Count von @invoices.Count Rechnungen
+                    </span>
+
+                    <span class="invoice-footer-source">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Datenquelle: Lexware Office
+                    </span>
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+@code {
+    private List<LexwareVoucher> invoices = new();
+    private bool loading = true;
+    private string? error;
+    private string searchTerm = string.Empty;
+    private string statusFilter = string.Empty;
+
+    private List<LexwareVoucher> filteredInvoices =>
+        invoices
+            .Where(x =>
+                string.IsNullOrWhiteSpace(searchTerm) ||
+                (x.VoucherNumber?.Contains(
+                    searchTerm,
+                    StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.ContactName?.Contains(
+                    searchTerm,
+                    StringComparison.OrdinalIgnoreCase) ?? false))
+            .Where(x =>
+                string.IsNullOrWhiteSpace(statusFilter) ||
+                string.Equals(
+                    x.VoucherStatus,
+                    statusFilter,
+                    StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(x => x.VoucherDate)
+            .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await Lexware.GetInvoicesAsync();
+            invoices = result?.Content ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lexware invoice loading error: {ex}");
+
+            error = "Die Rechnungen konnten nicht geladen werden. Bitte API-Zugang und Berechtigungen prüfen.";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private static string GetStatusClass(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+            return "invoice-status-badge neutral";
+
+        var value = status.ToLowerInvariant();
+
+        if (value.Contains("paid") ||
+            value.Contains("payed") ||
+            value.Contains("bezahlt"))
+        {
+            return "invoice-status-badge paid";
+        }
+
+        if (value.Contains("overdue") ||
+            value.Contains("unpaid") ||
+            value.Contains("offen") ||
+            value.Contains("open"))
+        {
+            return "invoice-status-badge open";
+        }
+
+        if (value.Contains("draft") ||
+            value.Contains("entwurf"))
+        {
+            return "invoice-status-badge draft";
+        }
+
+        if (value.Contains("cancel") ||
+            value.Contains("storno"))
+        {
+            return "invoice-status-badge cancelled";
+        }
+
+        return "invoice-status-badge neutral";
+    }
+}

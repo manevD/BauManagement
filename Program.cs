@@ -60,7 +60,30 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddSignInManager()
 .AddDefaultTokenProviders();
+//Lexware
+builder.Services.AddHttpClient<LexwareService>((sp, client) =>
+{
+    var configuration =
+        sp.GetRequiredService<IConfiguration>();
 
+    var baseUrl = configuration["Lexware:BaseUrl"]
+        ?? "https://api.lexware.io";
+
+    var apiKey = configuration["Lexware:ApiKey"];
+
+    if (string.IsNullOrWhiteSpace(apiKey))
+        throw new InvalidOperationException(
+            "Lexware API key is not configured.");
+
+    client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue(
+            "Bearer", apiKey);
+
+    client.DefaultRequestHeaders.Accept.ParseAdd(
+        "application/json");
+});
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
