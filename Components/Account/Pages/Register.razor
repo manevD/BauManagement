@@ -828,10 +828,13 @@
                         ["code"] = encodedToken
                     });
 
+                // Den URL unverändert an den E-Mail-Dienst übergeben.
+                // HTML-Encoding gehört in die HTML-E-Mail-Vorlage (href-Attribut),
+                // nicht hierher. Andernfalls kann "&amp;" im sichtbaren Link landen.
                 await EmailSender.SendConfirmationLinkAsync(
                     createdUser,
                     Input.Email.Trim(),
-                    HtmlEncoder.Default.Encode(callbackUrl));
+                    callbackUrl);
 
                 Logger.LogInformation(
                     "E-Mail-Bestätigungslink wurde für {Email} erstellt und an den E-Mail-Dienst übergeben.",
