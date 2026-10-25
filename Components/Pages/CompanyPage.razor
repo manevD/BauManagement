@@ -474,10 +474,17 @@ else
         Navigation.NavigateTo("/company", replace: true);
     }
 
-    private async Task SaveCompany()
-    {
-        if (company is null) return;
+   
+private async Task SaveCompany()
+{
+    if (company is null)
+        return;
 
+    message = null;
+
+    try
+    {
+        // Firmenname validieren
         if (string.IsNullOrWhiteSpace(company.Name))
         {
             message = "Der Firmenname ist erforderlich.";
@@ -485,10 +492,52 @@ else
             return;
         }
 
+        // Leerzeichen am Anfang und Ende entfernen
+        company.Name = company.Name.Trim();
+
+        var normalizedName = company.Name.ToLower();
+
+        // Prüfen, ob eine andere Firma bereits denselben Namen hat
+        // Die aktuelle Firma wird anhand ihrer ID ausgeschlossen.
+        var companyExists = await Db.Companies
+            .AsNoTracking()
+            .AnyAsync(x =>
+                x.Id != company.Id &&
+                x.Name != null &&
+                x.Name.Trim().ToLower() == normalizedName);
+
+        if (companyExists)
+        {
+            message = $"Der Firmenname '{company.Name}' ist bereits vergeben. " +
+                      "Bitte verwende einen anderen Firmennamen.";
+            messageType = "warning";
+            return;
+        }
+
+        // Änderungen speichern
         await Db.SaveChangesAsync();
-        message = "Deine Änderungen wurden gespeichert.";
+
+        message = "Deine Änderungen wurden erfolgreich gespeichert.";
         messageType = "success";
     }
+    catch (DbUpdateException ex)
+    {
+        Console.WriteLine($"Fehler beim Speichern der Firma: {ex}");
+
+        message = "Die Änderungen konnten nicht gespeichert werden. " +
+                  "Möglicherweise existiert bereits eine Firma mit diesem Namen.";
+        messageType = "danger";
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Unerwarteter Fehler beim Speichern: {ex}");
+
+        message = "Ein unerwarteter Fehler ist aufgetreten. " +
+                  "Bitte versuche es erneut.";
+        messageType = "danger";
+    }
+}
+
 
     private async Task StartCheckout()
     {

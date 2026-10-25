@@ -2,45 +2,54 @@ using BauManagement.Components;
 using BauManagement.Components.Account;
 using BauManagement.Data;
 using BauManagement.Services;
+using BauManagement.Services.Email;
+using BauManagement.Configuration;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using BauManagement.Configuration;
+using System.Net.Http.Headers;
 using Stripe;
-using BauManagement.Services.Email;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddRazorComponents()
+// ------------------------------------------------------------
+// Razor Components
+// ------------------------------------------------------------
+builder.Services
+    .AddRazorComponents()
     .AddInteractiveServerComponents();
+
 builder.Services.AddControllers();
 
+// ------------------------------------------------------------
+// Authentication / Identity
+// ------------------------------------------------------------
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
-builder.Services.AddScoped<ICurrentCompanyContext, CurrentCompanyContext>();
-builder.Services.AddScoped<CompanyCancellationService>();
-builder.Services.AddScoped<BauManagement.Services.SubscriptionService>();
-builder.Services.AddScoped<SubscriptionAccessService>();
-builder.Services.Configure<StripeOptions>(
-    builder.Configuration.GetSection("Stripe"));
-StripeConfiguration.ApiKey =
-    builder.Configuration["Stripe:SecretKey"];
-builder.Services.AddScoped<StripeService>();
-builder.Services.AddHostedService<CompanyDataCleanupService>();
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    })
-    .AddIdentityCookies();
-builder.Services.Configure<SmtpEmailOptions>(
-    builder.Configuration.GetSection("SmtpEmail"));
-
 builder.Services.AddScoped<
-    IEmailSender<ApplicationUser>,
-    SmtpEmailSender>();
+    AuthenticationStateProvider,
+    IdentityRevalidatingAuthenticationStateProvider>();
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddIdentityCookies();
+
+builder.Services.AddIdentityCore<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Stores.SchemaVersion = IdentitySchemaVersions.Version3;
+})
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<ApplicationDbContext>()
+.AddSignInManager()
+.AddDefaultTokenProviders();
+
+// ------------------------------------------------------------
+// Database
+// ------------------------------------------------------------
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "Connection string 'DefaultConnection' not found.");
@@ -49,49 +58,97 @@ builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddIdentityCore<ApplicationUser>(options =>
+
+// ------------------------------------------------------------
+// Application services
+// ------------------------------------------------------------
+builder.Services.AddScoped<ICurrentCompanyContext, CurrentCompanyContext>();
+builder.Services.AddScoped<CompanyCancellationService>();
+builder.Services.AddScoped<BauManagement.Services.SubscriptionService>();
+builder.Services.AddScoped<SubscriptionAccessService>();
+builder.Services.AddHostedService<CompanyDataCleanupService>();
+
+// ------------------------------------------------------------
+// Stripe
+// ------------------------------------------------------------
+builder.Services.Configure<StripeOptions>(
+    builder.Configuration.GetSection("Stripe"));
+
+var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
+if (!string.IsNullOrWhiteSpace(stripeSecretKey))
 {
-    options.SignIn.RequireConfirmedAccount = true;
-
-    options.Stores.SchemaVersion =
-        IdentitySchemaVersions.Version3;
-})
-.AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddSignInManager()
-.AddDefaultTokenProviders();
-//Lexware
-builder.Services.AddHttpClient<LexwareService>((sp, client) =>
+    StripeConfiguration.ApiKey = stripeSecretKey;
+}
+else
 {
-    var configuration =
-        sp.GetRequiredService<IConfiguration>();
+    // Stripe operations should validate configuration before use.
+}
 
-    var baseUrl = configuration["Lexware:BaseUrl"]
-        ?? "https://api.lexware.io";
+builder.Services.AddScoped<StripeService>();
 
-    var apiKey = configuration["Lexware:ApiKey"];
+// ------------------------------------------------------------
+// SMTP email
+// ------------------------------------------------------------
+builder.Services.Configure<SmtpEmailOptions>(
+    builder.Configuration.GetSection("SmtpEmail"));
 
-    if (string.IsNullOrWhiteSpace(apiKey))
-        throw new InvalidOperationException(
-            "Lexware API key is not configured.");
+builder.Services.AddScoped<
+    IEmailSender<ApplicationUser>,
+    SmtpEmailSender>();
 
-    client.BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/");
+// ------------------------------------------------------------
+// Lexware Office API
+// Expected configuration in appsettings.Production.json:
+// "Lexware": {
+//   "BaseUrl": "https://api.lexware.io/",
+//   "ApiKey": "YOUR_API_KEY"
+// }
+// ------------------------------------------------------------
+var lexwareApiKey = builder.Configuration["Lexware:ApiKey"];
+if (string.IsNullOrWhiteSpace(lexwareApiKey))
+{
+    throw new InvalidOperationException(
+        "Lexware API key is missing. Configure 'Lexware:ApiKey' in appsettings.Production.json.");
+}
+
+var lexwareBaseUrl = builder.Configuration["Lexware:BaseUrl"];
+if (string.IsNullOrWhiteSpace(lexwareBaseUrl))
+{
+    lexwareBaseUrl = "https://api.lexware.io/";
+}
+
+if (!Uri.TryCreate(lexwareBaseUrl, UriKind.Absolute, out var lexwareUri) ||
+    (lexwareUri.Scheme != Uri.UriSchemeHttps && builder.Environment.IsProduction()))
+{
+    throw new InvalidOperationException(
+        "Lexware:BaseUrl must be a valid HTTPS URL in Production.");
+}
+
+builder.Services.AddHttpClient<LexwareService>(client =>
+{
+    client.BaseAddress = new Uri(lexwareUri.ToString().TrimEnd('/') + "/");
+    client.Timeout = TimeSpan.FromSeconds(30);
 
     client.DefaultRequestHeaders.Authorization =
-        new System.Net.Http.Headers.AuthenticationHeaderValue(
-            "Bearer", apiKey);
+        new AuthenticationHeaderValue("Bearer", lexwareApiKey.Trim());
 
-    client.DefaultRequestHeaders.Accept.ParseAdd(
-        "application/json");
+    client.DefaultRequestHeaders.Accept.Clear();
+    client.DefaultRequestHeaders.Accept.Add(
+        new MediaTypeWithQualityHeaderValue("application/json"));
 });
 
 var app = builder.Build();
+
+// Initialize database
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await DbInitializer.InitializeAsync(services);
 }
-// Configure the HTTP request pipeline.
+
+// ------------------------------------------------------------
+// HTTP pipeline
+// ------------------------------------------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -99,20 +156,23 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
-app.UseHttpsRedirection();
 
+app.UseStatusCodePagesWithReExecute(
+    "/not-found",
+    createScopeForStatusCodePages: true);
+
+app.UseHttpsRedirection();
 app.UseAntiforgery();
 
 app.MapStaticAssets();
 app.MapControllers();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();
+

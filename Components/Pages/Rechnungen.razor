@@ -301,11 +301,31 @@
             var result = await Lexware.GetInvoicesAsync();
             invoices = result?.Content ?? new();
         }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"Lexware HTTP error: {ex}");
+
+            error = ex.StatusCode switch
+            {
+                System.Net.HttpStatusCode.Unauthorized =>
+                    "Lexware API Key ist ungültig oder wurde nicht akzeptiert (401).",
+
+                System.Net.HttpStatusCode.Forbidden =>
+                    "Lexware hat den Zugriff verweigert (403).",
+
+                System.Net.HttpStatusCode.NotFound =>
+                    "Lexware API-Endpunkt wurde nicht gefunden (404).",
+
+                System.Net.HttpStatusCode.TooManyRequests =>
+                    "Zu viele Anfragen an Lexware. Bitte später erneut versuchen.",
+
+                _ => ex.Message
+            };
+        }
         catch (Exception ex)
         {
             Console.WriteLine($"Lexware invoice loading error: {ex}");
-
-            error = "Die Rechnungen konnten nicht geladen werden. Bitte API-Zugang und Berechtigungen prüfen.";
+            error = "Beim Laden der Rechnungen ist ein Fehler aufgetreten. Bitte Server-Log prüfen.";
         }
         finally
         {
