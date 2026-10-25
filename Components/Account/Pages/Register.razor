@@ -15,6 +15,7 @@
 @inject IEmailSender<ApplicationUser> EmailSender
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
+@inject IConfiguration Configuration
 @inject IdentityRedirectManager RedirectManager
 @inject ApplicationDbContext Db
 
@@ -810,9 +811,18 @@
                 var encodedToken = WebEncoders.Base64UrlEncode(
                     Encoding.UTF8.GetBytes(token));
 
-                var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-                    "/Account/ConfirmEmail",
-                    new Dictionary<string, object?>
+                // Die öffentliche Basis-URL wird aus der Production-Konfiguration gelesen.
+// Fallback auf die aktuelle Anwendungsadresse für lokale Entwicklung.
+                var baseUrl = Configuration["App:BaseUrl"];
+
+                if (string.IsNullOrWhiteSpace(baseUrl))
+                {
+                    baseUrl = NavigationManager.BaseUri;
+                }
+
+                var callbackUrl = QueryHelpers.AddQueryString(
+                    $"{baseUrl.TrimEnd('/')}/Account/ConfirmEmail",
+                    new Dictionary<string, string?>
                     {
                         ["userId"] = createdUser.Id,
                         ["code"] = encodedToken

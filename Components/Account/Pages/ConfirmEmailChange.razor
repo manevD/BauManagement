@@ -1,4 +1,4 @@
-﻿@page "/Account/ConfirmEmailChange"
+@page "/Account/ConfirmEmailChange"
 
 @using System.Text
 @using Microsoft.AspNetCore.Identity
@@ -8,15 +8,307 @@
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
+@inject ILogger<ConfirmEmailChange> Logger
 
-<PageTitle>Confirm email change</PageTitle>
+<PageTitle>E-Mail-Änderung bestätigen – BauManagement</PageTitle>
 
-<h1>Confirm email change</h1>
+<div class="confirm-change-page">
+    <div class="confirm-change-glow confirm-change-glow-one"></div>
+    <div class="confirm-change-glow confirm-change-glow-two"></div>
+    <div class="confirm-change-grid"></div>
 
-<StatusMessage Message="@message" />
+    <div class="confirm-change-top">
+        <a href="/" class="confirm-change-brand" aria-label="BauManagement Startseite">
+            <span class="confirm-change-back">←</span>
+            <span><strong><span class="brand-orange">Bau</span>Management</strong></span>
+        </a>
+        <a href="/Account/Login" class="confirm-change-login">Anmelden <span>→</span></a>
+    </div>
+
+    <main class="confirm-change-card">
+        <div class="confirm-change-badge">
+            <i class="bi bi-shield-check"></i>
+            Konto-Sicherheit
+        </div>
+
+        @if (_isProcessing)
+        {
+            <div class="confirm-change-icon processing">
+                <i class="bi bi-envelope-check"></i>
+            </div>
+            <h1>E-Mail-Adresse wird <span>bestätigt</span></h1>
+            <p class="confirm-change-description">Bitte warte, während wir deine E-Mail-Änderung sicher bestätigen.</p>
+        }
+        else if (_success)
+        {
+            <div class="confirm-change-icon success">
+                <i class="bi bi-check-lg"></i>
+            </div>
+            <h1>E-Mail-Adresse <span>bestätigt</span></h1>
+            <p class="confirm-change-description">@message</p>
+            <a href="/Account/Login" class="confirm-change-button">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Zur Anmeldung
+            </a>
+        }
+        else
+        {
+            <div class="confirm-change-icon error">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <h1>Bestätigung <span>nicht möglich</span></h1>
+            <p class="confirm-change-description">@message</p>
+            <a href="/Account/Login" class="confirm-change-secondary">
+                <i class="bi bi-chevron-left"></i>
+                Zurück zum Login
+            </a>
+        }
+
+        <div class="confirm-change-help">
+            <i class="bi bi-info-circle"></i>
+            <span>Wenn du diese Änderung nicht angefordert hast, melde dich bitte bei deinem Administrator oder Support.</span>
+        </div>
+    </main>
+
+    <footer class="confirm-change-footer">
+        <strong>© BauManagement – Webolar</strong>
+        <span>Baustellen. Mitarbeiter. Aufgaben. Alles an einem Ort.</span>
+    </footer>
+</div>
+
+<style>
+    .confirm-change-page {
+        position: relative;
+        isolation: isolate;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        overflow: hidden;
+        padding: 22px clamp(16px, 4vw, 52px) 30px;
+        background: radial-gradient(ellipse at 15% 75%, rgba(249,115,22,.16), transparent 38%),
+                    radial-gradient(ellipse at 88% 28%, rgba(249,115,22,.12), transparent 32%),
+                    #0a0a0a;
+        color: #f9fafb;
+    }
+
+    .confirm-change-glow {
+        position: absolute;
+        z-index: -1;
+        width: 330px;
+        height: 330px;
+        border-radius: 50%;
+        filter: blur(100px);
+        background: rgba(255,122,0,.15);
+        pointer-events: none;
+    }
+
+    .confirm-change-glow-one { top: 24%; left: -170px; }
+    .confirm-change-glow-two { right: -160px; bottom: 8%; }
+
+    .confirm-change-grid {
+        position: absolute;
+        z-index: -1;
+        inset: 0;
+        opacity: .15;
+        pointer-events: none;
+        background-image: linear-gradient(rgba(255,122,0,.18) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255,122,0,.18) 1px, transparent 1px);
+        background-size: 58px 58px;
+        mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+    }
+
+    .confirm-change-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        width: 100%;
+        max-width: 1180px;
+        margin: 0 auto;
+    }
+
+    .confirm-change-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        color: #fff;
+        font-size: 22px;
+        text-decoration: none;
+    }
+
+    .confirm-change-brand strong { font-weight: 800; }
+    .confirm-change-brand .brand-orange { color: #ff7a00; }
+
+    .confirm-change-back {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        place-items: center;
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 50%;
+        color: #fff;
+        font-size: 25px;
+        transition: background .2s ease, border-color .2s ease;
+    }
+
+    .confirm-change-brand:hover .confirm-change-back {
+        border-color: #ff7a00;
+        background: rgba(255,122,0,.12);
+    }
+
+    .confirm-change-login {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border: 1px solid #ff7a00;
+        border-radius: 12px;
+        color: #ff8a1d;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .confirm-change-login:hover { background: rgba(255,122,0,.1); color: #ff9d45; }
+
+    .confirm-change-card {
+        width: min(100%, 650px);
+        margin: auto;
+        padding: clamp(30px, 5vw, 54px);
+        border: 1px solid rgba(255,255,255,.7);
+        border-radius: 22px;
+        background: #fff;
+        color: #111827;
+        text-align: center;
+        box-shadow: 0 28px 90px rgba(0,0,0,.32);
+    }
+
+    .confirm-change-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 25px;
+        padding: 11px 19px;
+        border-radius: 999px;
+        background: #fff1e7;
+        color: #ea6900;
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+    .confirm-change-badge i { font-size: 18px; }
+
+    .confirm-change-icon {
+        display: grid;
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 22px;
+        place-items: center;
+        border-radius: 50%;
+        font-size: 34px;
+    }
+
+    .confirm-change-icon.processing { background: #fff7ed; color: #f97316; }
+    .confirm-change-icon.success { background: #ecfdf3; color: #16a34a; }
+    .confirm-change-icon.error { background: #fef2f2; color: #dc2626; }
+
+    .confirm-change-card h1 {
+        margin: 0;
+        color: #111827;
+        font-size: clamp(28px, 4vw, 38px);
+        font-weight: 850;
+        line-height: 1.18;
+        letter-spacing: -.7px;
+    }
+
+    .confirm-change-card h1 span { color: #f97316; }
+
+    .confirm-change-description {
+        margin: 18px auto 28px;
+        max-width: 500px;
+        color: #667085;
+        font-size: 16px;
+        line-height: 1.75;
+        overflow-wrap: anywhere;
+    }
+
+    .confirm-change-button,
+    .confirm-change-secondary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 52px;
+        padding: 14px 24px;
+        border-radius: 12px;
+        font-weight: 750;
+        text-decoration: none;
+        transition: transform .2s ease, background .2s ease;
+    }
+
+    .confirm-change-button {
+        width: 100%;
+        background: linear-gradient(135deg, #ff8a00, #ff6a00);
+        color: #fff;
+        box-shadow: 0 10px 22px rgba(255,122,0,.2);
+    }
+
+    .confirm-change-button:hover {
+        transform: translateY(-1px);
+        color: #fff;
+        box-shadow: 0 14px 28px rgba(255,122,0,.28);
+    }
+
+    .confirm-change-secondary {
+        border: 1px solid #d7dce5;
+        color: #111827;
+    }
+
+    .confirm-change-secondary:hover { background: #fff7ed; border-color: #ff7a00; color: #c2410c; }
+
+    .confirm-change-help {
+        display: flex;
+        align-items: flex-start;
+        gap: 11px;
+        margin-top: 30px;
+        padding: 15px 16px;
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 13px;
+        line-height: 1.6;
+        text-align: left;
+    }
+
+    .confirm-change-help i { margin-top: 2px; font-size: 18px; }
+
+    .confirm-change-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 7px;
+        margin: 0 auto;
+        color: rgba(255,255,255,.72);
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .confirm-change-footer strong { color: #fff; }
+
+    @media (max-width: 560px) {
+        .confirm-change-page { padding: 16px 10px 24px; }
+        .confirm-change-brand { gap: 8px; font-size: 18px; }
+        .confirm-change-back { width: 38px; height: 38px; font-size: 22px; }
+        .confirm-change-login { padding: 10px 12px; font-size: 13px; }
+        .confirm-change-card { padding: 28px 20px; border-radius: 17px; }
+        .confirm-change-card h1 { font-size: 29px; }
+    }
+</style>
 
 @code {
     private string? message;
+    private bool _isProcessing = true;
+    private bool _success;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -32,38 +324,72 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (UserId is null || Email is null || Code is null)
+        try
         {
-            RedirectManager.RedirectToWithStatus(
-                "Account/Login", "Error: Invalid email change confirmation link.", HttpContext);
-            return;
-        }
+            if (string.IsNullOrWhiteSpace(UserId) ||
+                string.IsNullOrWhiteSpace(Email) ||
+                string.IsNullOrWhiteSpace(Code))
+            {
+                message = "Der Bestätigungslink ist unvollständig oder ungültig. Bitte fordere einen neuen Link an.";
+                _success = false;
+                return;
+            }
 
-        var user = await UserManager.FindByIdAsync(UserId);
-        if (user is null)
+            var user = await UserManager.FindByIdAsync(UserId);
+            if (user is null)
+            {
+                message = "Das Benutzerkonto konnte nicht gefunden werden.";
+                _success = false;
+                return;
+            }
+
+            var decodedCode = Encoding.UTF8.GetString(
+                WebEncoders.Base64UrlDecode(Code));
+
+            var result = await UserManager.ChangeEmailAsync(user, Email, decodedCode);
+            if (!result.Succeeded)
+            {
+                message = "Die E-Mail-Adresse konnte nicht geändert werden. Der Link ist möglicherweise abgelaufen. Bitte fordere die Änderung erneut an.";
+                _success = false;
+                Logger.LogWarning(
+                    "E-Mail-Änderung konnte nicht bestätigt werden. UserId: {UserId}. Fehlercodes: {ErrorCodes}",
+                    UserId,
+                    string.Join(", ", result.Errors.Select(e => e.Code)));
+                return;
+            }
+
+            // E-Mail und Benutzername sind in dieser Anwendung identisch.
+            var setUserNameResult = await UserManager.SetUserNameAsync(user, Email);
+            if (!setUserNameResult.Succeeded)
+            {
+                message = "Die E-Mail-Adresse wurde geändert, aber der Benutzername konnte nicht aktualisiert werden. Bitte kontaktiere den Support.";
+                _success = false;
+                Logger.LogError(
+                    "E-Mail geändert, aber Benutzername konnte nicht aktualisiert werden. UserId: {UserId}. Fehlercodes: {ErrorCodes}",
+                    UserId,
+                    string.Join(", ", setUserNameResult.Errors.Select(e => e.Code)));
+                return;
+            }
+
+            await SignInManager.RefreshSignInAsync(user);
+            message = "Deine neue E-Mail-Adresse wurde erfolgreich bestätigt.";
+            _success = true;
+        }
+        catch (FormatException ex)
         {
-            message = "Unable to find user with Id '{userId}'";
-            return;
+            Logger.LogWarning(ex, "Ungültiger Code beim Bestätigen einer E-Mail-Änderung.");
+            message = "Der Bestätigungslink ist ungültig oder beschädigt. Bitte fordere einen neuen Link an.";
+            _success = false;
         }
-
-        var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(Code));
-        var result = await UserManager.ChangeEmailAsync(user, Email, code);
-        if (!result.Succeeded)
+        catch (Exception ex)
         {
-            message = "Error changing email.";
-            return;
+            Logger.LogError(ex, "Fehler beim Bestätigen einer E-Mail-Änderung.");
+            message = "Die Bestätigung konnte momentan nicht abgeschlossen werden. Bitte versuche es später erneut.";
+            _success = false;
         }
-
-        // In our UI email and user name are one and the same, so when we update the email
-        // we need to update the user name.
-        var setUserNameResult = await UserManager.SetUserNameAsync(user, Email);
-        if (!setUserNameResult.Succeeded)
+        finally
         {
-            message = "Error changing user name.";
-            return;
+            _isProcessing = false;
         }
-
-        await SignInManager.RefreshSignInAsync(user);
-        message = "Thank you for confirming your email change.";
     }
 }

@@ -1,4 +1,4 @@
-﻿@page "/Account/ResendEmailConfirmation"
+@page "/Account/ResendEmailConfirmation"
 
 @using System.ComponentModel.DataAnnotations
 @using System.Text
@@ -6,32 +6,380 @@
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
 @using BauManagement.Data
+@using BauManagement.Services
 
 @inject UserManager<ApplicationUser> UserManager
 @inject IEmailSender<ApplicationUser> EmailSender
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject IConfiguration Configuration
+@inject ILogger<ResendEmailConfirmation> Logger
 
-<PageTitle>Resend email confirmation</PageTitle>
+@layout BauManagement.Components.Layout.AuthLayout
 
-<h1>Resend email confirmation</h1>
-<h2>Enter your email.</h2>
-<hr />
-<StatusMessage Message="@message" />
-<div class="row">
-    <div class="col-md-4">
-        <EditForm Model="Input" FormName="resend-email-confirmation" OnValidSubmit="OnValidSubmitAsync" method="post">
-            <DataAnnotationsValidator />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
-                <InputText @bind-Value="Input.Email" id="Input.Email" class="form-control" aria-required="true" placeholder="name@example.com" />
-                <label for="Input.Email" class="form-label">Email</label>
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
+<PageTitle>Bestätigungs-E-Mail erneut senden – BauManagement</PageTitle>
+
+<div class="register-page resend-page">
+    <div class="register-background">
+        <div class="register-glow register-glow-1"></div>
+        <div class="register-glow register-glow-2"></div>
+        <div class="register-grid"></div>
+    </div>
+
+    <div class="register-container resend-container">
+        <div class="register-top">
+            <a href="/" class="register-brand">
+                <span class="register-brand-back">←</span>
+                <span><strong><span>Bau</span>Management</strong></span>
+            </a>
+
+            <div class="register-login-top">
+                <span>Schon registriert?</span>
+                <a href="/Account/Login">Anmelden →</a>
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Resend</button>
-        </EditForm>
+        </div>
+
+        <div class="resend-card">
+            <div class="resend-badge">
+                <i class="bi bi-envelope-check"></i>
+                E-Mail bestätigen
+            </div>
+
+            <div class="resend-heading">
+                <h1>Bestätigungs-E-Mail <span>erneut senden</span></h1>
+                <div class="resend-heading-line"></div>
+                <p>
+                    Du hast keine Bestätigungs-E-Mail erhalten oder sie ist abgelaufen?
+                    Gib deine E-Mail-Adresse ein, um einen neuen Bestätigungslink zu erhalten.
+                </p>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(message))
+            {
+                <div class="resend-status" role="status">
+                    <i class="bi bi-info-circle"></i>
+                    <span>@message</span>
+                </div>
+            }
+
+            <EditForm Model="Input"
+                      FormName="resend-email-confirmation"
+                      OnValidSubmit="OnValidSubmitAsync"
+                      method="post">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="resend-validation" role="alert" />
+
+                <div class="resend-field">
+                    <label for="Input.Email">E-Mail-Adresse <span>*</span></label>
+                    <div class="resend-input-wrap">
+                        <i class="bi bi-envelope"></i>
+                        <InputText @bind-Value="Input.Email"
+                                   id="Input.Email"
+                                   class="resend-input"
+                                   autocomplete="email"
+                                   aria-required="true"
+                                   placeholder="name@example.com" />
+                    </div>
+                    <ValidationMessage For="() => Input.Email" class="resend-validation-message" />
+                    <small>Gib die E-Mail-Adresse ein, mit der du dich registriert hast.</small>
+                </div>
+
+                <button type="submit" class="resend-submit">
+                    <i class="bi bi-send-fill"></i>
+                    Bestätigungs-E-Mail senden
+                </button>
+            </EditForm>
+
+            <div class="resend-support">
+                <i class="bi bi-info-circle"></i>
+                <span>Falls du keinen Zugang zu deinem Postfach hast oder weiterhin Probleme bestehen, kontaktiere bitte den Support.</span>
+            </div>
+
+            <div class="resend-back">
+                <span>Zurück zum Login</span>
+                <a href="/Account/Login" class="resend-back-button">
+                    <i class="bi bi-chevron-left"></i>
+                    Zur Anmeldeseite
+                </a>
+            </div>
+        </div>
+
+        <div class="register-footer">
+            <span>© BauManagement – Webolar</span>
+            <span>•</span>
+            <span>Baustellen. Mitarbeiter. Aufgaben. Alles an einem Ort.</span>
+        </div>
     </div>
 </div>
+
+<style>
+    .resend-page {
+        min-height: 100vh;
+        padding-bottom: 42px;
+    }
+
+    .resend-container {
+        max-width: 1120px;
+        margin: 0 auto;
+    }
+
+    .resend-card {
+        width: min(100% - 32px, 720px);
+        margin: 48px auto 34px;
+        padding: clamp(28px, 5vw, 54px);
+        background: rgba(255, 255, 255, .98);
+        color: #111827;
+        border: 1px solid rgba(255,255,255,.65);
+        border-radius: 22px;
+        box-shadow: 0 28px 90px rgba(0,0,0,.28);
+    }
+
+    .resend-badge {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: fit-content;
+        margin: 0 auto 26px;
+        padding: 12px 22px;
+        border-radius: 999px;
+        background: #fff1e7;
+        color: #ea6900;
+        font-weight: 700;
+    }
+
+    .resend-badge i {
+        font-size: 21px;
+    }
+
+    .resend-heading {
+        max-width: 590px;
+        margin: 0 auto 38px;
+        text-align: center;
+    }
+
+    .resend-heading h1 {
+        margin: 0;
+        color: #111827;
+        font-size: clamp(28px, 4vw, 42px);
+        font-weight: 800;
+        line-height: 1.16;
+        letter-spacing: -.8px;
+    }
+
+    .resend-heading h1 span {
+        color: #f97316;
+    }
+
+    .resend-heading-line {
+        width: 54px;
+        height: 6px;
+        margin: 22px auto 20px;
+        border-radius: 999px;
+        background: #ff7a00;
+    }
+
+    .resend-heading p {
+        margin: 0;
+        color: #667085;
+        font-size: 17px;
+        line-height: 1.75;
+    }
+
+    .resend-field {
+        margin-bottom: 28px;
+    }
+
+    .resend-field label {
+        display: block;
+        margin-bottom: 10px;
+        color: #111827;
+        font-size: 15px;
+        font-weight: 750;
+    }
+
+    .resend-field label span {
+        color: #ef4444;
+    }
+
+    .resend-input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-height: 62px;
+        padding: 0 18px;
+        border: 1px solid #d7dce5;
+        border-radius: 13px;
+        background: #fff;
+        transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .resend-input-wrap:focus-within {
+        border-color: #ff7a00;
+        box-shadow: 0 0 0 4px rgba(255,122,0,.12);
+    }
+
+    .resend-input-wrap > i {
+        color: #667085;
+        font-size: 21px;
+    }
+
+    .resend-input {
+        width: 100%;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #111827;
+        font-size: 16px;
+        box-shadow: none !important;
+    }
+
+    .resend-input::placeholder {
+        color: #98a2b3;
+    }
+
+    .resend-field small {
+        display: block;
+        margin-top: 9px;
+        color: #667085;
+        font-size: 13px;
+    }
+
+    .resend-validation,
+    .resend-validation-message {
+        color: #dc2626;
+        font-size: 13px;
+    }
+
+    .resend-submit {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        min-height: 66px;
+        padding: 16px 22px;
+        border: 0;
+        border-radius: 13px;
+        background: linear-gradient(135deg, #ff8a00, #ff6a00);
+        color: #fff;
+        font-size: 17px;
+        font-weight: 750;
+        box-shadow: 0 10px 22px rgba(255,122,0,.2);
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .resend-submit:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 28px rgba(255,122,0,.28);
+    }
+
+    .resend-submit i {
+        font-size: 19px;
+    }
+
+    .resend-status {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin: 0 0 24px;
+        padding: 15px 17px;
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        line-height: 1.55;
+    }
+
+    .resend-status i {
+        margin-top: 2px;
+        font-size: 20px;
+    }
+
+    .resend-support {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-top: 28px;
+        padding: 17px 18px;
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .resend-support i {
+        margin-top: 2px;
+        font-size: 19px;
+    }
+
+    .resend-back {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 13px;
+        margin-top: 34px;
+        padding-top: 26px;
+        border-top: 1px solid #e5e7eb;
+        color: #667085;
+    }
+
+    .resend-back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 22px;
+        border: 1px solid #d7dce5;
+        border-radius: 13px;
+        color: #111827;
+        font-weight: 700;
+        text-decoration: none;
+        transition: border-color .2s ease, background .2s ease;
+    }
+
+    .resend-back-button:hover {
+        border-color: #ff7a00;
+        background: #fff7ed;
+        color: #c2410c;
+    }
+
+    .resend-page .register-footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        color: rgba(255,255,255,.78);
+        text-align: center;
+        font-size: 13px;
+    }
+
+    @media (max-width: 640px) {
+        .resend-card {
+            width: calc(100% - 24px);
+            margin-top: 28px;
+            padding: 28px 20px;
+            border-radius: 18px;
+        }
+
+        .resend-heading p {
+            font-size: 15px;
+        }
+
+        .resend-submit {
+            min-height: 58px;
+            font-size: 15px;
+        }
+
+        .resend-page .register-top {
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+    }
+</style>
 
 @code {
     private string? message;
@@ -47,27 +395,44 @@
     private async Task OnValidSubmitAsync()
     {
         var user = await UserManager.FindByEmailAsync(Input.Email!);
-        if (user is null)
+
+        // Aus Sicherheitsgründen wird immer dieselbe Nachricht angezeigt.
+        if (user is null || await UserManager.IsEmailConfirmedAsync(user))
         {
-            message = "Verification email sent. Please check your email.";
+            message = "Falls ein Konto mit dieser E-Mail-Adresse existiert und noch nicht bestätigt wurde, senden wir einen Bestätigungslink. Bitte prüfe dein Postfach.";
             return;
         }
 
         var userId = await UserManager.GetUserIdAsync(user);
         var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        var callbackUrl = NavigationManager.GetUriWithQueryParameters(
-            NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri,
-            new Dictionary<string, object?> { ["userId"] = userId, ["code"] = code });
-        await EmailSender.SendConfirmationLinkAsync(user, Input.Email, HtmlEncoder.Default.Encode(callbackUrl));
 
-        message = "Verification email sent. Please check your email.";
+        var baseUrl = Configuration["App:BaseUrl"];
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            baseUrl = NavigationManager.BaseUri;
+        }
+
+        var callbackUrl = QueryHelpers.AddQueryString(
+            $"{baseUrl.TrimEnd('/')}/Account/ConfirmEmail",
+            new Dictionary<string, string?>
+            {
+                ["userId"] = userId,
+                ["code"] = code
+            });
+
+        await EmailSender.SendConfirmationLinkAsync(
+            user,
+            Input.Email!,
+            HtmlEncoder.Default.Encode(callbackUrl));
+
+        message = "Falls ein Konto mit dieser E-Mail-Adresse existiert und noch nicht bestätigt wurde, senden wir einen Bestätigungslink. Bitte prüfe dein Postfach.";
     }
 
     private sealed class InputModel
     {
-        [Required]
-        [EmailAddress]
+        [Required(ErrorMessage = "Bitte gib deine E-Mail-Adresse ein.")]
+        [EmailAddress(ErrorMessage = "Bitte gib eine gültige E-Mail-Adresse ein.")]
         public string Email { get; set; } = "";
     }
 }
