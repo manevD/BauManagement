@@ -1,25 +1,22 @@
-﻿@implements IDisposable
+﻿
+@implements IDisposable
+
+@using Microsoft.AspNetCore.Components.Authorization
 
 @inject NavigationManager NavigationManager
 
-
 <div class="top-row ps-3 navbar navbar-dark">
-
     <div class="container-fluid">
-
         <a class="navbar-brand" href="">
+            <i class="bi bi-building me-2"></i>
             BauManagement
         </a>
-
     </div>
-
 </div>
-
 
 <input type="checkbox"
        title="Navigation menu"
        class="navbar-toggler" />
-
 
 <div class="nav-scrollable"
      onclick="document.querySelector('.navbar-toggler').click()">
@@ -27,489 +24,242 @@
     <nav class="nav flex-column">
 
         <AuthorizeView>
-
             <Authorized>
 
                 @if (context.User.IsInRole("Mitarbeiter"))
                 {
-                    <!-- ================================================= -->
-                    <!-- MITARBEITER MENÜ -->
-                    <!-- ================================================= -->
+                    @* =========================================
+                       MITARBEITER
+                       ========================================= *@
 
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="meine-einsaetze">
-
-                            <span class="bi bi-calendar-check nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Meine Einsätze
-                            </span>
-
+                        <NavLink class="nav-link" href="meine-einsaetze">
+                            <i class="bi bi-calendar-check nav-icon me-2"></i>
+                            Meine Einsätze
                         </NavLink>
-
                     </div>
-
-                       <!-- AUFGABEN -->
 
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="tasks">
-
-                            <span class="bi bi-check2-square nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Aufgaben
-                            </span>
-
+                        <NavLink class="nav-link" href="tasks">
+                            <i class="bi bi-check2-square nav-icon me-2"></i>
+                            Aufgaben
                         </NavLink>
-
                     </div>
-
-                    <!-- ZEITERFASSUNG -->
 
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="zeiterfassung">
-
-                            <span class="bi bi-stopwatch nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Zeiterfassung
-                            </span>
-
+                        <NavLink class="nav-link" href="zeiterfassung">
+                            <i class="bi bi-stopwatch nav-icon me-2"></i>
+                            Zeiterfassung
                         </NavLink>
-
                     </div>
 
-                    <!-- URLAUB -->
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="mein-urlaub">
-
-                            <span class="bi bi-calendar2-heart nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Urlaub
-                            </span>
-
+                        <NavLink class="nav-link" href="mein-urlaub">
+                            <i class="bi bi-calendar2-heart nav-icon me-2"></i>
+                            Urlaub
                         </NavLink>
-
                     </div>
-
                 }
                 else
                 {
-                    <!-- ================================================= -->
-                    <!-- ADMIN / CHEF MENÜ -->
-                    <!-- ================================================= -->
+                    @* =========================================
+                       FIRMA & ABRECHNUNG
+                       ========================================= *@
 
-
-                    <!-- FIRMA -->
-
-                    <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="company">
-
-                            <span class="bi bi-building nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Firma
-                            </span>
-
-                        </NavLink>
-
-                    </div>
-                    <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="/admin/rechnungen">
-                            <span class="bi bi-journal-arrow-up nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Rechnungen
-                            </span>
-
-                        </NavLink>
-
+                    <div class="px-4 pt-3 pb-1 small text-uppercase text-secondary fw-bold">
+                        Firma & Abrechnung
                     </div>
 
-                    <!-- MITARBEITER -->
-
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="mitarbeiter">
-
-                            <span class="bi bi-people nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Mitarbeiter
-                            </span>
-
+                        <NavLink class="nav-link" href="company">
+                            <i class="bi bi-building nav-icon me-2"></i>
+                            Firma
                         </NavLink>
-
+                    </div>
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="admin/rechnungen">
+                            <i class="bi bi-journal-text nav-icon me-2"></i>
+                            Rechnungsverwaltung
+                        </NavLink>
                     </div>
 
+                    @* =========================================
+                       BAUSTELLEN & PLANUNG
+                       ========================================= *@
 
-                    <!-- MITARBEITER KALENDER -->
-
-                    <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="mitarbeiter-kalender">
-
-                            <span class="bi bi-calendar-check nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Mitarbeiter Kalender
-                            </span>
-
-                        </NavLink>
-
+                    <div class="px-4 pt-4 pb-1 small text-uppercase text-secondary fw-bold">
+                        Baustellen & Planung
                     </div>
 
-
-                    <!-- CHEF KALENDER -->
-
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="chef-kalender">
-
-                            <span class="bi bi-calendar3 nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Chef Kalender
-                            </span>
-
+                        <NavLink class="nav-link" href="baustellen">
+                            <i class="bi bi-cone-striped nav-icon me-2"></i>
+                            Baustellen
                         </NavLink>
-
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- ARBEITSZEITEN -->
-                    <!-- ================================================= -->
-
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="arbeitszeiten">
-
-                            <span class="bi bi-stopwatch nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Arbeitszeiten
-                            </span>
-
+                        <NavLink class="nav-link" href="assignments">
+                            <i class="bi bi-calendar-week nav-icon me-2"></i>
+                            Disposition
                         </NavLink>
-
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- URLAUB -->
-                    <!-- ================================================= -->
-
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="mitarbeiter-urlaub">
-
-                            <span class="bi bi-calendar2-heart nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Mitarbeiter Urlaub
-                            </span>
-
+                        <NavLink class="nav-link" href="chef-kalender">
+                            <i class="bi bi-calendar3 nav-icon me-2"></i>
+                            Chef Kalender
                         </NavLink>
-
                     </div>
 
+                    @* =========================================
+                       MITARBEITER
+                       ========================================= *@
 
-                    <!-- ================================================= -->
-                    <!-- BAUSTELLEN -->
-                    <!-- ================================================= -->
-
-                    <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="baustellen">
-
-                            <span class="bi bi-cone-striped nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Baustellen
-                            </span>
-
-                        </NavLink>
-
+                    <div class="px-4 pt-4 pb-1 small text-uppercase text-secondary fw-bold">
+                        Personal
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- DISPOSITION -->
-                    <!-- ================================================= -->
-
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="assignments">
-
-                            <span class="bi bi-calendar-week nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Disposition
-                            </span>
-
+                        <NavLink class="nav-link" href="mitarbeiter">
+                            <i class="bi bi-people nav-icon me-2"></i>
+                            Mitarbeiter
                         </NavLink>
-
                     </div>
 
-
-                    <!-- ================================================= -->
-                    <!-- AUFGABEN -->
-                    <!-- ================================================= -->
-
                     <div class="nav-item px-3">
-
-                        <NavLink class="nav-link"
-                                 href="tasks">
-
-                            <span class="bi bi-check2-square nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Aufgaben
-                            </span>
-
+                        <NavLink class="nav-link" href="mitarbeiter-kalender">
+                            <i class="bi bi-calendar-check nav-icon me-2"></i>
+                            Mitarbeiter Kalender
                         </NavLink>
-
                     </div>
 
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="arbeitszeiten">
+                            <i class="bi bi-stopwatch nav-icon me-2"></i>
+                            Arbeitszeiten
+                        </NavLink>
+                    </div>
+
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="mitarbeiter-urlaub">
+                            <i class="bi bi-calendar2-heart nav-icon me-2"></i>
+                            Mitarbeiter Urlaub
+                        </NavLink>
+                    </div>
+
+                    @* =========================================
+                       AUFGABEN
+                       ========================================= *@
+
+                    <div class="px-4 pt-4 pb-1 small text-uppercase text-secondary fw-bold">
+                        Aufgaben
+                    </div>
+
+                    <div class="nav-item px-3">
+                        <NavLink class="nav-link" href="tasks">
+                            <i class="bi bi-check2-square nav-icon me-2"></i>
+                            Aufgabenübersicht
+                        </NavLink>
+                    </div>
                 }
 
+                @* =========================================
+                   KONTO & APP
+                   ========================================= *@
 
-                <!-- ===================================================== -->
-                <!-- ACCOUNT -->
-                <!-- ===================================================== -->
-                <!-- ===================================================== -->
-<!-- APP INSTALLIEREN -->
-<!-- ===================================================== -->
-
-
-<div class="nav-item px-3">
-
-    <button type="button"
-            id="installAppBtn"
-            class="nav-link app-install-button"
-            onclick="pwaInstall.install()">
-
-        <span class="bi bi-phone-fill nav-icon"
-              aria-hidden="true">
-        </span>
-
-        <span>
-            App installieren
-        </span>
-
-    </button>
-
-</div>
-                <div class="nav-item px-3">
-
-                    <NavLink class="nav-link"
-                             href="Account/Manage">
-
-                        <span class="bi bi-person-fill nav-icon"
-                              aria-hidden="true">
-                        </span>
-
-                        <span>
-                            @context.User.Identity?.Name
-                        </span>
-
-                    </NavLink>
-
+                <div class="px-4 pt-4 pb-1 small text-uppercase text-secondary fw-bold">
+                    Konto
                 </div>
 
-
-                <!-- ===================================================== -->
-                <!-- LOGOUT -->
-                <!-- ===================================================== -->
+                <div class="nav-item px-3">
+                    <button type="button"
+                            id="installAppBtn"
+                            class="nav-link app-install-button"
+                            onclick="event.stopPropagation(); pwaInstall.install()">
+                        <i class="bi bi-phone-fill nav-icon me-2"></i>
+                        App installieren
+                    </button>
+                </div>
 
                 <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Manage">
+                        <i class="bi bi-person-fill nav-icon me-2"></i>
+                        @context.User.Identity?.Name
+                    </NavLink>
+                </div>
 
-                    <form action="Account/Logout"
-                          method="post">
-
+                <div class="nav-item px-3">
+                    <form action="Account/Logout" method="post">
                         <AntiforgeryToken />
 
                         <input type="hidden"
                                name="ReturnUrl"
                                value="@currentUrl" />
 
-                        <button type="submit"
-                                class="nav-link">
-
-                            <span class="bi bi-box-arrow-right nav-icon"
-                                  aria-hidden="true">
-                            </span>
-
-                            <span>
-                                Logout
-                            </span>
-
+                        <button type="submit" class="nav-link">
+                            <i class="bi bi-box-arrow-right nav-icon me-2"></i>
+                            Logout
                         </button>
-
                     </form>
-
                 </div>
 
             </Authorized>
 
-
             <NotAuthorized>
-
-                <!-- ================================================= -->
-                <!-- NICHT EINGELOGGT -->
-                <!-- ================================================= -->
-
-
-                <!-- HOME -->
+                @* =========================================
+                   NICHT ANGEMELDET
+                   ========================================= *@
 
                 <div class="nav-item px-3">
-
                     <NavLink class="nav-link"
                              href=""
                              Match="NavLinkMatch.All">
-
-                        <span class="bi bi-house-door-fill nav-icon"
-                              aria-hidden="true">
-                        </span>
-
-                        <span>
-                            Home
-                        </span>
-
+                        <i class="bi bi-house-door-fill nav-icon me-2"></i>
+                        Home
                     </NavLink>
-
                 </div>
-
-
-                <!-- REGISTER -->
 
                 <div class="nav-item px-3">
-
-                    <NavLink class="nav-link"
-                             href="Account/Register">
-
-                        <span class="bi bi-person-plus nav-icon"
-                              aria-hidden="true">
-                        </span>
-
-                        <span>
-                            Register
-                        </span>
-
+                    <NavLink class="nav-link" href="Account/Register">
+                        <i class="bi bi-person-plus nav-icon me-2"></i>
+                        Register
                     </NavLink>
-
                 </div>
-
-
-                <!-- LOGIN -->
 
                 <div class="nav-item px-3">
-
-                    <NavLink class="nav-link"
-                             href="Account/Login">
-
-                        <span class="bi bi-box-arrow-in-right nav-icon"
-                              aria-hidden="true">
-                        </span>
-
-                        <span>
-                            Login
-                        </span>
-
+                    <NavLink class="nav-link" href="Account/Login">
+                        <i class="bi bi-box-arrow-in-right nav-icon me-2"></i>
+                        Login
                     </NavLink>
-
                 </div>
-
             </NotAuthorized>
-
         </AuthorizeView>
 
     </nav>
-
 </div>
 
-
 @code {
-
     private string? currentUrl;
-
 
     protected override void OnInitialized()
     {
-        currentUrl =
-            NavigationManager.ToBaseRelativePath(
-                NavigationManager.Uri);
+        currentUrl = NavigationManager.ToBaseRelativePath(
+            NavigationManager.Uri);
 
-        NavigationManager.LocationChanged +=
-            OnLocationChanged;
+        NavigationManager.LocationChanged += OnLocationChanged;
     }
-
 
     private void OnLocationChanged(
         object? sender,
         LocationChangedEventArgs e)
     {
-        currentUrl =
-            NavigationManager.ToBaseRelativePath(
-                e.Location);
-
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
         StateHasChanged();
     }
 
-
     public void Dispose()
     {
-        NavigationManager.LocationChanged -=
-            OnLocationChanged;
+        NavigationManager.LocationChanged -= OnLocationChanged;
     }
-
 }

@@ -85,7 +85,7 @@ else
 }
 
 builder.Services.AddScoped<StripeService>();
-
+builder.Services.AddScoped<StripeInvoiceService>();
 // ------------------------------------------------------------
 // SMTP email
 // ------------------------------------------------------------
@@ -124,18 +124,6 @@ if (!Uri.TryCreate(lexwareBaseUrl, UriKind.Absolute, out var lexwareUri) ||
         "Lexware:BaseUrl must be a valid HTTPS URL in Production.");
 }
 
-builder.Services.AddHttpClient<LexwareService>(client =>
-{
-    client.BaseAddress = new Uri(lexwareUri.ToString().TrimEnd('/') + "/");
-    client.Timeout = TimeSpan.FromSeconds(30);
-
-    client.DefaultRequestHeaders.Authorization =
-        new AuthenticationHeaderValue("Bearer", lexwareApiKey.Trim());
-
-    client.DefaultRequestHeaders.Accept.Clear();
-    client.DefaultRequestHeaders.Accept.Add(
-        new MediaTypeWithQualityHeaderValue("application/json"));
-});
 
 var app = builder.Build();
 
