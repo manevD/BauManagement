@@ -108,6 +108,7 @@
 .nav-item {
     padding: 1px 0;
     font-size: .875rem;
+    font-weight: 500;
 }
 
     .nav-item ::deep .nav-link {
@@ -122,7 +123,10 @@
         background: transparent;
         border: 1px solid transparent;
         border-radius: var(--ui-radius-sm);
+        font-family: var(--ui-font);
+        font-size: .875rem;
         font-weight: 500;
+        letter-spacing: -.005em;
         line-height: 1.2;
         text-decoration: none;
         transition: background-color var(--ui-fast), border-color var(--ui-fast), color var(--ui-fast), box-shadow var(--ui-fast);
@@ -162,7 +166,6 @@
         background: var(--ui-surface);
         border-color: var(--ui-line);
         box-shadow: var(--ui-shadow-sm);
-        font-weight: 600;
     }
 
         .nav-item ::deep a.active::before {
@@ -182,8 +185,10 @@
         }
 
     .nav-item ::deep button.nav-link {
-        font-family: inherit;
-        font-size: inherit;
+        font: inherit;
+        font-family: var(--ui-font);
+        font-size: .875rem;
+        font-weight: 500;
         text-align: left;
         cursor: pointer;
     }
@@ -250,8 +255,8 @@
 
     .nav-user-text strong {
         overflow: hidden;
-        font-size: .8rem;
-        font-weight: 600;
+        font-size: .875rem;
+        font-weight: 500;
         white-space: nowrap;
         text-overflow: ellipsis;
     }

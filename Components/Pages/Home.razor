@@ -255,159 +255,117 @@
 </section>
 
 <!-- =========================================================
-     3D SCROLL PRODUCT EXPERIENCE (OPTIMIZED)
+     FEATURE BENTO
 ========================================================= -->
-<section class="bm-3d-stage" aria-label="myBauManagement 3D Produktansicht">
-    <div class="bm-3d-sticky">
-        <div class="bm-3d-grid"></div>
-        <div class="bm-3d-glow"></div>
-        <div class="bm-side-word bm-word-left" aria-hidden="true">WER <span>ARBEITET</span></div>
-        <div class="bm-side-word bm-word-right" aria-hidden="true"><span>WO?</span></div>
+<section class="bento-section" aria-labelledby="bentoTitle">
+    <div class="container">
 
-        <div class="bm-3d-copy">
-            <span class="eyebrow" id="bm3dEyebrow">DIGITALE BAUSTELLENPLANUNG</span>
-            <h2 id="bm3dTitle">Alles im Blick.</h2>
-            <p id="bm3dText">Baustellen, Mitarbeiter und Einsätze in einer einzigen übersichtlichen Ansicht.</p>
-            <div class="bm-3d-progress" aria-hidden="true"><span class="active"></span><span></span><span></span><span></span></div>
+        <div class="bento-heading">
+            <span class="section-eyebrow">DIGITALE BAUSTELLENPLANUNG</span>
+            <h2 id="bentoTitle">
+                Alles im Blick.
+                <span>Vom Büro bis zur Baustelle.</span>
+            </h2>
+            <p>
+                Baustellen, Mitarbeiter, Einsätze und Arbeitszeiten in einer
+                Plattform – klar strukturiert und für das ganze Team verständlich.
+            </p>
         </div>
 
-        <div class="bm-3d-device-wrap">
-            <div class="bm-3d-device" id="bm3dDevice">
-                <div class="bm-3d-orb"></div>
-                <div class="dashboard-preview">
-                    <div class="preview-top"><div><small>HEUTE</small><strong>Baustellenübersicht</strong></div><span class="live-badge"><span></span>Live</span></div>
-                    <div class="preview-stats">
-                        <div class="preview-stat"><div class="preview-stat-icon orange"><i class="bi bi-buildings"></i></div><div><strong>12</strong><small>Baustellen</small></div></div>
-                        <div class="preview-stat"><div class="preview-stat-icon blue"><i class="bi bi-people"></i></div><div><strong>24</strong><small>Mitarbeiter</small></div></div>
-                        <div class="preview-stat"><div class="preview-stat-icon green"><i class="bi bi-check2-square"></i></div><div><strong>18</strong><small>Aufgaben</small></div></div>
-                    </div>
-                    <div class="preview-section-title"><span>Heutige Einsätze</span><span>08:00 – 17:00</span></div>
-                    <div class="preview-assignment"><div class="preview-avatar">MK</div><div class="preview-assignment-content"><strong>Marko K.</strong><span><i class="bi bi-geo-alt"></i>Müller GmbH</span></div><div class="preview-time">08:00<small>12:00</small></div></div>
-                    <div class="preview-assignment"><div class="preview-avatar orange">ST</div><div class="preview-assignment-content"><strong>Stefan T.</strong><span><i class="bi bi-geo-alt"></i>Neubau Weber</span></div><div class="preview-time">08:00<small>16:00</small></div></div>
-                    <div class="preview-assignment"><div class="preview-avatar green">DA</div><div class="preview-assignment-content"><strong>Daniel A.</strong><span><i class="bi bi-geo-alt"></i>Sanierung Schmidt</span></div><div class="preview-time">10:00<small>14:00</small></div></div>
-                    <div class="preview-time-row"><div><i class="bi bi-clock-history"></i><span>Arbeitszeit heute</span></div><strong>06:42 h</strong></div>
-                    <div class="preview-footer"><i class="bi bi-calendar3"></i>Alle Einsätze im Chef-Kalender verwalten</div>
+        <div class="bento-grid">
+
+            @* Übersicht *@
+            <article class="bento-card bento-overview">
+                <div class="bento-copy">
+                    <span class="bento-icon"><i class="bi bi-grid-1x2"></i></span>
+                    <h3>Alles auf einen Blick</h3>
+                    <p>Baustellen, Mitarbeiter und Aufgaben in einer einzigen, übersichtlichen Ansicht.</p>
                 </div>
-                <div class="bm-3d-side-card"><small>HEUTE GEPLANT</small><strong>24 Mitarbeiter</strong><div class="bar"><i></i></div></div>
-            </div>
+
+                <div class="bento-visual bento-dashboard" aria-hidden="true">
+                    <div class="bento-window-bar">
+                        <span></span><span></span><span></span>
+                        <em>Baustellenübersicht</em>
+                        <b class="bento-live"><i></i>Live</b>
+                    </div>
+                    <div class="bento-stats">
+                        <div><small>Baustellen</small><strong>12</strong><span class="up">+2</span></div>
+                        <div><small>Mitarbeiter</small><strong>24</strong><span>heute</span></div>
+                        <div><small>Aufgaben</small><strong>18</strong><span class="up">5 erledigt</span></div>
+                    </div>
+                    <div class="bento-chart">
+                        <i style="--h:42%"></i><i style="--h:58%"></i><i style="--h:50%"></i><i style="--h:74%"></i>
+                        <i style="--h:66%"></i><i style="--h:88%"></i><i class="is-today" style="--h:96%"></i>
+                    </div>
+                </div>
+            </article>
+
+            @* Wer arbeitet wo *@
+            <article class="bento-card bento-who">
+                <div class="bento-copy">
+                    <span class="bento-icon"><i class="bi bi-people"></i></span>
+                    <h3>Wer arbeitet wo?</h3>
+                    <p>Sofort sehen, wer heute auf welcher Baustelle eingeplant ist.</p>
+                </div>
+
+                <ul class="bento-list" aria-hidden="true">
+                    <li><span class="bento-avatar">MK</span><div><strong>Marko K.</strong><small>Müller GmbH</small></div><b>08:00</b></li>
+                    <li><span class="bento-avatar is-orange">ST</span><div><strong>Stefan T.</strong><small>Neubau Weber</small></div><b>08:00</b></li>
+                    <li><span class="bento-avatar is-green">DA</span><div><strong>Daniel A.</strong><small>Sanierung Schmidt</small></div><b>10:00</b></li>
+                </ul>
+            </article>
+
+            @* Zeiterfassung *@
+            <article class="bento-card bento-time">
+                <div class="bento-copy">
+                    <span class="bento-icon"><i class="bi bi-stopwatch"></i></span>
+                    <h3>Zeiterfassung</h3>
+                    <p>Start, Pause und Ende mit einem Tipp – direkt am Smartphone.</p>
+                </div>
+
+                <div class="bento-ring" style="--p:84" aria-hidden="true">
+                    <div>
+                        <strong>06:42</strong>
+                        <small>von 08:00 h</small>
+                    </div>
+                </div>
+            </article>
+
+            @* Kalender *@
+            <article class="bento-card bento-calendar">
+                <div class="bento-copy">
+                    <span class="bento-icon"><i class="bi bi-calendar3"></i></span>
+                    <h3>Planung ohne Chaos</h3>
+                    <p>Der Chef-Kalender zeigt Einsätze, Zeiten und Aufgaben der ganzen Woche.</p>
+                </div>
+
+                <div class="bento-timeline" aria-hidden="true">
+                    <div class="bento-days"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span></div>
+                    <div class="bento-track"><i class="is-orange" style="--s:0;--e:3">Neubau Weber</i></div>
+                    <div class="bento-track"><i class="is-blue" style="--s:1;--e:4">Müller GmbH</i></div>
+                    <div class="bento-track"><i class="is-green" style="--s:2;--e:5">Sanierung Schmidt</i></div>
+                </div>
+            </article>
+
+            @* Digital *@
+            <article class="bento-card bento-digital">
+                <div class="bento-copy">
+                    <span class="bento-icon"><i class="bi bi-phone"></i></span>
+                    <h3>Mehr Überblick. Weniger Aufwand.</h3>
+                    <p>Schluss mit Zetteln und Excel-Listen – eine Plattform für Büro und Baustelle.</p>
+                </div>
+
+                <div class="bento-chips" aria-hidden="true">
+                    <span><i class="bi bi-check2-circle"></i>Aufgaben</span>
+                    <span><i class="bi bi-calendar2-heart"></i>Urlaub</span>
+                    <span><i class="bi bi-cone-striped"></i>Baustellen</span>
+                    <span><i class="bi bi-phone"></i>App für unterwegs</span>
+                </div>
+            </article>
+
         </div>
     </div>
 </section>
-
-<script>
-(function () {
-    const stage = document.querySelector('.bm-3d-stage');
-    const device = document.getElementById('bm3dDevice');
-    const eyebrow = document.getElementById('bm3dEyebrow');
-    const title = document.getElementById('bm3dTitle');
-    const copy = document.getElementById('bm3dText');
-    const bars = document.querySelectorAll('.bm-3d-progress span');
-    const leftWord = document.querySelector('.bm-word-left');
-    const rightWord = document.querySelector('.bm-word-right');
-    
-    if (!stage || !device) return;
-
-    const scenes = [
-        ['DIGITALE BAUSTELLENPLANUNG', 'Alles im Blick.', 'Baustellen, Mitarbeiter und Einsätze in einer einzigen übersichtlichen Ansicht.'],
-        ['MITARBEITER & EINSÄTZE', 'Wer arbeitet wo?', 'Sehen Sie sofort, welcher Mitarbeiter wann auf welcher Baustelle eingeplant ist.'],
-        ['CHEF-KALENDER', 'Planung ohne Chaos.', 'Einsätze, Zeiten und Aufgaben werden zentral geplant und übersichtlich dargestellt.'],
-        ['BAUMANAGEMENT DIGITAL', 'Mehr Überblick. Weniger Aufwand.', 'Vom Büro bis zur Baustelle: myBauManagement verbindet Ihre tägliche Organisation.']
-    ];
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let pointerX = 0, pointerY = 0, targetX = 0, targetY = 0, ticking = false;
-    let currentScene = -1;
-
-    const clamp = (val, min, max) => Math.min(Math.max(val, min), max);
-
-    function updatePointer(e) {
-        if (reduceMotion || window.innerWidth < 992) return;
-        const rect = device.getBoundingClientRect();
-        targetX = clamp((e.clientX - (rect.left + rect.width / 2)) / rect.width, -0.5, 0.5);
-        targetY = clamp((e.clientY - (rect.top + rect.height / 2)) / rect.height, -0.5, 0.5);
-        if (!ticking) {
-            ticking = true;
-            requestAnimationFrame(animatePointer);
-        }
-    }
-
-    function animatePointer() {
-        pointerX += (targetX - pointerX) * 0.1;
-        pointerY += (targetY - pointerY) * 0.1;
-        device.style.setProperty('--pointer-rx', (pointerY * -6).toFixed(2) + 'deg');
-        device.style.setProperty('--pointer-ry', (pointerX * 8).toFixed(2) + 'deg');
-        ticking = Math.abs(targetX - pointerX) > 0.001 || Math.abs(targetY - pointerY) > 0.001;
-        if (ticking) requestAnimationFrame(animatePointer);
-    }
-
-    stage.addEventListener('pointermove', updatePointer, { passive: true });
-    stage.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; }, { passive: true });
-
-    let scrollFrame = 0;
-
-    function render() {
-        const rect = stage.getBoundingClientRect();
-        const maxScroll = stage.offsetHeight - window.innerHeight;
-        if (maxScroll <= 0) return;
-
-        const p = clamp(-rect.top / maxScroll, 0, 1);
-        const isMobile = window.innerWidth < 992;
-
-        // Custom easing for smooth transitions
-        const ease = p * p * (3 - 2 * p);
-
-        // Adjust parameters per breakpoint
-        const moveX = isMobile ? (ease * -10) : (ease * -35);
-        const moveY = isMobile ? (30 - ease * 60) : (50 - ease * 120);
-        const rx = isMobile ? (8 - ease * 12) : (12 - ease * 20);
-        const ry = isMobile ? (-10 + ease * 20) : (-22 + ease * 44);
-        const rz = isMobile ? 0 : (-2 + ease * 4);
-        const baseScale = isMobile ? 0.85 : 0.72;
-        const scale = baseScale + Math.sin(p * Math.PI) * (isMobile ? 0.12 : 0.22);
-
-        device.style.transform = `translate3d(${moveX}px, ${moveY}px, 0) rotateX(calc(${rx}deg + var(--pointer-rx, 0deg))) rotateY(calc(${ry}deg + var(--pointer-ry, 0deg))) rotateZ(${rz}deg) scale(${scale})`;
-        device.classList.toggle('deep', p > 0.25);
-
-        if (leftWord && rightWord) {
-            const word = clamp(p / 0.4, 0, 1);
-            const wordEase = 1 - Math.pow(1 - word, 3);
-            const wordDist = isMobile ? 12 : 22;
-            leftWord.style.transform = `translate3d(${wordEase * wordDist}vw, -90%, 0) rotateY(${(1 - wordEase) * 25}deg)`;
-            rightWord.style.transform = `translate3d(${-wordEase * wordDist}vw, 10%, 0) rotateY(${(1 - wordEase) * -25}deg)`;
-            leftWord.style.opacity = rightWord.style.opacity = String(0.15 + wordEase * 0.75);
-        }
-
-        let sceneIdx;
-
-        if (p < 0.22) {
-            sceneIdx = 0;
-        } else if (p < 0.47) {
-            sceneIdx = 1;
-        } else if (p < 0.72) {
-            sceneIdx = 2;
-        } else {
-            sceneIdx = 3;
-        }
-        if (sceneIdx !== currentScene) {
-            currentScene = sceneIdx;
-            eyebrow.textContent = scenes[sceneIdx][0];
-            title.textContent = scenes[sceneIdx][1];
-            copy.textContent = scenes[sceneIdx][2];
-            bars.forEach((bar, index) => bar.classList.toggle('active', index === sceneIdx));
-        }
-
-        scrollFrame = 0;
-    }
-
-    function requestRender() {
-        if (!scrollFrame) scrollFrame = requestAnimationFrame(render);
-    }
-
-    window.addEventListener('scroll', requestRender, { passive: true });
-    window.addEventListener('resize', requestRender, { passive: true });
-    render();
-})();
-</script>
 
 <!-- =========================================================
      INTRO
