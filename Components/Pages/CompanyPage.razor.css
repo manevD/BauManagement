@@ -8,12 +8,12 @@
 .company-monogram,
 .subscription-status,
 .cancellation-confirm {
-    --co-ink: #17191c;
-    --co-muted: #737982;
-    --co-line: #e7e9ed;
-    --co-orange: #ff7518;
-    --co-orange-dark: #d95505;
-    --co-orange-soft: #fff1e8;
+    --co-ink: var(--ui-ink);
+    --co-muted: var(--ui-muted);
+    --co-line: var(--ui-line);
+    --co-orange: var(--ui-brand);
+    --co-orange-dark: var(--ui-brand-600);
+    --co-orange-soft: var(--ui-brand-50);
 }
 
 /* This page is wrapped by the shared layout; target its unique blocks safely. */
@@ -25,10 +25,11 @@
     gap: 1.5rem;
     padding: 1.7rem 2rem;
     overflow: hidden;
-    color: #fff;
-    background: radial-gradient(circle at 88% 12%, rgba(255, 117, 24, .38), transparent 30%), linear-gradient(125deg, #0e1012, #23292e);
+    color: var(--ui-ink);
+    background: radial-gradient(120% 140% at 100% 0%, rgba(var(--ui-brand-rgb), .16) 0%, rgba(var(--ui-brand-rgb), .05) 32%, transparent 58%), radial-gradient(90% 120% at 0% 100%, rgba(99, 102, 241, .06), transparent 55%), var(--ui-surface);
     border-radius: 18px;
-    box-shadow: 0 20px 45px rgba(16, 18, 20, .13);
+    box-shadow: var(--ui-shadow);
+    border: 1px solid var(--ui-line);
 }
 
     .page-hero::after {
@@ -38,7 +39,7 @@
         width: 220px;
         height: 220px;
         content: "";
-        border: 36px solid rgba(255, 117, 24, .13);
+        border: 36px solid rgba(var(--ui-brand-rgb), .07);
         border-radius: 50%;
     }
 
@@ -49,14 +50,14 @@
 
     .page-hero h3 {
         margin: 0 0 .4rem;
-        color: #fff;
+        color: var(--ui-ink);
         font-size: clamp(1.55rem, 3vw, 2.25rem);
         font-weight: 850;
         letter-spacing: -.045em;
     }
 
     .page-hero p {
-        color: rgba(255, 255, 255, .68) !important;
+        color: var(--ui-muted) !important;
     }
 
 .company-monogram {
@@ -67,7 +68,7 @@
     width: 64px;
     height: 64px;
     color: #fff;
-    background: linear-gradient(145deg, #ff963f, #d95505);
+    background: linear-gradient(145deg, #ff963f, var(--ui-brand-600));
     border: 2px solid rgba(255, 255, 255, .55);
     border-radius: 18px;
     box-shadow: 0 12px 25px rgba(0, 0, 0, .2);
@@ -81,7 +82,7 @@
     background: #fff;
     border: 1px solid var(--co-line) !important;
     border-radius: 16px !important;
-    box-shadow: 0 12px 32px rgba(16, 18, 20, .055) !important;
+    box-shadow: 0 12px 32px rgba(16, 24, 40, .055) !important;
 }
 
     .modern-card .card-body {
@@ -106,7 +107,7 @@
     min-height: 44px;
     color: var(--co-ink) !important;
     background-color: #fff !important;
-    border: 1px solid #dfe2e6 !important;
+    border: 1px solid var(--ui-line) !important;
     border-radius: 9px !important;
     box-shadow: none !important;
 }
@@ -115,14 +116,14 @@
     .form-select:focus {
         border-color: var(--co-orange) !important;
         outline: 0;
-        box-shadow: 0 0 0 4px rgba(255, 117, 24, .12) !important;
+        box-shadow: 0 0 0 4px rgba(var(--ui-brand-rgb), .12) !important;
     }
 
 .btn-primary {
     background: var(--co-orange) !important;
     background-image: none !important;
     border-color: var(--co-orange) !important;
-    box-shadow: 0 7px 16px rgba(255, 117, 24, .16);
+    box-shadow: 0 7px 16px rgba(var(--ui-brand-rgb), .16);
 }
 
     .btn-primary:hover {
@@ -150,18 +151,18 @@
 .alert-success {
     color: #17633c;
     background: #e8f7ee;
-    border-left-color: #2ca66a;
+    border-left-color: var(--ui-success);
 }
 
 .alert-warning {
-    color: #70400d;
-    background: #fff5df;
+    color: var(--ui-warning-700);
+    background: var(--ui-warning-50);
 }
 
 .alert-danger {
-    color: #842b2b;
-    background: #fff0f0;
-    border-left-color: #d83a3a;
+    color: var(--ui-danger-700);
+    background: var(--ui-danger-50);
+    border-left-color: var(--ui-danger);
 }
 
 /* Subscription */
@@ -183,7 +184,7 @@
 
     .subscription-status.trial {
         color: #9a4700;
-        background: #fff5df;
+        background: var(--ui-warning-50);
         border-color: #ffd692;
     }
 
@@ -212,11 +213,11 @@
 }
 
 .subscription-status.active .subscription-status-icon {
-    background: #2ca66a;
+    background: var(--ui-success);
 }
 
 .subscription-status.danger .subscription-status-icon {
-    background: #d83a3a;
+    background: var(--ui-danger);
 }
 
 .subscription-status strong {
@@ -239,7 +240,7 @@
     overflow: hidden;
     background: #fff;
     border: 1px solid #ffc6ca !important;
-    border-left: 4px solid #d83a3a !important;
+    border-left: 4px solid var(--ui-danger) !important;
     border-radius: 16px !important;
     box-shadow: 0 10px 28px rgba(216, 58, 58, .06);
 }
@@ -261,20 +262,20 @@
 
     .btn-outline-danger:hover {
         color: #fff !important;
-        background: #d83a3a !important;
-        border-color: #d83a3a !important;
+        background: var(--ui-danger) !important;
+        border-color: var(--ui-danger) !important;
     }
 
 .btn-danger {
     color: #fff !important;
-    background: #d83a3a !important;
-    border-color: #d83a3a !important;
+    background: var(--ui-danger) !important;
+    border-color: var(--ui-danger) !important;
 }
 
     .btn-danger:hover {
         color: #fff !important;
-        background: #ad2e2e !important;
-        border-color: #ad2e2e !important;
+        background: var(--ui-danger-700) !important;
+        border-color: var(--ui-danger-700) !important;
     }
 
 .cancellation-confirm {
@@ -296,7 +297,7 @@
     width: 34px;
     height: 34px;
     color: #fff;
-    background: #d83a3a;
+    background: var(--ui-danger);
     border-radius: 10px;
 }
 

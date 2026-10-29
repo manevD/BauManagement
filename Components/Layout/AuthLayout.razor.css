@@ -1,7 +1,7 @@
 .auth-shell {
     min-height: 100vh;
     width: 100%;
-    background: #050505;
-    color: #fff;
+    background: var(--ui-bg);
+    color: var(--ui-ink);
     overflow-x: hidden;
 }

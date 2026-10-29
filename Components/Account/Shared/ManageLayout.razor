@@ -72,10 +72,10 @@
         background:
             radial-gradient(
                 circle at 85% 10%,
-                rgba(13, 110, 253, 0.07),
+                rgba(var(--ui-brand-rgb), 0.07),
                 transparent 30%
             ),
-            #f8f9fb;
+            var(--ui-bg);
     }
 
 
@@ -97,7 +97,7 @@
         font-size: 11px;
         font-weight: 800;
         letter-spacing: 1.8px;
-        color: #6c757d;
+        color: var(--ui-muted);
         margin-bottom: 8px;
     }
 
@@ -109,7 +109,7 @@
         border-radius: 50%;
 
         box-shadow:
-            0 0 0 4px rgba(13, 110, 253, 0.10);
+            0 0 0 4px rgba(var(--ui-brand-rgb), 0.10);
     }
 
     .account-title {
@@ -119,13 +119,13 @@
         font-weight: 800;
         letter-spacing: -1px;
 
-        color: #1f2937;
+        color: var(--ui-ink);
     }
 
     .account-subtitle {
         margin: 8px 0 0;
 
-        color: #7b8490;
+        color: var(--ui-muted);
         font-size: 14px;
     }
 
@@ -137,7 +137,7 @@
     .account-card {
         background: #ffffff;
 
-        border: 1px solid #e8ebef;
+        border: 1px solid var(--ui-line);
         border-radius: 18px;
 
         box-shadow:
@@ -159,11 +159,11 @@
         background:
             linear-gradient(
                 180deg,
-                #fafbfc 0%,
+                var(--ui-surface-2) 0%,
                 #f5f7f9 100%
             );
 
-        border-right: 1px solid #e8ebef;
+        border-right: 1px solid var(--ui-line);
     }
 
     .sidebar-title {
@@ -174,7 +174,7 @@
         font-size: 15px;
         font-weight: 800;
 
-        color: #202938;
+        color: var(--ui-ink);
 
         margin-bottom: 8px;
     }
@@ -187,7 +187,7 @@
         align-items: center;
         justify-content: center;
 
-        background: rgba(13, 110, 253, 0.10);
+        background: rgba(var(--ui-brand-rgb), 0.10);
         color: var(--bs-primary);
 
         border-radius: 9px;
@@ -196,7 +196,7 @@
     }
 
     .sidebar-description {
-        color: #8a929d;
+        color: var(--ui-muted);
 
         font-size: 12px;
         line-height: 1.6;
@@ -234,7 +234,7 @@
 
         border-radius: 9px;
 
-        color: #66707c;
+        color: var(--ui-muted);
 
         text-decoration: none;
 
@@ -248,7 +248,7 @@
     }
 
     .account-navigation ::deep a:hover {
-        background: rgba(13, 110, 253, 0.07);
+        background: rgba(var(--ui-brand-rgb), 0.07);
         color: var(--bs-primary);
     }
 
@@ -257,7 +257,7 @@
         color: #ffffff;
 
         box-shadow:
-            0 5px 14px rgba(13, 110, 253, 0.20);
+            0 5px 14px rgba(var(--ui-brand-rgb), 0.20);
     }
 
 
@@ -275,7 +275,7 @@
         font-size: 22px;
         font-weight: 750;
 
-        color: #202938;
+        color: var(--ui-ink);
 
         margin-bottom: 8px;
     }
@@ -284,16 +284,16 @@
         font-size: 18px;
         font-weight: 700;
 
-        color: #202938;
+        color: var(--ui-ink);
     }
 
     .account-content ::deep p {
-        color: #7b8490;
+        color: var(--ui-muted);
         font-size: 14px;
     }
 
     .account-content ::deep hr {
-        border-color: #e9ecef;
+        border-color: var(--ui-line);
         opacity: 1;
     }
 
@@ -304,7 +304,7 @@
 
     .account-content ::deep .form-control,
     .account-content ::deep .form-select {
-        border-color: #dfe3e8;
+        border-color: var(--ui-line);
         border-radius: 9px;
 
         min-height: 44px;
@@ -319,7 +319,7 @@
         border-color: var(--bs-primary);
 
         box-shadow:
-            0 0 0 3px rgba(13, 110, 253, 0.10);
+            0 0 0 3px rgba(var(--ui-brand-rgb), 0.10);
     }
 
     .account-content ::deep .btn {
@@ -348,7 +348,7 @@
 
         .account-sidebar {
             border-right: 0;
-            border-bottom: 1px solid #e8ebef;
+            border-bottom: 1px solid var(--ui-line);
 
             padding: 20px;
         }

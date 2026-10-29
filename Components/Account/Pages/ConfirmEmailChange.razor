@@ -85,10 +85,10 @@
         min-height: 100vh;
         overflow: hidden;
         padding: 22px clamp(16px, 4vw, 52px) 30px;
-        background: radial-gradient(ellipse at 15% 75%, rgba(249,115,22,.16), transparent 38%),
-                    radial-gradient(ellipse at 88% 28%, rgba(249,115,22,.12), transparent 32%),
-                    #0a0a0a;
-        color: #f9fafb;
+        background: radial-gradient(ellipse at 15% 75%, rgba(var(--ui-brand-rgb), .16), transparent 38%),
+                    radial-gradient(ellipse at 88% 28%, rgba(var(--ui-brand-rgb), .12), transparent 32%),
+                    var(--ui-surface);
+        color: var(--ui-ink);
     }
 
     .confirm-change-glow {
@@ -98,7 +98,7 @@
         height: 330px;
         border-radius: 50%;
         filter: blur(100px);
-        background: rgba(255,122,0,.15);
+        background: rgba(var(--ui-brand-rgb), .15);
         pointer-events: none;
     }
 
@@ -111,8 +111,8 @@
         inset: 0;
         opacity: .15;
         pointer-events: none;
-        background-image: linear-gradient(rgba(255,122,0,.18) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,122,0,.18) 1px, transparent 1px);
+        background-image: linear-gradient(rgba(var(--ui-brand-rgb), .18) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(var(--ui-brand-rgb), .18) 1px, transparent 1px);
         background-size: 58px 58px;
         mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
     }
@@ -131,29 +131,29 @@
         display: inline-flex;
         align-items: center;
         gap: 14px;
-        color: #fff;
+        color: var(--ui-ink);
         font-size: 22px;
         text-decoration: none;
     }
 
     .confirm-change-brand strong { font-weight: 800; }
-    .confirm-change-brand .brand-orange { color: #ff7a00; }
+    .confirm-change-brand .brand-orange { color: var(--ui-brand); }
 
     .confirm-change-back {
         display: grid;
         width: 44px;
         height: 44px;
         place-items: center;
-        border: 1px solid rgba(255,255,255,.25);
+        border: 1px solid rgba(var(--ui-ink-rgb), 0.16);
         border-radius: 50%;
-        color: #fff;
+        color: var(--ui-ink);
         font-size: 25px;
         transition: background .2s ease, border-color .2s ease;
     }
 
     .confirm-change-brand:hover .confirm-change-back {
-        border-color: #ff7a00;
-        background: rgba(255,122,0,.12);
+        border-color: var(--ui-brand);
+        background: rgba(var(--ui-brand-rgb), .12);
     }
 
     .confirm-change-login {
@@ -161,14 +161,14 @@
         align-items: center;
         gap: 10px;
         padding: 12px 18px;
-        border: 1px solid #ff7a00;
+        border: 1px solid var(--ui-brand);
         border-radius: 12px;
-        color: #ff8a1d;
+        color: var(--ui-brand);
         font-weight: 700;
         text-decoration: none;
     }
 
-    .confirm-change-login:hover { background: rgba(255,122,0,.1); color: #ff9d45; }
+    .confirm-change-login:hover { background: rgba(var(--ui-brand-rgb), .1); color: var(--ui-brand-400); }
 
     .confirm-change-card {
         width: min(100%, 650px);
@@ -177,9 +177,9 @@
         border: 1px solid rgba(255,255,255,.7);
         border-radius: 22px;
         background: #fff;
-        color: #111827;
+        color: var(--ui-ink);
         text-align: center;
-        box-shadow: 0 28px 90px rgba(0,0,0,.32);
+        box-shadow: 0 28px 90px rgba(16, 24, 40, 0.10);
     }
 
     .confirm-change-badge {
@@ -189,8 +189,8 @@
         margin-bottom: 25px;
         padding: 11px 19px;
         border-radius: 999px;
-        background: #fff1e7;
-        color: #ea6900;
+        background: var(--ui-brand-50);
+        color: var(--ui-brand-600);
         font-size: 14px;
         font-weight: 750;
     }
@@ -207,25 +207,25 @@
         font-size: 34px;
     }
 
-    .confirm-change-icon.processing { background: #fff7ed; color: #f97316; }
+    .confirm-change-icon.processing { background: var(--ui-brand-50); color: var(--ui-brand); }
     .confirm-change-icon.success { background: #ecfdf3; color: #16a34a; }
     .confirm-change-icon.error { background: #fef2f2; color: #dc2626; }
 
     .confirm-change-card h1 {
         margin: 0;
-        color: #111827;
+        color: var(--ui-ink);
         font-size: clamp(28px, 4vw, 38px);
         font-weight: 850;
         line-height: 1.18;
         letter-spacing: -.7px;
     }
 
-    .confirm-change-card h1 span { color: #f97316; }
+    .confirm-change-card h1 span { color: var(--ui-brand); }
 
     .confirm-change-description {
         margin: 18px auto 28px;
         max-width: 500px;
-        color: #667085;
+        color: var(--ui-muted);
         font-size: 16px;
         line-height: 1.75;
         overflow-wrap: anywhere;
@@ -247,23 +247,23 @@
 
     .confirm-change-button {
         width: 100%;
-        background: linear-gradient(135deg, #ff8a00, #ff6a00);
+        background: linear-gradient(135deg, var(--ui-brand-400), var(--ui-brand));
         color: #fff;
-        box-shadow: 0 10px 22px rgba(255,122,0,.2);
+        box-shadow: 0 10px 22px rgba(var(--ui-brand-rgb), .2);
     }
 
     .confirm-change-button:hover {
         transform: translateY(-1px);
-        color: #fff;
-        box-shadow: 0 14px 28px rgba(255,122,0,.28);
+        color: var(--ui-ink);
+        box-shadow: 0 14px 28px rgba(var(--ui-brand-rgb), .28);
     }
 
     .confirm-change-secondary {
-        border: 1px solid #d7dce5;
-        color: #111827;
+        border: 1px solid var(--ui-line-strong);
+        color: var(--ui-ink);
     }
 
-    .confirm-change-secondary:hover { background: #fff7ed; border-color: #ff7a00; color: #c2410c; }
+    .confirm-change-secondary:hover { background: var(--ui-brand-50); border-color: var(--ui-brand); color: var(--ui-brand-700); }
 
     .confirm-change-help {
         display: flex;
@@ -288,12 +288,12 @@
         align-items: center;
         gap: 7px;
         margin: 0 auto;
-        color: rgba(255,255,255,.72);
+        color: var(--ui-muted);
         font-size: 13px;
         text-align: center;
     }
 
-    .confirm-change-footer strong { color: #fff; }
+    .confirm-change-footer strong { color: var(--ui-ink); }
 
     @@media (max-width: 560px) {
         .confirm-change-page { padding: 16px 10px 24px; }

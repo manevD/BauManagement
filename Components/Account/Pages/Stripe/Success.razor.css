@@ -1,22 +1,22 @@
 ﻿.stripe-result-page {
     min-height: 100vh;
-    background: radial-gradient( circle at 50% 20%, rgba(255, 122, 0, .10), transparent 35% ), #050505;
+    background: radial-gradient( circle at 50% 20%, rgba(var(--ui-brand-rgb), .10), transparent 35% ), var(--ui-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 30px 20px;
-    color: #fff;
+    color: var(--ui-ink);
 }
 
 .stripe-result-card {
     width: 100%;
     max-width: 560px;
-    background: #111;
-    border: 1px solid #2b2b2b;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-line);
     border-radius: 20px;
     padding: 50px 40px;
     text-align: center;
-    box-shadow: 0 25px 70px rgba(0, 0, 0, .45), 0 0 60px rgba(255, 122, 0, .05);
+    box-shadow: 0 25px 70px rgba(16, 24, 40, 0.14), 0 0 60px rgba(var(--ui-brand-rgb), .05);
 }
 
 .stripe-result-icon {
@@ -37,9 +37,9 @@
     }
 
     .stripe-result-icon.cancel {
-        background: rgba(255, 122, 0, .10);
-        border: 1px solid rgba(255, 122, 0, .30);
-        color: #ff7a00;
+        background: rgba(var(--ui-brand-rgb), .10);
+        border: 1px solid rgba(var(--ui-brand-rgb), .30);
+        color: var(--ui-brand);
     }
 
 .stripe-result-card h1 {
@@ -49,7 +49,7 @@
 }
 
 .stripe-result-text {
-    color: #a1a1aa;
+    color: var(--ui-text);
     font-size: 1rem;
     line-height: 1.7;
     margin-bottom: 30px;
@@ -57,8 +57,8 @@
 
 .stripe-trial-box,
 .stripe-cancel-box {
-    background: #181818;
-    border: 1px solid #303030;
+    background: var(--ui-surface-2);
+    border: 1px solid var(--ui-line);
     border-radius: 12px;
     margin-bottom: 28px;
 }
@@ -72,7 +72,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 0;
-    border-bottom: 1px solid #292929;
+    border-bottom: 1px solid var(--ui-line);
 }
 
     .stripe-trial-row:last-child {
@@ -80,11 +80,11 @@
     }
 
     .stripe-trial-row span {
-        color: #888;
+        color: var(--ui-muted);
     }
 
     .stripe-trial-row strong {
-        color: #fff;
+        color: var(--ui-ink);
     }
 
 .stripe-cancel-box {
@@ -93,11 +93,11 @@
     gap: 12px;
     text-align: left;
     padding: 16px;
-    color: #aaa;
+    color: var(--ui-text);
 }
 
     .stripe-cancel-box i {
-        color: #ff7a00;
+        color: var(--ui-brand);
         font-size: 1.2rem;
     }
 
@@ -107,8 +107,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px;
-    background: #ff7a00;
-    border: 1px solid #ff7a00;
+    background: var(--ui-brand);
+    border: 1px solid var(--ui-brand);
     color: #fff;
     border-radius: 10px;
     font-weight: 600;
@@ -118,8 +118,8 @@
 }
 
     .stripe-result-button:hover {
-        background: #e96f00;
-        border-color: #e96f00;
+        background: var(--ui-brand-600);
+        border-color: var(--ui-brand-600);
         transform: translateY(-1px);
     }
 
@@ -129,12 +129,12 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    color: #666;
+    color: var(--ui-muted);
     font-size: .78rem;
 }
 
     .stripe-result-note i {
-        color: #ff7a00;
+        color: var(--ui-brand);
     }
 
 @media (max-width: 576px) {

@@ -1,236 +1,312 @@
 /* =========================================================
-   NAVBAR TOGGLER
+   TOP ROW / BRAND
+   ========================================================= */
+
+.top-row {
+    display: flex;
+    align-items: center;
+    min-height: 4.25rem;
+    padding: 0 1.25rem;
+}
+
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    color: var(--ui-ink);
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-width: 38px;
+    height: 38px;
+    color: #fff;
+    background: var(--ui-brand-gradient);
+    border-radius: 12px;
+    box-shadow: var(--ui-shadow-brand);
+    font-size: 1.05rem;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+}
+
+    .brand-text strong {
+        color: var(--ui-ink);
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -.03em;
+    }
+
+    .brand-text small {
+        color: var(--ui-muted);
+        font-size: .72rem;
+        font-weight: 500;
+    }
+
+/* =========================================================
+   MOBILE TOGGLER
    ========================================================= */
 
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
-    width: 3.5rem;
-    height: 2.5rem;
-    color: #fff;
     position: absolute;
-    top: 0.5rem;
+    top: .8rem;
     right: 1rem;
-    border: 1px solid #333;
-    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23ff7a00' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center / 1.75rem;
-    background-color: #111;
-    border-radius: 8px;
-    transition: background-color .15s ease, border-color .15s ease;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%230d121c' stroke-linecap='round' stroke-width='2' d='M6 10h18M6 15h18M6 20h12'/%3e%3c/svg%3e") no-repeat center / 1.5rem;
+    background-color: var(--ui-surface);
+    border: 1px solid var(--ui-line);
+    border-radius: 12px;
+    box-shadow: var(--ui-shadow-xs);
+    transition: background-color var(--ui-fast), border-color var(--ui-fast), box-shadow var(--ui-fast);
 }
 
     .navbar-toggler:hover {
-        background-color: #181818;
-        border-color: #ff7a00;
+        border-color: var(--ui-line-strong);
     }
 
     .navbar-toggler:checked {
-        background-color: #1b1b1b;
-        border-color: #ff7a00;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23f25a07' stroke-linecap='round' stroke-width='2' d='M9 9l12 12M21 9L9 21'/%3e%3c/svg%3e");
+        border-color: var(--ui-brand-200);
+        box-shadow: var(--ui-ring);
     }
 
-
 /* =========================================================
-   TOP ROW
+   SECTIONS & ITEMS
    ========================================================= */
 
-.top-row {
-    min-height: 3.5rem;
-    background: linear-gradient( 135deg, #0a0a0a 0%, #111 60%, #151515 100% );
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #242424;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, .25);
+.nav {
+    padding: .25rem .75rem 1rem;
 }
 
-
-/* =========================================================
-   BRAND
-   ========================================================= */
-
-.navbar-brand {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #fff;
-    text-decoration: none;
-    letter-spacing: .2px;
-    transition: color .15s ease;
+.nav-section {
+    padding: 1.15rem .75rem .45rem;
+    color: var(--ui-subtle);
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 
-    .navbar-brand:hover {
-        color: #ff7a00;
+    .nav-section:first-child {
+        padding-top: .5rem;
     }
-
-
-/* =========================================================
-   NAVIGATION ITEMS
-   ========================================================= */
 
 .nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.35rem;
+    padding: 1px 0;
+    font-size: .875rem;
 }
 
-    .nav-item:first-of-type {
-        padding-top: 0.75rem;
-    }
-
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
-    }
-
-
-    /* =========================================================
-   NAV LINK
-   ========================================================= */
-
     .nav-item ::deep .nav-link {
-        color: #bdbdbd;
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: 8px;
-        min-height: 3rem;
-        height: 3rem;
-        width: calc(100% - 24px);
-        margin: 0 12px;
-        padding: 0 14px;
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: .7rem;
+        width: 100%;
+        height: 2.5rem;
+        padding: 0 .75rem;
+        color: var(--ui-text);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: var(--ui-radius-sm);
+        font-weight: 500;
         line-height: 1.2;
         text-decoration: none;
-        transition: background-color .15s ease, border-color .15s ease, color .15s ease, transform .15s ease;
+        transition: background-color var(--ui-fast), border-color var(--ui-fast), color var(--ui-fast), box-shadow var(--ui-fast);
     }
 
-
-    /* =========================================================
-   BOOTSTRAP ICON
-   ========================================================= */
-
     .nav-item ::deep .nav-icon {
-        width: 24px;
-        min-width: 24px;
-        height: 24px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        width: 20px;
+        min-width: 20px;
+        height: 20px;
         margin: 0;
-        font-size: 18px;
+        color: var(--ui-subtle);
+        font-size: 1.05rem;
         line-height: 1;
-        flex-shrink: 0;
-        color: #999;
-        transition: color .15s ease, transform .15s ease;
+        transition: color var(--ui-fast);
     }
 
-
-    /* =========================================================
-   NAV TEXT
-   ========================================================= */
-
-    .nav-item ::deep .nav-link > span:last-child {
-        display: block;
-        white-space: nowrap;
+    .nav-item ::deep .nav-link > span {
         overflow: hidden;
+        white-space: nowrap;
         text-overflow: ellipsis;
-        transition: color .15s ease;
     }
-
-
-    /* =========================================================
-   ACTIVE LINK
-   ========================================================= */
-
-    .nav-item ::deep a.active {
-        background: linear-gradient( 90deg, rgba(255, 122, 0, .16), rgba(255, 122, 0, .06) );
-        border-color: rgba(255, 122, 0, .35);
-        color: #fff;
-        box-shadow: inset 3px 0 0 #ff7a00;
-    }
-
-
-        .nav-item ::deep a.active .nav-icon {
-            color: #ff7a00;
-            transform: scale(1.05);
-        }
-
-
-    /* =========================================================
-   HOVER
-   ========================================================= */
 
     .nav-item ::deep .nav-link:hover {
-        background-color: rgba(255, 255, 255, .055);
-        border-color: #292929;
-        color: #fff;
+        color: var(--ui-ink);
+        background: rgba(var(--ui-ink-rgb), .04);
     }
 
-
         .nav-item ::deep .nav-link:hover .nav-icon {
-            color: #ff7a00;
-            transform: translateX(1px);
+            color: var(--ui-ink-2);
         }
 
+    .nav-item ::deep a.active {
+        color: var(--ui-ink);
+        background: var(--ui-surface);
+        border-color: var(--ui-line);
+        box-shadow: var(--ui-shadow-sm);
+        font-weight: 600;
+    }
 
-    /* =========================================================
-   BUTTON - LOGOUT
-   ========================================================= */
+        .nav-item ::deep a.active::before {
+            position: absolute;
+            left: -.75rem;
+            top: 50%;
+            width: 3px;
+            height: 18px;
+            content: "";
+            background: var(--ui-brand);
+            border-radius: 0 3px 3px 0;
+            transform: translateY(-50%);
+        }
+
+        .nav-item ::deep a.active .nav-icon {
+            color: var(--ui-brand);
+        }
 
     .nav-item ::deep button.nav-link {
         font-family: inherit;
         font-size: inherit;
         text-align: left;
         cursor: pointer;
-        color: #bdbdbd;
     }
 
-
-        .nav-item ::deep button.nav-link:hover {
-            background-color: rgba(255, 255, 255, .055);
-            border-color: #292929;
-            color: #fff;
-        }
-
-
-            .nav-item ::deep button.nav-link:hover .nav-icon {
-                color: #ff7a00;
-            }
-
+    .nav-item ::deep .app-install-button .nav-icon {
+        color: var(--ui-brand);
+    }
 
 /* =========================================================
-   NAV SCROLL
+   USER CARD
+   ========================================================= */
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+    margin-top: .5rem;
+    padding: .4rem;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-line);
+    border-radius: var(--ui-radius);
+    box-shadow: var(--ui-shadow-xs);
+}
+
+    .nav-user ::deep .nav-user-link {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        flex: 1;
+        min-width: 0;
+        padding: .3rem .4rem;
+        color: var(--ui-ink);
+        border-radius: var(--ui-radius-sm);
+        text-decoration: none;
+        transition: background-color var(--ui-fast);
+    }
+
+        .nav-user ::deep .nav-user-link:hover,
+        .nav-user ::deep .nav-user-link.active {
+            background: var(--ui-surface-3);
+        }
+
+.nav-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    color: var(--ui-brand-700);
+    background: linear-gradient(135deg, var(--ui-brand-100), var(--ui-brand-50));
+    border: 1px solid var(--ui-brand-200);
+    border-radius: 50%;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.nav-user-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+    .nav-user-text strong {
+        overflow: hidden;
+        font-size: .8rem;
+        font-weight: 600;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .nav-user-text small {
+        color: var(--ui-muted);
+        font-size: .7rem;
+    }
+
+.nav-user form {
+    margin: 0;
+}
+
+.nav-logout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    color: var(--ui-muted);
+    background: transparent;
+    border: 0;
+    border-radius: var(--ui-radius-xs);
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: background-color var(--ui-fast), color var(--ui-fast);
+}
+
+    .nav-logout:hover {
+        color: var(--ui-danger-700);
+        background: var(--ui-danger-50);
+    }
+
+/* =========================================================
+   SCROLL AREA
    ========================================================= */
 
 .nav-scrollable {
     display: none;
-    background: linear-gradient( 180deg, #0a0a0a 0%, #0d0d0d 100% );
 }
-
 
 .navbar-toggler:checked ~ .nav-scrollable {
     display: block;
+    max-height: calc(100vh - 4.25rem);
+    overflow-y: auto;
+    border-top: 1px solid var(--ui-line);
+    animation: nav-drop .2s var(--ui-ease);
 }
 
-
-/* =========================================================
-   SCROLLBAR
-   ========================================================= */
-
-.nav-scrollable::-webkit-scrollbar {
-    width: 5px;
-}
-
-.nav-scrollable::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.nav-scrollable::-webkit-scrollbar-thumb {
-    background: #2a2a2a;
-    border-radius: 10px;
-}
-
-    .nav-scrollable::-webkit-scrollbar-thumb:hover {
-        background: #ff7a00;
+@keyframes nav-drop {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
     }
-
+}
 
 /* =========================================================
    DESKTOP
@@ -238,36 +314,26 @@
 
 @media (min-width: 641px) {
 
+    .top-row {
+        min-height: 4.75rem;
+        padding: 0 1.5rem;
+    }
+
     .navbar-toggler {
         display: none;
     }
 
     .nav-scrollable {
         display: block;
-        height: calc(100vh - 3.5rem);
+        height: calc(100vh - 4.75rem);
         overflow-y: auto;
     }
-}
 
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
-@media (max-width: 640.98px) {
-
-    .nav-item ::deep .nav-link {
-        width: calc(100% - 20px);
-        margin-left: 10px;
-        margin-right: 10px;
-        padding-left: 14px;
-        padding-right: 14px;
+    .nav {
+        min-height: 100%;
     }
 
-
-    .nav-item ::deep .nav-icon {
-        width: 24px;
-        min-width: 24px;
-        font-size: 18px;
+    .nav-user {
+        margin-top: auto;
     }
 }

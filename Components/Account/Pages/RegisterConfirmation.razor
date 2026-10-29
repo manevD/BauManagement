@@ -210,11 +210,11 @@
 
 <style>
     .confirmation-logo {
-        border-color: rgba(255, 122, 0, .5);
+        border-color: rgba(var(--ui-brand-rgb), .5);
     }
 
     .confirmation-logo .logo-icon {
-        color: #ff7a00;
+        color: var(--ui-brand);
         font-size: 31px;
     }
 
@@ -224,8 +224,8 @@
         gap: 12px;
         padding: 15px;
         margin-bottom: 22px;
-        background: rgba(255, 122, 0, .06);
-        border: 1px solid rgba(255, 122, 0, .2);
+        background: rgba(var(--ui-brand-rgb), .06);
+        border: 1px solid rgba(var(--ui-brand-rgb), .2);
         border-radius: 12px;
     }
 
@@ -237,14 +237,14 @@
         align-items: center;
         justify-content: center;
         border-radius: 10px;
-        background: rgba(255, 122, 0, .1);
-        color: #ff7a00;
+        background: rgba(var(--ui-brand-rgb), .1);
+        color: var(--ui-brand);
         font-size: 18px;
     }
 
     .confirmation-message strong {
         display: inline;
-        color: #f1f1f1;
+        color: var(--ui-ink);
         font-size: .86rem;
         overflow-wrap: anywhere;
     }
@@ -256,7 +256,7 @@
 
     .confirmation-message p {
         margin: 0;
-        color: #999;
+        color: var(--ui-text);
         font-size: .8rem;
         line-height: 1.6;
         overflow-wrap: anywhere;
@@ -303,6 +303,6 @@
     }
 
     .confirmation-button:hover {
-        color: #fff;
+        color: var(--ui-ink);
     }
 </style>
